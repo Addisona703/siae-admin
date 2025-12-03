@@ -1,0 +1,253 @@
+/* 超高优先级黑色主题覆盖 - 只在 body.dark-mode 时应用 */
+
+/* CSS 变量覆盖 - 暗黑模式 */
+body.dark-mode {
+  --td-bg-color-page: #0a0e27 !important;
+  --td-bg-color-container: rgba(26, 31, 58, 0.9) !important;
+  --td-bg-color-container-hover: rgba(96, 165, 250, 0.1) !important;
+  --td-bg-color-container-active: rgba(96, 165, 250, 0.2) !important;
+  --td-bg-color-container-select: rgba(96, 165, 250, 0.3) !important;
+  --td-component-border: rgba(96, 165, 250, 0.2) !important;
+  --td-border-level-1-color: rgba(96, 165, 250, 0.2) !important;
+  --td-border-level-2-color: rgba(96, 165, 250, 0.15) !important;
+  --td-text-color-primary: #e0e6ed !important;
+  --td-text-color-secondary: #8b92a7 !important;
+  --td-text-color-placeholder: #6b7280 !important;
+  --td-text-color-disabled: #4b5563 !important;
+  --td-brand-color: #60a5fa !important;
+  --td-brand-color-hover: #93c5fd !important;
+  --td-brand-color-active: #3b82f6 !important;
+}
+
+/* 全局背景和文字 */
+body.dark-mode,
+body.dark-mode #app,
+body.dark-mode #app-container {
+  background: #0a0e27 !important;
+  color: #e0e6ed !important;
+}
+
+/* 布局组件 */
+body.dark-mode .t-layout,
+body.dark-mode .t-layout__header,
+body.dark-mode .t-layout__sider,
+body.dark-mode .t-layout__content {
+  background: transparent !important;
+}
+
+body.dark-mode .t-layout__header {
+  background: rgba(26, 31, 58, 0.95) !important;
+  border-bottom: 1px solid rgba(96, 165, 250, 0.2) !important;
+}
+
+body.dark-mode .t-layout__sider {
+  background: linear-gradient(180deg, #1a1f3a 0%, #0f1729 100%) !important;
+  border-right: 1px solid rgba(96, 165, 250, 0.2) !important;
+}
+
+body.dark-mode .t-layout__content {
+  background: #0a0e27 !important;
+}
+
+/* 对话框和抽屉 */
+body.dark-mode .t-dialog,
+body.dark-mode .t-drawer {
+  background: linear-gradient(135deg, #1a1f3a 0%, #0f1729 100%) !important;
+  border: 1px solid rgba(96, 165, 250, 0.2) !important;
+  color: #e0e6ed !important;
+}
+
+body.dark-mode .t-dialog__header,
+body.dark-mode .t-drawer__header {
+  background: rgba(26, 31, 58, 0.9) !important;
+  border-bottom: 1px solid rgba(96, 165, 250, 0.2) !important;
+  color: #e0e6ed !important;
+}
+
+body.dark-mode .t-dialog__body,
+body.dark-mode .t-drawer__body {
+  background: rgba(15, 23, 41, 0.9) !important;
+  color: #e0e6ed !important;
+}
+
+body.dark-mode .t-dialog__footer,
+body.dark-mode .t-drawer__footer {
+  background: rgba(26, 31, 58, 0.9) !important;
+  border-top: 1px solid rgba(96, 165, 250, 0.2) !important;
+}
+
+body.dark-mode .t-dialog *,
+body.dark-mode .t-drawer * {
+  color: #e0e6ed !important;
+}
+
+/* 表单组件 */
+body.dark-mode .t-form,
+body.dark-mode .t-form__item {
+  background: transparent !important;
+}
+
+body.dark-mode .t-form__label,
+body.dark-mode label {
+  color: #e0e6ed !important;
+}
+
+body.dark-mode .t-input,
+body.dark-mode .t-textarea,
+body.dark-mode .t-select .t-input,
+body.dark-mode .t-date-picker .t-input {
+  background: rgba(26, 31, 58, 0.9) !important;
+  border-color: rgba(96, 165, 250, 0.2) !important;
+  color: #e0e6ed !important;
+}
+
+body.dark-mode .t-input input,
+body.dark-mode .t-textarea textarea {
+  background: transparent !important;
+  color: #e0e6ed !important;
+}
+
+body.dark-mode .t-input input::placeholder,
+body.dark-mode .t-textarea textarea::placeholder {
+  color: #6b7280 !important;
+}
+
+body.dark-mode .t-input__prefix,
+body.dark-mode .t-input__suffix {
+  color: #8b92a7 !important;
+}
+
+/* 表格 */
+body.dark-mode .t-table,
+body.dark-mode .t-table-container {
+  background: transparent !important;
+  border: 1px solid rgba(96, 165, 250, 0.2) !important;
+}
+
+body.dark-mode .t-table__header th {
+  background: rgba(26, 31, 58, 0.8) !important;
+  color: #e0e6ed !important;
+  border-color: rgba(96, 165, 250, 0.2) !important;
+}
+
+body.dark-mode .t-table__body tr {
+  background: rgba(15, 23, 41, 0.4) !important;
+}
+
+body.dark-mode .t-table__body tr:hover {
+  background: rgba(96, 165, 250, 0.1) !important;
+}
+
+body.dark-mode .t-table__body td {
+  color: #e0e6ed !important;
+  border-color: rgba(96, 165, 250, 0.2) !important;
+}
+
+/* 卡片 */
+body.dark-mode .t-card {
+  background: linear-gradient(135deg, #1a1f3a 0%, #0f1729 100%) !important;
+  border: 1px solid rgba(96, 165, 250, 0.2) !important;
+  color: #e0e6ed !important;
+}
+
+body.dark-mode .t-card__header {
+  background: rgba(26, 31, 58, 0.6) !important;
+  border-bottom: 1px solid rgba(96, 165, 250, 0.2) !important;
+  color: #e0e6ed !important;
+}
+
+body.dark-mode .t-card__body {
+  background: rgba(15, 23, 41, 0.6) !important;
+  color: #e0e6ed !important;
+}
+
+/* 按钮 */
+body.dark-mode .t-button--variant-base,
+body.dark-mode .t-button--variant-outline {
+  background: rgba(26, 31, 58, 0.9) !important;
+  border-color: rgba(96, 165, 250, 0.3) !important;
+  color: #e0e6ed !important;
+}
+
+body.dark-mode .t-button--variant-base:hover,
+body.dark-mode .t-button--variant-outline:hover {
+  border-color: rgba(96, 165, 250, 0.6) !important;
+  background: rgba(96, 165, 250, 0.2) !important;
+  color: #60a5fa !important;
+}
+
+/* 下拉菜单 */
+body.dark-mode .t-select__dropdown,
+body.dark-mode .t-dropdown__menu,
+body.dark-mode .t-popup__content {
+  background: rgba(26, 31, 58, 0.95) !important;
+  border: 1px solid rgba(96, 165, 250, 0.3) !important;
+  backdrop-filter: blur(10px);
+}
+
+body.dark-mode .t-select-option,
+body.dark-mode .t-dropdown__item {
+  color: #e0e6ed !important;
+}
+
+body.dark-mode .t-select-option:hover,
+body.dark-mode .t-dropdown__item:hover {
+  background: rgba(96, 165, 250, 0.2) !important;
+  color: #60a5fa !important;
+}
+
+/* 菜单 */
+body.dark-mode .t-menu,
+body.dark-mode .t-head-menu {
+  background: transparent !important;
+}
+
+body.dark-mode .t-menu__item,
+body.dark-mode .t-submenu__title {
+  color: #8b92a7 !important;
+}
+
+body.dark-mode .t-menu__item:hover,
+body.dark-mode .t-submenu__title:hover {
+  background: rgba(96, 165, 250, 0.1) !important;
+  color: #60a5fa !important;
+}
+
+body.dark-mode .t-menu__item.t-is-active {
+  background: rgba(96, 165, 250, 0.2) !important;
+  color: #60a5fa !important;
+}
+
+/* 所有文字颜色 */
+body.dark-mode * {
+  color: #e0e6ed;
+}
+
+/* 所有边框颜色 */
+body.dark-mode * {
+  border-color: rgba(96, 165, 250, 0.2) !important;
+}
+
+/* 特定容器 */
+body.dark-mode .filter-section,
+body.dark-mode .search-section,
+body.dark-mode .filter-bar,
+body.dark-mode .toolbar {
+  background: rgba(26, 31, 58, 0.9) !important;
+  border-color: rgba(96, 165, 250, 0.2) !important;
+}
+
+body.dark-mode .content-section,
+body.dark-mode .main-content {
+  background: transparent !important;
+}
+
+body.dark-mode .list-item {
+  background: rgba(15, 23, 41, 0.4) !important;
+  border-color: rgba(96, 165, 250, 0.2) !important;
+  color: #e0e6ed !important;
+}
+
+body.dark-mode .list-item:hover {
+  background: rgba(96, 165, 250, 0.1) !important;
+}

@@ -1,0 +1,96 @@
+/* Global Responsive Styles */
+
+/* Ensure all tables are horizontally scrollable on mobile */
+@media (max-width: 768px) {
+  .t-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .t-table {
+    min-width: 800px;
+  }
+
+  /* Form adjustments for mobile */
+  .t-form--inline .t-form-item {
+    display: block;
+    width: 100%;
+    margin-right: 0 !important;
+  }
+
+  /* Dialog adjustments for mobile */
+  .t-dialog {
+    width: 95% !important;
+    max-width: 95% !important;
+    margin: 16px auto;
+  }
+
+  .t-dialog__body {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+  }
+
+  /* Card adjustments */
+  .t-card {
+    margin-bottom: 12px;
+  }
+
+  .t-card__header {
+    padding: 12px 16px;
+  }
+
+  .t-card__body {
+    padding: 12px 16px;
+  }
+
+  /* Button groups */
+  .t-space {
+    flex-wrap: wrap;
+  }
+
+  /* Pagination adjustments */
+  .t-pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .t-pagination__select {
+    margin-bottom: 8px;
+  }
+}
+
+/* Small mobile adjustments */
+@media (max-width: 480px) {
+  .t-dialog {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .t-button {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .t-input,
+  .t-select,
+  .t-textarea {
+    font-size: 14px;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .t-dialog {
+    width: 80%;
+    max-width: 700px;
+  }
+}
+
+/* Desktop adjustments */
+@media (min-width: 1200px) {
+  .t-dialog {
+    max-width: 800px;
+  }
+}

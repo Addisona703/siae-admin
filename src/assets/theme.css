@@ -1,0 +1,320 @@
+/* Theme System Enhancements - Optimized for Performance */
+
+/* Color scheme for browser native elements */
+html {
+  color-scheme: light;
+}
+
+html[theme-mode='dark'] {
+  color-scheme: dark;
+}
+
+/* Light theme custom adjustments - Modern Minimal Style */
+:root[theme-mode='light'],
+html[theme-mode='light'] {
+  /* Brand colors - 科技蓝 Tech Blue 主题 */
+  --td-brand-color: #3b82f6 !important;       /* 主色: 亮蓝 (适合按钮、图标) */
+  --td-brand-color-hover: #2563eb !important; /* 悬停: 深蓝 (Hover 状态) */
+  --td-brand-color-focus: #2563eb !important;
+  --td-brand-color-active: #1e3a8a !important; /* 激活: 深邃蓝 */
+  --td-brand-color-light: #dbeafe !important; /* 极浅的蓝色背景，用于选中项 */
+  --td-brand-color-light-hover: #bfdbfe !important;
+
+  /* Background colors - 层次分明的灰白体系 */
+  --td-bg-color-page: #f3f4f6 !important;      /* 页面底色：冷淡的浅灰色 (Gray 100) */
+  --td-bg-color-container: #ffffff !important; /* 卡片/内容底色：纯白 */
+  --td-bg-color-secondarycontainer: #f9fafb !important; /* 辅助背景：极浅灰 (Gray 50) */
+  --td-bg-color-container-hover: #f3f4f6 !important;
+  --td-bg-color-container-active: #ebebeb !important;
+  --td-bg-color-container-select: #eef2ff !important;
+  --td-bg-color-component: #ffffff !important;
+
+  /* Menu specific colors */
+  --td-bg-color-menu-active: #dbeafe !important; /* 侧边栏选中项背景 (浅蓝) */
+  --td-bg-color-menu-hover: #f3f4f6 !important;  /* 侧边栏悬停背景 */
+
+  /* Text colors - 柔和的深灰，避免纯黑刺眼 */
+  --td-text-color-primary: #111827 !important;   /* Gray 900 - 主要文字 */
+  --td-text-color-secondary: #4b5563 !important; /* Gray 600 - 次要文字 */
+  --td-text-color-placeholder: #9ca3af !important;
+  --td-text-color-disabled: #d1d5db !important;
+  --td-text-color-anti: #ffffff !important;
+
+  /* Border colors - 细腻的灰色线条 */
+  --td-component-border: #e5e7eb !important;     /* Gray 200 */
+  --td-border-level-1-color: #e5e7eb !important;
+  --td-border-level-2-color: #f3f4f6 !important;
+
+  /* Shadow - 轻微的阴影，让白色卡片从灰色背景中浮起来 */
+  --td-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.02) !important;
+  --td-shadow-2: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03) !important;
+  --td-shadow-3: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
+
+  /* Scrollbar */
+  --td-scrollbar-color: rgba(0, 0, 0, 0.3) !important;
+  --td-scrollbar-hover-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 侧边栏与顶栏 - 强制纯白，看起来更干净现代 */
+html[theme-mode='light'] .t-layout__header,
+html[theme-mode='light'] .t-layout__sider,
+html[theme-mode='light'] .t-menu {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+}
+
+/* 给侧边栏加一条细细的分割线，增加精致感 */
+html[theme-mode='light'] .t-layout__sider {
+  border-right: 1px solid #e5e7eb !important;
+}
+
+/* 卡片优化 - 加上轻微的阴影 */
+html[theme-mode='light'] .t-card {
+  border: 1px solid #eaecf0 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.02) !important;
+}
+
+/* 修复侧边栏文字选中颜色 */
+html[theme-mode='light'] .t-menu__item.t-is-active {
+  color: #3b82f6 !important;
+  background-color: #dbeafe !important;
+}
+
+/* Dark theme custom adjustments - Layered Modern Style */
+:root[theme-mode='dark'],
+html[theme-mode='dark'] {
+  /* Background colors - 建立"海拔"层次感 */
+  --td-bg-color-page: #000000 !important;           /* Level 0: 纯黑背景 */
+  --td-bg-color-container: #18181b !important;      /* Level 1: 卡片背景 (Zinc 900) - 提亮，不再死黑 */
+  --td-bg-color-secondarycontainer: #27272a !important; /* Level 2: 次级容器 (Zinc 800) */
+  --td-bg-color-container-hover: #27272a !important; /* 鼠标悬停背景 */
+  --td-bg-color-container-active: #3f3f46 !important; /* 激活状态背景 */
+  --td-bg-color-container-select: #1e3a8a !important; /* 选中状态背景 (深邃蓝) */
+  --td-bg-color-component: #27272a !important;      /* 输入框背景色 (Zinc 800) */
+
+  /* Menu specific colors */
+  --td-bg-color-menu-active: #27272a !important;
+  --td-bg-color-menu-hover: #27272a !important;
+
+  /* Text colors - 稍微降低对比度，护眼 */
+  --td-text-color-primary: rgba(255, 255, 255, 0.90) !important;
+  --td-text-color-secondary: rgba(255, 255, 255, 0.60) !important;
+  --td-text-color-placeholder: rgba(255, 255, 255, 0.35) !important;
+  --td-text-color-disabled: rgba(255, 255, 255, 0.26) !important;
+  --td-text-color-anti: rgba(0, 0, 0, 0.9) !important;
+
+  /* Border colors - 更加柔和 */
+  --td-component-border: #3f3f46 !important;        /* 输入框边框 (Zinc 700) - 更明显 */
+  --td-border-level-1-color: #27272a !important;
+  --td-border-level-2-color: #3f3f46 !important;
+
+  /* Shadow - 微弱的白色光晕 */
+  --td-shadow-1: 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+  --td-shadow-2: 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+  --td-shadow-3: 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+
+  /* Scrollbar */
+  --td-scrollbar-color: rgba(255, 255, 255, 0.3) !important;
+  --td-scrollbar-hover-color: rgba(255, 255, 255, 0.5) !important;
+  
+  /* Brand colors - 科技蓝 Tech Blue 主题 (暗色模式) */
+  --td-brand-color: #3b82f6 !important;       /* 主色: 亮蓝 */
+  --td-brand-color-hover: #60a5fa !important; /* 悬停: 更亮的蓝 */
+  --td-brand-color-focus: #2563eb !important; /* 聚焦: 深蓝 */
+  --td-brand-color-active: #2563eb !important;
+  --td-brand-color-disabled: #1e3a8a !important;
+  --td-brand-color-light: rgba(59, 130, 246, 0.15) !important;
+  --td-brand-color-1: #172554 !important;     /* Blue 950 */
+  --td-brand-color-2: #1e3a8a !important;     /* Blue 900 */
+  --td-brand-color-3: #1e40af !important;     /* Blue 800 */
+  --td-brand-color-4: #1d4ed8 !important;     /* Blue 700 */
+  --td-brand-color-5: #2563eb !important;     /* Blue 600 */
+  --td-brand-color-6: #3b82f6 !important;     /* Blue 500 */
+  --td-brand-color-7: #60a5fa !important;     /* Blue 400 */
+  --td-brand-color-8: #93c5fd !important;     /* Blue 300 */
+  --td-brand-color-9: #bfdbfe !important;     /* Blue 200 */
+  --td-brand-color-10: #dbeafe !important;    /* Blue 100 */
+}
+
+/* 强制修复 TDesign 侧边栏和菜单背景 */
+html[theme-mode='dark'] .t-layout__sider,
+html[theme-mode='dark'] .t-menu {
+  background-color: #09090b !important; /* 略黑，与页面背景有微小差异 */
+}
+
+/* 卡片：增加微弱的白色光晕，而不是黑色阴影 */
+html[theme-mode='dark'] .t-card {
+  background-color: #18181b !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important; /* 微弱白边 */
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+
+/* 输入框：让它看起来是可以点的 */
+html[theme-mode='dark'] .t-input__inner,
+html[theme-mode='dark'] .t-input,
+html[theme-mode='dark'] .t-textarea__inner,
+html[theme-mode='dark'] .t-select__wrap {
+  background-color: #27272a !important; /* 比卡片更亮一点 */
+  border-color: transparent !important;   /* 默认不要边框，靠背景色区分 */
+  color: white !important;
+}
+
+html[theme-mode='dark'] .t-input:hover,
+html[theme-mode='dark'] .t-input:focus-within,
+html[theme-mode='dark'] .t-textarea:hover,
+html[theme-mode='dark'] .t-select:hover {
+  background-color: #3f3f46 !important; /* 悬停变亮 */
+  border-color: #3b82f6 !important;     /* 聚焦显示品牌色 */
+}
+
+/* 表格：表头需要区分 */
+html[theme-mode='dark'] .t-table__header th {
+  background-color: #27272a !important; /* 表头深灰 */
+  color: rgba(255, 255, 255, 0.8) !important;
+  border-bottom: 1px solid #3f3f46 !important;
+}
+
+html[theme-mode='dark'] .t-table__row {
+  background-color: #18181b !important; /* 表格行背景跟随卡片 */
+}
+
+html[theme-mode='dark'] .t-table__row:hover {
+  background-color: #27272a !important; /* 悬停高亮 */
+}
+
+/* ===== Dark Theme Component Enhancements ===== */
+/* All transitions are handled by View Transition API for better performance */
+
+/* Table */
+html[theme-mode='dark'] .t-table {
+  --td-table-border-color: var(--td-component-border);
+}
+
+html[theme-mode='dark'] .t-table__header {
+  background-color: var(--td-bg-color-container-hover);
+}
+
+html[theme-mode='dark'] .t-table__row:hover {
+  background-color: var(--td-bg-color-container-hover);
+}
+
+html[theme-mode='dark'] .t-table__row--striped {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Menu */
+html[theme-mode='dark'] .t-menu {
+  background-color: var(--td-bg-color-container);
+}
+
+html[theme-mode='dark'] .t-menu__item:hover {
+  background-color: var(--td-bg-color-container-hover);
+}
+
+html[theme-mode='dark'] .t-menu__item--active {
+  background-color: var(--td-bg-color-container-select);
+}
+
+/* Form Elements */
+html[theme-mode='dark'] .t-input,
+html[theme-mode='dark'] .t-textarea,
+html[theme-mode='dark'] .t-select {
+  background-color: var(--td-bg-color-container);
+  border-color: var(--td-component-border);
+  color: var(--td-text-color-primary);
+}
+
+html[theme-mode='dark'] .t-input:hover,
+html[theme-mode='dark'] .t-textarea:hover,
+html[theme-mode='dark'] .t-select:hover {
+  border-color: var(--td-brand-color);
+}
+
+html[theme-mode='dark'] .t-input:focus,
+html[theme-mode='dark'] .t-textarea:focus,
+html[theme-mode='dark'] .t-select:focus {
+  border-color: var(--td-brand-color);
+  background-color: var(--td-bg-color-container);
+}
+
+/* Dialog */
+html[theme-mode='dark'] .t-dialog {
+  background-color: var(--td-bg-color-container);
+  box-shadow: var(--td-shadow-3);
+}
+
+html[theme-mode='dark'] .t-dialog__header {
+  border-bottom-color: var(--td-component-border);
+}
+
+html[theme-mode='dark'] .t-dialog__footer {
+  border-top-color: var(--td-component-border);
+}
+
+/* Card */
+html[theme-mode='dark'] .t-card {
+  background-color: var(--td-bg-color-container);
+  border-color: var(--td-component-border);
+}
+
+html[theme-mode='dark'] .t-card__header {
+  border-bottom-color: var(--td-component-border);
+}
+
+/* Dropdown */
+html[theme-mode='dark'] .t-dropdown__menu {
+  background-color: var(--td-bg-color-container);
+  border-color: var(--td-component-border);
+  box-shadow: var(--td-shadow-2);
+}
+
+html[theme-mode='dark'] .t-dropdown__item:hover {
+  background-color: var(--td-bg-color-container-hover);
+}
+
+/* Pagination */
+html[theme-mode='dark'] .t-pagination__btn {
+  background-color: var(--td-bg-color-container);
+  border-color: var(--td-component-border);
+  color: var(--td-text-color-primary);
+}
+
+html[theme-mode='dark'] .t-pagination__btn:hover {
+  background-color: var(--td-bg-color-container-hover);
+  border-color: var(--td-brand-color);
+}
+
+html[theme-mode='dark'] .t-pagination__btn--active {
+  background-color: var(--td-brand-color);
+  border-color: var(--td-brand-color);
+  color: var(--td-text-color-anti);
+}
+
+/* Tag */
+html[theme-mode='dark'] .t-tag {
+  background-color: var(--td-bg-color-container-hover);
+  border-color: var(--td-component-border);
+}
+
+/* Loading */
+html[theme-mode='dark'] .t-loading__overlay {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Message and Notification */
+html[theme-mode='dark'] .t-message,
+html[theme-mode='dark'] .t-notification {
+  background-color: var(--td-bg-color-container);
+  border-color: var(--td-component-border);
+  box-shadow: var(--td-shadow-2);
+}
+
+/* Breadcrumb */
+html[theme-mode='dark'] .t-breadcrumb__item {
+  color: var(--td-text-color-secondary);
+}
+
+html[theme-mode='dark'] .t-breadcrumb__item--active {
+  color: var(--td-text-color-primary);
+}

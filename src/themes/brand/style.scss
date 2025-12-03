@@ -1,0 +1,485 @@
+// Brand Theme Styles - 毛玻璃品牌风格主题
+
+// ===== CSS 变量定义 =====
+:root {
+  // 品牌主色调
+  --brand-primary: #1890ff;
+  --brand-primary-light: #40a9ff;
+  --brand-primary-dark: #096dd9;
+  
+  // 品牌辅助色
+  --brand-secondary: #52c41a;
+  --brand-secondary-light: #73d13d;
+  --brand-secondary-dark: #389e0d;
+  
+  // 背景渐变
+  --brand-bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --brand-bg-overlay: rgba(0, 0, 0, 0.1);
+  
+  // 毛玻璃效果
+  --brand-glass-bg: rgba(255, 255, 255, 0.1);
+  --brand-glass-border: rgba(255, 255, 255, 0.2);
+  --brand-glass-blur: blur(20px);
+  --brand-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  
+  // 文字颜色
+  --brand-text-primary: #ffffff;
+  --brand-text-secondary: rgba(255, 255, 255, 0.8);
+  --brand-text-tertiary: rgba(255, 255, 255, 0.6);
+  --brand-text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  
+  // 间距和尺寸
+  --brand-spacing-xs: 0.5rem;
+  --brand-spacing-sm: 1rem;
+  --brand-spacing-md: 1.5rem;
+  --brand-spacing-lg: 2rem;
+  --brand-spacing-xl: 3rem;
+  
+  // 圆角
+  --brand-radius-sm: 6px;
+  --brand-radius-md: 8px;
+  --brand-radius-lg: 12px;
+  --brand-radius-xl: 16px;
+  
+  // 过渡动画
+  --brand-transition-fast: 0.2s ease;
+  --brand-transition-normal: 0.3s ease;
+  --brand-transition-slow: 0.5s ease;
+  
+  // 阴影层级
+  --brand-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --brand-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.15);
+  --brand-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.2);
+  
+  // Z-index 层级
+  --brand-z-background: -2;
+  --brand-z-overlay: -1;
+  --brand-z-content: 1;
+  --brand-z-header: 100;
+  --brand-z-modal: 1000;
+}
+
+// ===== 全局品牌主题样式 =====
+.brand-theme-layout {
+  // 字体设置
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  
+  // 全局文字渲染优化
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  
+  // 全局选择样式
+  ::selection {
+    background: var(--brand-primary-light);
+    color: white;
+  }
+  
+  ::-moz-selection {
+    background: var(--brand-primary-light);
+    color: white;
+  }
+}
+
+// ===== 毛玻璃组件样式 =====
+.brand-glass {
+  background: var(--brand-glass-bg);
+  backdrop-filter: var(--brand-glass-blur);
+  -webkit-backdrop-filter: var(--brand-glass-blur);
+  border: 1px solid var(--brand-glass-border);
+  box-shadow: var(--brand-glass-shadow);
+}
+
+.brand-glass-card {
+  @extend .brand-glass;
+  border-radius: var(--brand-radius-xl);
+  padding: var(--brand-spacing-lg);
+  transition: all var(--brand-transition-normal);
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--brand-shadow-lg);
+  }
+}
+
+.brand-glass-panel {
+  @extend .brand-glass;
+  border-radius: var(--brand-radius-lg);
+  padding: var(--brand-spacing-md);
+}
+
+// ===== 按钮样式 =====
+.brand-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--brand-spacing-xs) var(--brand-spacing-md);
+  border: none;
+  border-radius: var(--brand-radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--brand-transition-normal);
+  text-decoration: none;
+  outline: none;
+  
+  &:focus {
+    box-shadow: 0 0 0 2px var(--brand-primary-light);
+  }
+  
+  &.brand-btn-primary {
+    background: var(--brand-primary);
+    color: white;
+    
+    &:hover {
+      background: var(--brand-primary-light);
+      transform: translateY(-1px);
+    }
+    
+    &:active {
+      background: var(--brand-primary-dark);
+      transform: translateY(0);
+    }
+  }
+  
+  &.brand-btn-glass {
+    @extend .brand-glass;
+    color: var(--brand-text-primary);
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+    }
+  }
+  
+  &.brand-btn-ghost {
+    background: transparent;
+    color: var(--brand-text-primary);
+    border: 1px solid var(--brand-glass-border);
+    
+    &:hover {
+      background: var(--brand-glass-bg);
+      backdrop-filter: var(--brand-glass-blur);
+    }
+  }
+}
+
+// ===== 输入框样式 =====
+.brand-input {
+  @extend .brand-glass;
+  width: 100%;
+  padding: var(--brand-spacing-xs) var(--brand-spacing-md);
+  border-radius: var(--brand-radius-md);
+  color: var(--brand-text-primary);
+  font-size: 14px;
+  transition: all var(--brand-transition-normal);
+  
+  &::placeholder {
+    color: var(--brand-text-tertiary);
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+  }
+}
+
+// ===== 卡片样式 =====
+.brand-card {
+  @extend .brand-glass-card;
+  
+  .brand-card-header {
+    margin-bottom: var(--brand-spacing-md);
+    padding-bottom: var(--brand-spacing-md);
+    border-bottom: 1px solid var(--brand-glass-border);
+    
+    .brand-card-title {
+      color: var(--brand-text-primary);
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin: 0;
+      text-shadow: var(--brand-text-shadow);
+    }
+    
+    .brand-card-subtitle {
+      color: var(--brand-text-secondary);
+      font-size: 0.9rem;
+      margin: 0.5rem 0 0 0;
+    }
+  }
+  
+  .brand-card-body {
+    color: var(--brand-text-secondary);
+    line-height: 1.6;
+  }
+  
+  .brand-card-footer {
+    margin-top: var(--brand-spacing-md);
+    padding-top: var(--brand-spacing-md);
+    border-top: 1px solid var(--brand-glass-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--brand-spacing-sm);
+  }
+}
+
+// ===== 导航样式 =====
+.brand-nav-item {
+  color: var(--brand-text-secondary);
+  padding: var(--brand-spacing-xs) var(--brand-spacing-md);
+  border-radius: var(--brand-radius-sm);
+  cursor: pointer;
+  transition: all var(--brand-transition-normal);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: var(--brand-spacing-xs);
+  
+  &:hover {
+    color: var(--brand-text-primary);
+    background: var(--brand-glass-bg);
+    transform: translateX(4px);
+  }
+  
+  &.active {
+    color: var(--brand-text-primary);
+    background: var(--brand-primary);
+    font-weight: 500;
+  }
+  
+  .nav-icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.8;
+  }
+}
+
+// ===== 表格样式 =====
+.brand-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--brand-glass-bg);
+  backdrop-filter: var(--brand-glass-blur);
+  border-radius: var(--brand-radius-lg);
+  overflow: hidden;
+  
+  th, td {
+    padding: var(--brand-spacing-md);
+    text-align: left;
+    border-bottom: 1px solid var(--brand-glass-border);
+  }
+  
+  th {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--brand-text-primary);
+    font-weight: 600;
+    text-shadow: var(--brand-text-shadow);
+  }
+  
+  td {
+    color: var(--brand-text-secondary);
+  }
+  
+  tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+// ===== 标签样式 =====
+.brand-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--brand-radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+  
+  &.brand-tag-primary {
+    background: var(--brand-primary);
+    color: white;
+  }
+  
+  &.brand-tag-secondary {
+    background: var(--brand-secondary);
+    color: white;
+  }
+  
+  &.brand-tag-glass {
+    @extend .brand-glass;
+    color: var(--brand-text-primary);
+  }
+}
+
+// ===== 进度条样式 =====
+.brand-progress {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  
+  .brand-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--brand-primary), var(--brand-primary-light));
+    border-radius: 4px;
+    transition: width var(--brand-transition-normal);
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      animation: progressShine 2s infinite;
+    }
+  }
+}
+
+// ===== 加载动画 =====
+.brand-loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid var(--brand-primary);
+  border-radius: 50%;
+  animation: brandSpin 1s linear infinite;
+}
+
+// ===== 工具类 =====
+.brand-text-primary { color: var(--brand-text-primary); }
+.brand-text-secondary { color: var(--brand-text-secondary); }
+.brand-text-tertiary { color: var(--brand-text-tertiary); }
+
+.brand-bg-primary { background: var(--brand-primary); }
+.brand-bg-secondary { background: var(--brand-secondary); }
+.brand-bg-glass { @extend .brand-glass; }
+
+.brand-shadow-sm { box-shadow: var(--brand-shadow-sm); }
+.brand-shadow-md { box-shadow: var(--brand-shadow-md); }
+.brand-shadow-lg { box-shadow: var(--brand-shadow-lg); }
+
+.brand-radius-sm { border-radius: var(--brand-radius-sm); }
+.brand-radius-md { border-radius: var(--brand-radius-md); }
+.brand-radius-lg { border-radius: var(--brand-radius-lg); }
+.brand-radius-xl { border-radius: var(--brand-radius-xl); }
+
+// ===== 动画定义 =====
+@keyframes brandSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes progressShine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes brandFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes brandSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// ===== 响应式断点 =====
+@mixin brand-mobile {
+  @media (max-width: 768px) {
+    @content;
+  }
+}
+
+@mixin brand-tablet {
+  @media (max-width: 1024px) and (min-width: 769px) {
+    @content;
+  }
+}
+
+@mixin brand-desktop {
+  @media (min-width: 1025px) {
+    @content;
+  }
+}
+
+// ===== 响应式样式调整 =====
+@include brand-mobile {
+  :root {
+    --brand-spacing-xs: 0.25rem;
+    --brand-spacing-sm: 0.75rem;
+    --brand-spacing-md: 1rem;
+    --brand-spacing-lg: 1.5rem;
+    --brand-spacing-xl: 2rem;
+  }
+  
+  .brand-glass-card {
+    padding: var(--brand-spacing-md);
+    border-radius: var(--brand-radius-lg);
+  }
+  
+  .brand-btn {
+    padding: var(--brand-spacing-xs) var(--brand-spacing-sm);
+    font-size: 13px;
+  }
+}
+
+@include brand-tablet {
+  .brand-glass-card {
+    padding: var(--brand-spacing-lg);
+  }
+}
+
+// ===== 无障碍访问支持 =====
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  :root {
+    --brand-glass-bg: rgba(255, 255, 255, 0.2);
+    --brand-glass-border: rgba(255, 255, 255, 0.4);
+    --brand-text-secondary: rgba(255, 255, 255, 0.9);
+    --brand-text-tertiary: rgba(255, 255, 255, 0.8);
+  }
+}
+
+// ===== 打印样式 =====
+@media print {
+  .brand-theme-layout {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .brand-glass,
+  .brand-glass-card,
+  .brand-glass-panel {
+    background: white !important;
+    backdrop-filter: none !important;
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+  }
+}

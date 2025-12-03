@@ -1,0 +1,284 @@
+/* 明亮模式样式 - 只在非暗黑模式时应用 */
+
+/* CSS 变量 - 明亮模式 */
+body:not(.dark-mode) {
+  --td-bg-color-page: #ffffff !important;
+  --td-bg-color-container: #ffffff !important;
+  --td-bg-color-container-hover: #f9fafb !important;
+  --td-bg-color-container-active: #f3f4f6 !important;
+  --td-bg-color-container-select: #e5e7eb !important;
+  --td-component-border: #e5e7eb !important;
+  --td-border-level-1-color: #e5e7eb !important;
+  --td-border-level-2-color: #f0f2f5 !important;
+  --td-text-color-primary: #1f2937 !important;
+  --td-text-color-secondary: #6b7280 !important;
+  --td-text-color-placeholder: #9ca3af !important;
+  --td-text-color-disabled: #d1d5db !important;
+  --td-brand-color: #0ea5e9 !important;
+  --td-brand-color-hover: #38bdf8 !important;
+  --td-brand-color-active: #0284c7 !important;
+}
+
+/* 全局背景和文字 */
+body:not(.dark-mode) {
+  background: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+body:not(.dark-mode) #app {
+  background: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+body:not(.dark-mode) #app-container {
+  background: #ffffff !important;
+}
+
+/* 布局组件 */
+body:not(.dark-mode) .t-layout {
+  background: #ffffff !important;
+}
+
+body:not(.dark-mode) .app-layout {
+  background: #ffffff !important;
+}
+
+body:not(.dark-mode) .main-layout {
+  background: #ffffff !important;
+}
+
+body:not(.dark-mode) .content-layout {
+  background: #ffffff !important;
+}
+
+body:not(.dark-mode) .t-layout__header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+body:not(.dark-mode) .t-layout__sider {
+  background: #ffffff !important;
+  border-right: 1px solid #e5e7eb !important;
+}
+
+body:not(.dark-mode) .t-layout__content {
+  background: #ffffff !important;
+}
+
+body:not(.dark-mode) .app-content {
+  background: #ffffff !important;
+}
+
+/* 卡片 */
+body:not(.dark-mode) .t-card {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+body:not(.dark-mode) .t-card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+body:not(.dark-mode) .t-card__header {
+  background: #f9fafb !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  color: #1f2937 !important;
+}
+
+body:not(.dark-mode) .t-card__body {
+  background: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+/* 表格 */
+body:not(.dark-mode) .t-table {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+body:not(.dark-mode) .t-table__header th {
+  background: #f9fafb !important;
+  color: #1f2937 !important;
+  border-color: #e5e7eb !important;
+}
+
+body:not(.dark-mode) .t-table__body tr {
+  background: #ffffff !important;
+}
+
+body:not(.dark-mode) .t-table__body tr:hover {
+  background: #f9fafb !important;
+}
+
+body:not(.dark-mode) .t-table__body td {
+  color: #1f2937 !important;
+  border-color: #e5e7eb !important;
+}
+
+/* 表单 */
+body:not(.dark-mode) .t-input,
+body:not(.dark-mode) .t-textarea,
+body:not(.dark-mode) .t-select .t-input {
+  background: #ffffff !important;
+  border-color: #d1d5db !important;
+  color: #1f2937 !important;
+}
+
+body:not(.dark-mode) .t-input:hover,
+body:not(.dark-mode) .t-textarea:hover {
+  border-color: #9ca3af !important;
+}
+
+body:not(.dark-mode) .t-input:focus,
+body:not(.dark-mode) .t-textarea:focus {
+  border-color: #0ea5e9 !important;
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2) !important;
+}
+
+/* 按钮 */
+body:not(.dark-mode) .t-button--variant-base {
+  background: #ffffff !important;
+  border-color: #d1d5db !important;
+  color: #1f2937 !important;
+}
+
+body:not(.dark-mode) .t-button--variant-base:hover {
+  background: #f9fafb !important;
+  border-color: #9ca3af !important;
+}
+
+/* 菜单 */
+body:not(.dark-mode) .t-menu {
+  background: #ffffff !important;
+}
+
+body:not(.dark-mode) .t-menu__item {
+  color: #6b7280 !important;
+}
+
+body:not(.dark-mode) .t-menu__item:hover {
+  background: #f3f4f6 !important;
+  color: #1f2937 !important;
+}
+
+body:not(.dark-mode) .t-menu__item.t-is-active {
+  background: #dbeafe !important;
+  color: #0ea5e9 !important;
+}
+
+/* 对话框 */
+body:not(.dark-mode) .t-dialog,
+body:not(.dark-mode) .t-drawer {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+body:not(.dark-mode) .t-dialog__header,
+body:not(.dark-mode) .t-drawer__header {
+  background: #f9fafb !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  color: #1f2937 !important;
+}
+
+body:not(.dark-mode) .t-dialog__body,
+body:not(.dark-mode) .t-drawer__body {
+  background: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+/* 下拉菜单 */
+body:not(.dark-mode) .t-select__dropdown,
+body:not(.dark-mode) .t-dropdown__menu {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+body:not(.dark-mode) .t-select-option,
+body:not(.dark-mode) .t-dropdown__item {
+  color: #1f2937 !important;
+}
+
+body:not(.dark-mode) .t-select-option:hover,
+body:not(.dark-mode) .t-dropdown__item:hover {
+  background: #f3f4f6 !important;
+}
+
+/* 所有文字颜色 */
+body:not(.dark-mode) * {
+  color: #1f2937;
+}
+
+body:not(.dark-mode) label,
+body:not(.dark-mode) .t-form__label {
+  color: #374151 !important;
+}
+
+/* 边框颜色 */
+body:not(.dark-mode) * {
+  border-color: #e5e7eb !important;
+}
+
+/* ChartCard 组件 */
+body:not(.dark-mode) .chart-card {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+body:not(.dark-mode) .chart-card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+body:not(.dark-mode) .chart-card__header {
+  background: #f9fafb !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  color: #1f2937 !important;
+}
+
+body:not(.dark-mode) .chart-card__title {
+  color: #1f2937 !important;
+}
+
+body:not(.dark-mode) .chart-card__content {
+  background: #ffffff !important;
+}
+
+/* Sidebar 样式 */
+body:not(.dark-mode) .dark-sidebar {
+  background: #ffffff !important;
+}
+
+body:not(.dark-mode) .t-submenu__title {
+  background: #f9fafb !important;
+  color: #6b7280 !important;
+}
+
+body:not(.dark-mode) .t-submenu__title:hover {
+  background: #f3f4f6 !important;
+  color: #1f2937 !important;
+}
+
+body:not(.dark-mode) .t-submenu.t-is-opened > .t-submenu__title {
+  background: #dbeafe !important;
+  color: #0ea5e9 !important;
+}
+
+/* Header 样式 */
+body:not(.dark-mode) .dark-header {
+  background: #ffffff !important;
+}
+
+body:not(.dark-mode) .logo-text {
+  color: #1f2937 !important;
+}
+
+body:not(.dark-mode) .t-breadcrumb__item {
+  color: #6b7280 !important;
+}
+
+body:not(.dark-mode) .t-breadcrumb__item:hover {
+  color: #0ea5e9 !important;
+}

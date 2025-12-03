@@ -1,0 +1,13 @@
+// Component exports for easy importing
+export { default as ThemeSwitcher } from './ThemeSwitcher.vue'
+export { default as Chart } from './Chart.vue'
+export { default as DraggableDashboard } from './DraggableDashboard.vue'
+export { default as HelloWorld } from './HelloWorld.vue'
+export { default as TheWelcome } from './TheWelcome.vue'
+export { default as WelcomeItem } from './WelcomeItem.vue'
+export { default as NotificationBell } from './notification/NotificationBell.vue'
+export { default as StatCard } from './StatCard.vue'
+export { default as MemberSelector } from './MemberSelector.vue'
+export { default as AwardDetailCard } from './AwardDetailCard.vue'
+export { default as AwardTeamMembers } from './AwardTeamMembers.vue'
+export { default as ThemeErrorDebugPanel } from './ThemeErrorDebugPanel.vue'

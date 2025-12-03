@@ -1,0 +1,390 @@
+// Matrix Theme Styles - 赛博朋克数字雨主题
+
+// ===== CSS 变量定义 =====
+:root {
+  --matrix-primary: #00ff7f;
+  --matrix-primary-strong: #00ff41;
+  --matrix-primary-soft: rgba(0, 255, 127, 0.25);
+  --matrix-primary-glow: rgba(0, 255, 127, 0.45);
+
+  --matrix-secondary: #00e676;
+  --matrix-secondary-dark: #00b35f;
+  --matrix-secondary-soft: rgba(0, 230, 118, 0.25);
+
+  --matrix-bg-deep: #020402;
+  --matrix-bg-panel: rgba(0, 10, 0, 0.78);
+  --matrix-bg-overlay: rgba(0, 0, 0, 0.65);
+  --matrix-bg-terminal: rgba(0, 0, 0, 0.85);
+
+  --matrix-gridline: rgba(0, 120, 0, 0.18);
+  --matrix-border-faint: rgba(0, 255, 127, 0.15);
+  --matrix-border-strong: rgba(0, 255, 127, 0.35);
+  --matrix-border-warning: rgba(255, 255, 0, 0.45);
+
+  --matrix-text-primary: #e6ffea;
+  --matrix-text-secondary: rgba(210, 255, 218, 0.75);
+  --matrix-text-tertiary: rgba(150, 220, 160, 0.6);
+  --matrix-text-muted: rgba(110, 200, 120, 0.55);
+
+  --matrix-radius-sm: 6px;
+  --matrix-radius-md: 10px;
+  --matrix-radius-lg: 14px;
+
+  --matrix-spacing-xs: 0.4rem;
+  --matrix-spacing-sm: 0.75rem;
+  --matrix-spacing-md: 1.25rem;
+  --matrix-spacing-lg: 1.75rem;
+
+  --matrix-shadow-soft: 0 0 20px rgba(0, 255, 127, 0.15);
+  --matrix-shadow-glow: 0 0 26px rgba(0, 255, 127, 0.22);
+  --matrix-shadow-strong: 0 0 36px rgba(0, 255, 127, 0.35);
+
+  --matrix-font-mono: 'Share Tech Mono', 'Roboto Mono', 'Courier New', monospace;
+  --matrix-font-body: 'Share Tech Mono', 'Roboto Mono', 'Courier New', monospace;
+}
+
+// ===== 全局主题样式 =====
+.matrix-theme-layout {
+  font-family: var(--matrix-font-body);
+  letter-spacing: 0.05em;
+  background: var(--matrix-bg-deep);
+  color: var(--matrix-text-primary);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+
+  ::selection {
+    background: rgba(0, 255, 127, 0.35);
+    color: #002200;
+  }
+
+  ::-moz-selection {
+    background: rgba(0, 255, 127, 0.35);
+    color: #002200;
+  }
+}
+
+// ===== 面板与容器 =====
+.matrix-panel {
+  background: var(--matrix-bg-panel);
+  border: 1px solid var(--matrix-border-faint);
+  border-radius: var(--matrix-radius-lg);
+  box-shadow: var(--matrix-shadow-soft);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0, 255, 127, 0.2), rgba(0, 255, 127, 0));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover::before {
+    opacity: 0.6;
+  }
+}
+
+.matrix-panel-header {
+  padding: var(--matrix-spacing-sm) var(--matrix-spacing-md);
+  border-bottom: 1px solid var(--matrix-border-faint);
+  letter-spacing: 0.18em;
+  color: var(--matrix-text-secondary);
+}
+
+.matrix-panel-body {
+  padding: var(--matrix-spacing-md);
+  color: var(--matrix-text-secondary);
+}
+
+// ===== 按钮样式 =====
+.matrix-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: var(--matrix-spacing-xs) var(--matrix-spacing-md);
+  border-radius: var(--matrix-radius-sm);
+  border: 1px solid var(--matrix-border-faint);
+  background: rgba(0, 18, 0, 0.75);
+  color: var(--matrix-text-primary);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(0, 255, 127, 0), rgba(0, 255, 127, 0.3), rgba(0, 255, 127, 0));
+    transform: translateX(-100%);
+    transition: transform 0.45s ease;
+  }
+
+  &:hover {
+    border-color: var(--matrix-border-strong);
+    box-shadow: var(--matrix-shadow-strong);
+    color: var(--matrix-text-primary);
+  }
+
+  &:hover::after {
+    transform: translateX(100%);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--matrix-primary-strong);
+    outline-offset: 2px;
+  }
+
+  &.matrix-btn-primary {
+    background: rgba(0, 50, 0, 0.85);
+    border-color: var(--matrix-border-strong);
+    box-shadow: var(--matrix-shadow-soft);
+  }
+
+  &.matrix-btn-ghost {
+    background: transparent;
+    border-style: dashed;
+    color: var(--matrix-text-secondary);
+  }
+
+  &.matrix-btn-warning {
+    border-color: var(--matrix-border-warning);
+    color: #faffb0;
+    box-shadow: 0 0 20px rgba(255, 255, 0, 0.28);
+  }
+}
+
+// ===== 输入框 =====
+.matrix-input {
+  width: 100%;
+  padding: var(--matrix-spacing-xs) var(--matrix-spacing-sm);
+  border-radius: var(--matrix-radius-sm);
+  border: 1px solid var(--matrix-border-faint);
+  background: rgba(0, 12, 0, 0.85);
+  color: var(--matrix-text-primary);
+  font-family: var(--matrix-font-mono);
+  letter-spacing: 0.12em;
+  transition: all 0.2s ease;
+
+  &::placeholder {
+    color: var(--matrix-text-tertiary);
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--matrix-border-strong);
+    box-shadow: var(--matrix-shadow-glow);
+    background: rgba(0, 20, 0, 0.9);
+  }
+}
+
+// ===== 标签与徽章 =====
+.matrix-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.8rem;
+  border-radius: var(--matrix-radius-sm);
+  border: 1px solid var(--matrix-border-faint);
+  background: rgba(0, 25, 0, 0.85);
+  color: var(--matrix-text-secondary);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+.matrix-chip--online {
+  border-color: var(--matrix-border-strong);
+  box-shadow: var(--matrix-shadow-soft);
+  color: var(--matrix-text-primary);
+}
+
+.matrix-chip--warning {
+  border-color: var(--matrix-border-warning);
+  color: #fffbc1;
+}
+
+// ===== 进度条 =====
+.matrix-progress {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(0, 20, 0, 0.85);
+  border: 1px solid var(--matrix-border-faint);
+  overflow: hidden;
+
+  .matrix-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--matrix-primary-strong), var(--matrix-secondary-dark));
+    box-shadow: 0 0 10px var(--matrix-primary-glow);
+    width: 0%;
+    transition: width 0.4s ease;
+
+    &.is-animated {
+      animation: matrixProgress 1.8s linear infinite;
+    }
+  }
+}
+
+// ===== 工具类 =====
+.matrix-text-primary {
+  color: var(--matrix-text-primary);
+}
+
+.matrix-text-secondary {
+  color: var(--matrix-text-secondary);
+}
+
+.matrix-text-muted {
+  color: var(--matrix-text-muted);
+}
+
+.matrix-glow-text {
+  color: var(--matrix-text-primary);
+  text-shadow: 0 0 12px rgba(0, 255, 127, 0.4);
+}
+
+.matrix-border {
+  border: 1px solid var(--matrix-border-faint);
+}
+
+.matrix-border-strong {
+  border: 1px solid var(--matrix-border-strong);
+}
+
+.matrix-gridlines {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(var(--matrix-gridline) 1px, transparent 1px),
+      linear-gradient(90deg, var(--matrix-gridline) 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: 0.35;
+    pointer-events: none;
+  }
+}
+
+.matrix-scanlines {
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0) 0,
+      rgba(0, 255, 127, 0.08) 2px,
+      rgba(0, 0, 0, 0) 4px
+    );
+    mix-blend-mode: screen;
+    animation: matrixScanline 8s linear infinite;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+}
+
+// ===== 表格 =====
+.matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--matrix-bg-terminal);
+  border: 1px solid var(--matrix-border-faint);
+  border-radius: var(--matrix-radius-md);
+  overflow: hidden;
+
+  th,
+  td {
+    padding: var(--matrix-spacing-xs) var(--matrix-spacing-md);
+    text-align: left;
+    border-bottom: 1px solid rgba(0, 255, 127, 0.12);
+    color: var(--matrix-text-secondary);
+    letter-spacing: 0.08em;
+  }
+
+  th {
+    text-transform: uppercase;
+    color: var(--matrix-text-primary);
+    background: rgba(0, 40, 0, 0.85);
+  }
+
+  tbody tr:hover {
+    background: rgba(0, 60, 0, 0.35);
+  }
+}
+
+// ===== 动画 =====
+@keyframes matrixProgress {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+@keyframes matrixScanline {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes matrixBlink {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.matrix-blink {
+  animation: matrixBlink 1.4s steps(2, start) infinite;
+}
+
+// ===== 响应式 =====
+@media (max-width: 768px) {
+  :root {
+    --matrix-spacing-md: 1rem;
+    --matrix-spacing-lg: 1.25rem;
+  }
+
+  .matrix-panel {
+    border-radius: var(--matrix-radius-md);
+  }
+
+  .matrix-btn {
+    padding: var(--matrix-spacing-xs) var(--matrix-spacing-sm);
+  }
+}
+
+// ===== 无障碍支持 =====
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  :root {
+    --matrix-text-secondary: rgba(220, 255, 225, 0.9);
+    --matrix-border-faint: rgba(0, 255, 127, 0.4);
+  }
+}

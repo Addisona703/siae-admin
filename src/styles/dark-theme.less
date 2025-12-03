@@ -1,0 +1,395 @@
+// 全局黑色主题样式 - 只在 body.dark-mode 时应用
+// 应用于整个应用程序
+
+// 主题颜色变量
+@dark-bg-primary: #0a0e27;
+@dark-bg-secondary: #1a1f3a;
+@dark-bg-tertiary: #0f1729;
+@dark-border-color: rgba(96, 165, 250, 0.2);
+@dark-border-hover: rgba(96, 165, 250, 0.4);
+@dark-text-primary: #e0e6ed;
+@dark-text-secondary: #8b92a7;
+@dark-text-placeholder: #9ca3af;
+@dark-accent-blue: #60a5fa;
+@dark-shadow-sm: 0 8px 32px rgba(0, 0, 0, 0.4);
+@dark-shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.6);
+@dark-glow-blue: 0 0 20px rgba(96, 165, 250, 0.1);
+@dark-glow-blue-strong: 0 0 30px rgba(96, 165, 250, 0.2);
+
+// 全局应用黑色主题 - 只在 dark-mode 时
+body.dark-mode {
+  background: @dark-bg-primary !important;
+  color: @dark-text-primary !important;
+
+  // 主容器
+  #app {
+    background: @dark-bg-primary !important;
+    color: @dark-text-primary !important;
+    min-height: 100vh;
+  }
+
+  #app-container {
+    background: @dark-bg-primary !important;
+  }
+
+  // 布局组件
+  .t-layout {
+    background: @dark-bg-primary !important;
+
+    * {
+      color: @dark-text-primary;
+    }
+  }
+
+  .t-layout__sider {
+    background: linear-gradient(180deg, @dark-bg-secondary 0%, @dark-bg-tertiary 100%) !important;
+    border-right: 1px solid @dark-border-color !important;
+  }
+
+  .t-layout__header {
+    background: rgba(26, 31, 58, 0.95) !important;
+    border-bottom: 1px solid @dark-border-color !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+
+    * {
+      color: @dark-text-primary !important;
+    }
+
+    .t-head-menu {
+      background: transparent !important;
+    }
+
+    .t-menu {
+      background: transparent !important;
+    }
+  }
+
+  .t-layout__content {
+    background: @dark-bg-primary !important;
+  }
+
+  // 卡片样式
+  .t-card {
+    background: linear-gradient(135deg, @dark-bg-secondary 0%, @dark-bg-tertiary 100%) !important;
+    border: 1px solid @dark-border-color !important;
+    box-shadow: @dark-shadow-sm, @dark-glow-blue !important;
+    color: @dark-text-primary !important;
+
+    &:hover {
+      box-shadow: @dark-shadow-lg, @dark-glow-blue-strong !important;
+      border-color: @dark-border-hover !important;
+    }
+
+    .t-card__header {
+      background: rgba(26, 31, 58, 0.6) !important;
+      border-bottom: 1px solid @dark-border-color !important;
+      color: @dark-text-primary !important;
+    }
+
+    .t-card__title {
+      color: @dark-text-primary !important;
+    }
+
+    .t-card__body {
+      background: rgba(15, 23, 41, 0.6) !important;
+      color: @dark-text-primary !important;
+    }
+  }
+
+  // 表格样式
+  .t-table,
+  .t-table-container {
+    background: transparent !important;
+    color: @dark-text-primary !important;
+    border: 1px solid @dark-border-color !important;
+
+    .t-table__header {
+      background: rgba(26, 31, 58, 0.8) !important;
+      color: @dark-text-primary !important;
+
+      th {
+        background: transparent !important;
+        color: @dark-text-primary !important;
+        border-color: @dark-border-color !important;
+      }
+    }
+
+    .t-table__body {
+      tr {
+        background: rgba(15, 23, 41, 0.4) !important;
+
+        &:hover {
+          background: rgba(96, 165, 250, 0.1) !important;
+        }
+
+        td {
+          color: @dark-text-primary !important;
+          border-color: @dark-border-color !important;
+        }
+      }
+    }
+
+    * {
+      border-color: @dark-border-color !important;
+    }
+  }
+
+  // 表单控件样式
+  .t-form {
+    background: transparent !important;
+
+    .t-form__item {
+      .t-form__label {
+        color: @dark-text-primary !important;
+      }
+
+      .t-form__help {
+        color: @dark-text-secondary !important;
+      }
+    }
+  }
+
+  .t-input,
+  .t-textarea,
+  .t-select .t-input,
+  .t-date-picker .t-input,
+  .t-input-number .t-input {
+    background: rgba(26, 31, 58, 0.9) !important;
+    border-color: @dark-border-color !important;
+    color: @dark-text-primary !important;
+
+    &:hover {
+      border-color: rgba(96, 165, 250, 0.5) !important;
+      background: rgba(26, 31, 58, 1) !important;
+    }
+
+    &:focus,
+    &.t-is-focused {
+      border-color: @dark-accent-blue !important;
+      box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2) !important;
+      background: rgba(26, 31, 58, 1) !important;
+    }
+
+    input,
+    textarea {
+      background: transparent !important;
+      color: @dark-text-primary !important;
+
+      &::placeholder {
+        color: @dark-text-placeholder !important;
+        opacity: 1 !important;
+      }
+    }
+
+    // 确保 placeholder 样式生效
+    &::placeholder,
+    .t-input__inner::placeholder {
+      color: @dark-text-placeholder !important;
+      opacity: 1 !important;
+    }
+
+    .t-input__prefix,
+    .t-input__suffix {
+      color: @dark-text-secondary !important;
+    }
+  }
+
+  // 按钮样式
+  .t-button {
+    &--variant-base {
+      background: rgba(26, 31, 58, 0.9) !important;
+      border-color: @dark-border-color !important;
+      color: @dark-text-primary !important;
+
+      &:hover {
+        border-color: @dark-border-hover !important;
+        background: rgba(96, 165, 250, 0.2) !important;
+        color: @dark-accent-blue !important;
+      }
+    }
+
+    &--variant-outline {
+      background: transparent !important;
+      border-color: @dark-border-color !important;
+      color: @dark-text-primary !important;
+
+      &:hover {
+        border-color: @dark-accent-blue !important;
+        background: rgba(96, 165, 250, 0.1) !important;
+        color: @dark-accent-blue !important;
+      }
+    }
+
+    &--theme-primary {
+      background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%) !important;
+      border: none !important;
+      box-shadow: 0 4px 12px rgba(96, 165, 250, 0.4) !important;
+
+      &:hover {
+        box-shadow: 0 6px 20px rgba(96, 165, 250, 0.6) !important;
+      }
+    }
+  }
+
+  // 下拉菜单样式
+  .t-select__dropdown,
+  .t-dropdown__menu,
+  .t-popup__content {
+    background: rgba(26, 31, 58, 0.95) !important;
+    border: 1px solid @dark-border-color !important;
+    box-shadow: @dark-shadow-lg !important;
+    backdrop-filter: blur(10px);
+
+    .t-select-option,
+    .t-dropdown__item {
+      color: @dark-text-primary !important;
+
+      &:hover {
+        background: rgba(96, 165, 250, 0.2) !important;
+        color: @dark-accent-blue !important;
+      }
+
+      &.t-is-selected,
+      &.t-is-active {
+        background: rgba(96, 165, 250, 0.3) !important;
+        color: @dark-accent-blue !important;
+      }
+    }
+  }
+
+  // 对话框和抽屉样式
+  .t-dialog,
+  .t-drawer {
+    background: linear-gradient(135deg, @dark-bg-secondary 0%, @dark-bg-tertiary 100%) !important;
+    border: 1px solid @dark-border-color !important;
+    box-shadow: @dark-shadow-lg, @dark-glow-blue-strong !important;
+    color: @dark-text-primary !important;
+
+    .t-dialog__header,
+    .t-drawer__header {
+      background: rgba(26, 31, 58, 0.8) !important;
+      border-bottom: 1px solid @dark-border-color !important;
+      color: @dark-text-primary !important;
+
+      .t-dialog__close,
+      .t-drawer__close {
+        color: @dark-text-primary !important;
+
+        &:hover {
+          color: @dark-accent-blue !important;
+          background: rgba(96, 165, 250, 0.1) !important;
+        }
+      }
+    }
+
+    .t-dialog__body,
+    .t-drawer__body {
+      background: rgba(15, 23, 41, 0.8) !important;
+      color: @dark-text-primary !important;
+    }
+
+    .t-dialog__footer,
+    .t-drawer__footer {
+      background: rgba(26, 31, 58, 0.8) !important;
+      border-top: 1px solid @dark-border-color !important;
+    }
+
+    * {
+      color: @dark-text-primary;
+    }
+
+    label,
+    .t-form__label {
+      color: @dark-text-primary !important;
+    }
+
+    .t-form__help,
+    .t-form__extra {
+      color: @dark-text-secondary !important;
+    }
+  }
+
+  // 菜单样式
+  .t-menu,
+  .t-head-menu {
+    background: transparent !important;
+
+    .t-menu__item {
+      color: @dark-text-secondary !important;
+
+      &:hover {
+        background: rgba(96, 165, 250, 0.1) !important;
+        color: @dark-accent-blue !important;
+      }
+
+      &.t-is-active {
+        background: rgba(96, 165, 250, 0.2) !important;
+        color: @dark-accent-blue !important;
+      }
+    }
+
+    .t-submenu__title {
+      color: @dark-text-secondary !important;
+
+      &:hover {
+        background: rgba(96, 165, 250, 0.1) !important;
+        color: @dark-accent-blue !important;
+      }
+    }
+  }
+
+  // 面包屑样式
+  .t-breadcrumb {
+    .t-breadcrumb__item {
+      color: @dark-text-secondary !important;
+
+      &:hover {
+        color: @dark-accent-blue !important;
+      }
+    }
+
+    .t-breadcrumb__separator {
+      color: @dark-text-placeholder !important;
+    }
+  }
+
+  // 所有文字颜色
+  * {
+    color: @dark-text-primary;
+  }
+
+  // 所有边框颜色
+  * {
+    border-color: @dark-border-color !important;
+  }
+
+  // 全局 placeholder 样式优化
+  input::placeholder,
+  textarea::placeholder,
+  .t-input__inner::placeholder,
+  .t-textarea__inner::placeholder {
+    color: @dark-text-placeholder !important;
+    opacity: 1 !important;
+  }
+
+  // Select placeholder
+  .t-select .t-input__inner,
+  .t-select-input .t-input__inner {
+    &::placeholder {
+      color: @dark-text-placeholder !important;
+      opacity: 1 !important;
+    }
+  }
+
+  .t-select__placeholder,
+  .t-input__placeholder {
+    color: @dark-text-placeholder !important;
+  }
+
+  // DatePicker placeholder
+  .t-date-picker .t-input__inner::placeholder {
+    color: @dark-text-placeholder !important;
+    opacity: 1 !important;
+  }
+}

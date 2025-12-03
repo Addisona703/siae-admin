@@ -1,0 +1,175 @@
+/* 暗黑模式 - 只在 body.dark-mode 时应用 */
+
+/* 布局组件 */
+body.dark-mode .t-layout,
+body.dark-mode .t-layout__header,
+body.dark-mode .t-layout__sider,
+body.dark-mode .t-layout__content {
+  background: transparent !important;
+}
+
+body.dark-mode .t-layout__header {
+  background: rgba(26, 31, 58, 0.95) !important;
+  border-bottom: 1px solid rgba(96, 165, 250, 0.2) !important;
+}
+
+body.dark-mode .t-layout__sider {
+  background: linear-gradient(180deg, #1a1f3a 0%, #0f1729 100%) !important;
+  border-right: 1px solid rgba(96, 165, 250, 0.2) !important;
+}
+
+body.dark-mode .t-layout__content {
+  background: #0a0e27 !important;
+}
+
+/* 对话框和抽屉 */
+body.dark-mode .t-dialog,
+body.dark-mode .t-drawer {
+  background: linear-gradient(135deg, #1a1f3a 0%, #0f1729 100%) !important;
+  border: 1px solid rgba(96, 165, 250, 0.2) !important;
+  color: #e0e6ed !important;
+}
+
+body.dark-mode .t-dialog__header,
+body.dark-mode .t-drawer__header {
+  background: rgba(26, 31, 58, 0.9) !important;
+  border-bottom: 1px solid rgba(96, 165, 250, 0.2) !important;
+  color: #e0e6ed !important;
+}
+
+body.dark-mode .t-dialog__body,
+body.dark-mode .t-drawer__body {
+  background: rgba(15, 23, 41, 0.9) !important;
+  color: #e0e6ed !important;
+}
+
+body.dark-mode .t-dialog *,
+body.dark-mode .t-drawer * {
+  color: #e0e6ed !important;
+}
+
+/* 表单 */
+body.dark-mode .t-input,
+body.dark-mode .t-textarea,
+body.dark-mode .t-select .t-input {
+  background: rgba(26, 31, 58, 0.9) !important;
+  border-color: rgba(96, 165, 250, 0.2) !important;
+  color: #e0e6ed !important;
+}
+
+body.dark-mode .t-input input,
+body.dark-mode .t-textarea textarea {
+  background: transparent !important;
+  color: #e0e6ed !important;
+}
+
+/* 表格 */
+body.dark-mode .t-table {
+  background: transparent !important;
+  border: 1px solid rgba(96, 165, 250, 0.2) !important;
+}
+
+body.dark-mode .t-table__header th {
+  background: rgba(26, 31, 58, 0.8) !important;
+  color: #e0e6ed !important;
+  border-color: rgba(96, 165, 250, 0.2) !important;
+}
+
+body.dark-mode .t-table__body tr {
+  background: rgba(15, 23, 41, 0.4) !important;
+}
+
+body.dark-mode .t-table__body tr:hover {
+  background: rgba(96, 165, 250, 0.1) !important;
+}
+
+body.dark-mode .t-table__body td {
+  color: #e0e6ed !important;
+  border-color: rgba(96, 165, 250, 0.2) !important;
+}
+
+/* 卡片 */
+body.dark-mode .t-card,
+body.dark-mode .chart-card {
+  background: linear-gradient(135deg, #1a1f3a 0%, #0f1729 100%) !important;
+  border: 1px solid rgba(96, 165, 250, 0.2) !important;
+  color: #e0e6ed !important;
+}
+
+body.dark-mode .t-card__header,
+body.dark-mode .chart-card__header {
+  background: rgba(26, 31, 58, 0.6) !important;
+  border-bottom: 1px solid rgba(96, 165, 250, 0.2) !important;
+  color: #e0e6ed !important;
+}
+
+body.dark-mode .chart-card__title {
+  color: #e0e6ed !important;
+}
+
+/* 按钮 */
+body.dark-mode .t-button--variant-base,
+body.dark-mode .t-button--variant-outline {
+  background: rgba(26, 31, 58, 0.9) !important;
+  border-color: rgba(96, 165, 250, 0.3) !important;
+  color: #e0e6ed !important;
+}
+
+body.dark-mode .t-button--variant-base:hover,
+body.dark-mode .t-button--variant-outline:hover {
+  border-color: rgba(96, 165, 250, 0.6) !important;
+  background: rgba(96, 165, 250, 0.2) !important;
+  color: #60a5fa !important;
+}
+
+/* 下拉菜单 */
+body.dark-mode .t-select__dropdown,
+body.dark-mode .t-dropdown__menu {
+  background: rgba(26, 31, 58, 0.95) !important;
+  border: 1px solid rgba(96, 165, 250, 0.3) !important;
+}
+
+body.dark-mode .t-select-option,
+body.dark-mode .t-dropdown__item {
+  color: #e0e6ed !important;
+}
+
+body.dark-mode .t-select-option:hover,
+body.dark-mode .t-dropdown__item:hover {
+  background: rgba(96, 165, 250, 0.2) !important;
+  color: #60a5fa !important;
+}
+
+/* 菜单 */
+body.dark-mode .t-menu {
+  background: transparent !important;
+}
+
+body.dark-mode .t-menu__item {
+  color: #8b92a7 !important;
+}
+
+body.dark-mode .t-menu__item:hover {
+  background: rgba(96, 165, 250, 0.1) !important;
+  color: #60a5fa !important;
+}
+
+body.dark-mode .t-menu__item.t-is-active {
+  background: rgba(96, 165, 250, 0.2) !important;
+  color: #60a5fa !important;
+}
+
+/* 所有文字 */
+body.dark-mode * {
+  color: #e0e6ed;
+}
+
+body.dark-mode label,
+body.dark-mode .t-form__label {
+  color: #e0e6ed !important;
+}
+
+/* 边框 */
+body.dark-mode * {
+  border-color: rgba(96, 165, 250, 0.2) !important;
+}

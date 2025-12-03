@@ -1,0 +1,216 @@
+// Permission and Role management API service
+import { get, post, put, del } from './client'
+
+// Helper function to flatten tree structure
+const flattenTree = (tree) => {
+  const result = []
+  const flatten = (nodes) => {
+    nodes.forEach(node => {
+      const { children, ...rest } = node
+      result.push(rest)
+      if (children && children.length > 0) {
+        flatten(children)
+      }
+    })
+  }
+  flatten(tree)
+  return result
+}
+
+export const permissionApi = {
+  // ========== Permission CRUD Operations ==========
+  
+  /**
+   * Get all permissions list (converted from tree structure)
+   * @param enabledOnly Whether to only query enabled permissions
+   * @returns Promise with flattened permission list
+   */
+  getAllPermissions: async (enabledOnly = false) => {
+    const response = await get('/auth/permissions/tree', { params: { enabledOnly } })
+    if (response.data) {
+      // Flatten the tree structure to a flat list
+      response.data = flattenTree(response.data)
+    }
+    return response
+  },
+
+  /**
+   * Get permissions structure
+   * @param enabledOnly Whether to only query enabled permissions
+   * @returns Promise with permission tree list
+   */
+  getPermissionTree: async (enabledOnly = false) => {
+    return get('/auth/permissions/tree', { params: { enabledOnly } })
+  },
+
+  /**
+   * Get paginated permissions
+   * @param params Pagination and filter parameters
+   * @returns Promise with paginated permission list
+   */
+  getPermissionsPage: async (params) => {
+    return post('/auth/permissions/page', params)
+  },
+
+  /**
+   * Get permission by ID
+   * @param id Permission ID
+   * @returns Promise with permission details
+   */
+  getPermissionById: async (id) => {
+    return get(`/auth/permissions/${id}`)
+  },
+
+  /**
+   * Create new permission
+   * @param permissionData Permission creation data
+   * @returns Promise with created permission
+   */
+  createPermission: async (permissionData) => {
+    return post('/auth/permissions', permissionData)
+  },
+
+  /**
+   * Update permission information
+   * @param permissionData Permission update data (must include id)
+   * @returns Promise with updated permission
+   */
+  updatePermission: async (permissionData) => {
+    return put('/auth/permissions', permissionData)
+  },
+
+  /**
+   * Batch update permission tree structure
+   * @param updates Array of permission tree updates
+   * @returns Promise with boolean result
+   */
+  updatePermissionTree: async (updates) => {
+    return put('/auth/permissions/tree', updates)
+  },
+
+  /**
+   * Delete permission
+   * @param id Permission ID
+   * @returns Promise with boolean result
+   */
+  deletePermission: async (id) => {
+    return del(`/auth/permissions/${id}`)
+  },
+
+  /**
+   * Batch delete permissions
+   * @param ids Array of permission IDs
+   * @returns Promise with boolean result
+   */
+  batchDeletePermissions: async (ids) => {
+    return del('/auth/permissions/batch', { data: ids })
+  },
+
+  // ========== Role CRUD Operations ==========
+
+  /**
+   * Get paginated role list
+   * @param params Pagination parameters
+   * @returns Promise with paginated role list
+   */
+  getRoles: async (params) => {
+    return post('/auth/roles/page', params)
+  },
+
+  /**
+   * Get role by ID
+   * @param id Role ID
+   * @returns Promise with role details
+   */
+  getRoleById: async (id) => {
+    return get(`/auth/roles/${id}`)
+  },
+
+  /**
+   * Get permissions by role ID
+   * @param roleId Role ID
+   * @returns Promise with permission list
+   */
+  getPermissionsByRoleId: async (roleId) => {
+    return get(`/auth/roles/${roleId}/permissions`)
+  },
+
+  /**
+   * Create new role
+   * @param roleData Role creation data
+   * @returns Promise with created role
+   */
+  createRole: async (roleData) => {
+    return post('/auth/roles', roleData)
+  },
+
+  /**
+   * Update role information
+   * @param id Role ID
+   * @param roleData Role update data
+   * @returns Promise with boolean result
+   */
+  updateRole: async (id, roleData) => {
+    return put(`/auth/roles/${id}`, roleData)
+  },
+
+  /**
+   * Update role permissions
+   * @param roleId Role ID
+   * @param permissionIds Array of permission IDs
+   * @returns Promise with boolean result
+   */
+  updateRolePermissions: async (roleId, permissionIds) => {
+    return put(`/auth/roles/${roleId}/permissions`, { permissionIds })
+  },
+
+  /**
+   * Delete role
+   * @param id Role ID
+   * @returns Promise with void result
+   */
+  deleteRole: async (id) => {
+    return del(`/auth/roles/${id}`)
+  },
+
+  // ========== User-Role Assignment Operations ==========
+
+  /**
+   * Get roles assigned to a user
+   * @param userId User ID
+   * @returns Promise with role list
+   */
+  getUserRoles: async (userId) => {
+    return get(`/auth/users/${userId}/roles`)
+  },
+
+  /**
+   * Assign roles to a user
+   * @param userId User ID
+   * @param roleIds Array of role IDs to assign
+   * @returns Promise with void result
+   */
+  assignRolesToUser: async (userId, roleIds) => {
+    return post(`/auth/users/${userId}/role`, { roleId: roleIds[0] })
+  },
+
+  /**
+   * Remove role from a user
+   * @param userId User ID
+   * @param roleId Role ID to remove
+   * @returns Promise with void result
+   */
+  removeRoleFromUser: async (userId, roleId) => {
+    return del(`/auth/users/${userId}/roles/${roleId}`)
+  },
+
+  /**
+   * Batch assign roles to multiple users
+   * @param userIds Array of user IDs
+   * @param roleIds Array of role IDs to assign
+   * @returns Promise with void result
+   */
+  batchAssignRoles: async (userIds, roleIds) => {
+    return post('/auth/users/roles/batch', { userIds, roleIds })
+  }
+}
