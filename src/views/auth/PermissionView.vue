@@ -4,7 +4,7 @@
       <!-- 左侧：角色列表 -->
       <div class="left-panel">
         <RoleList :roles="roles" :active-role-id="activeRoleId || undefined" @update:active-role-id="handleRoleChange"
-          @add="handleAddRole" />
+          @add="handleAddRole" @edit="handleEditRole" @delete="handleDeleteRole" />
       </div>
 
       <!-- 右侧：权限树管理 -->
@@ -19,6 +19,22 @@
         </div>
       </div>
     </div>
+
+    <!-- 角色编辑弹窗 -->
+    <t-dialog v-model:visible="roleDialogVisible" :header="isEditingRole ? '编辑角色' : '新增角色'" :confirm-btn="{ loading: roleSubmitting }"
+      @confirm="handleRoleSubmit" @close="resetRoleForm">
+      <t-form ref="roleFormRef" :data="roleForm" :rules="roleRules" label-width="80px">
+        <t-form-item label="角色名称" name="name">
+          <t-input v-model="roleForm.name" placeholder="请输入角色名称" />
+        </t-form-item>
+        <t-form-item label="角色编码" name="code">
+          <t-input v-model="roleForm.code" placeholder="请输入角色编码，如 admin" :disabled="isEditingRole" />
+        </t-form-item>
+        <t-form-item label="角色描述" name="description">
+          <t-textarea v-model="roleForm.description" placeholder="请输入角色描述" :maxlength="200" />
+        </t-form-item>
+      </t-form>
+    </t-dialog>
   </div>
 </template>
 
@@ -32,7 +48,8 @@ import { permissionApi } from '@/api/permission'
 
 // 数据
 const roles = ref([])
-const flatPermissions = ref([])
+const permissionTreeData = ref([])  // 直接存储后端返回的树结构
+const flatPermissions = ref([])      // 扁平数据用于搜索和权限操作
 const rolePermissionMap = ref({})
 
 // 状态
@@ -42,46 +59,41 @@ const expandedNodes = ref(new Set())
 const searchQuery = ref('')
 const loading = ref(false)
 
+// 将树结构扁平化（仅用于内部操作，不重复构建树）
+const flattenTree = (tree, result = []) => {
+  tree.forEach(node => {
+    const { children, ...rest } = node
+    result.push(rest)
+    if (children?.length) {
+      flattenTree(children, result)
+    }
+  })
+  return result
+}
+
 // 加载数据
 const loadRoles = async () => {
   try {
     loading.value = true
     const response = await permissionApi.getRoles({ page: 1, size: 100 })
-    console.log('[loadRoles] Response:', response)
 
     if (response.code === 200 && response.data) {
-      console.log('[loadRoles] Raw records:', response.data.records)
-
-      // 映射角色数据
-      roles.value = response.data.records.map((role) => {
-        console.log('[loadRoles] Mapping role:', role)
-        const mappedRole = {
-          id: role.id,
-          name: role.name,
-          code: role.code,
-          description: role.description || '',
-          status: role.status === 1 ? 'active' : 'inactive',
-          permissions: [],
-          count: 0,
-          createdAt: role.createAt || '',
-          updatedAt: role.updateAt || ''
-        }
-        console.log('[loadRoles] Mapped role:', mappedRole)
-        return mappedRole
-      })
-
-      console.log('[loadRoles] All mapped roles:', roles.value)
+      roles.value = response.data.records.map((role) => ({
+        id: role.id,
+        name: role.name,
+        code: role.code,
+        description: role.description || '',
+        status: role.status === 1 ? 'active' : 'inactive',
+        permissions: [],
+        count: 0,
+        createdAt: role.createAt || '',
+        updatedAt: role.updateAt || ''
+      }))
 
       if (roles.value.length > 0 && !activeRoleId.value) {
         const firstRole = roles.value[0]
-        console.log('[loadRoles] First role:', firstRole)
-        console.log('[loadRoles] First role ID:', firstRole?.id)
-
-        if (firstRole && firstRole.id !== undefined && firstRole.id !== null) {
+        if (firstRole?.id != null) {
           activeRoleId.value = String(firstRole.id)
-          console.log('[loadRoles] Set activeRoleId to:', activeRoleId.value)
-        } else {
-          console.error('[loadRoles] First role ID is invalid!')
         }
       }
     }
@@ -96,12 +108,14 @@ const loadRoles = async () => {
 const loadPermissions = async () => {
   try {
     loading.value = true
-    const response = await permissionApi.getAllPermissions()
+    // 直接获取树结构，避免重复构建
+    const response = await permissionApi.getPermissionTree()
     if (response.code === 200 && response.data) {
-      flatPermissions.value = response.data
+      permissionTreeData.value = response.data
+      // 扁平化数据用于搜索和权限操作
+      flatPermissions.value = flattenTree(response.data)
       // 自动展开根节点
-      const rootNodes = response.data.filter(p => !p.parentId)
-      expandedNodes.value = new Set(rootNodes.map(p => p.id))
+      expandedNodes.value = new Set(response.data.map(p => p.id))
     }
   } catch (error) {
     console.error('Failed to load permissions:', error)
@@ -140,52 +154,39 @@ const activeRoleName = computed(() => roles.value.find(r => r.id === activeRoleI
 
 const currentRolePermissions = computed(() => rolePermissionMap.value[activeRoleId.value] || [])
 
+// 搜索过滤树（只在搜索时重新构建，无搜索时直接用后端数据）
 const permissionTree = computed(() => {
-  const tree = []
-  const map = {}
-
-  // 搜索时需要包含祖先节点
-  const matchedIds = new Set()
-  if (searchQuery.value) {
-    flatPermissions.value.forEach(p => {
-      if (p.name.includes(searchQuery.value) || p.code.includes(searchQuery.value)) {
-        matchedIds.add(p.id)
-        // 添加祖先
-        let curr = p
-        while (curr?.parentId) {
-          matchedIds.add(curr.parentId)
-          curr = flatPermissions.value.find(x => x.id === curr?.parentId)
-          if (!curr) break
-        }
-      }
-    })
+  // 无搜索时直接返回后端树结构
+  if (!searchQuery.value) {
+    return permissionTreeData.value
   }
 
-  const source = searchQuery.value
-    ? flatPermissions.value.filter(p => matchedIds.has(p.id))
-    : flatPermissions.value
-
-  // 初始化 map
-  source.forEach(item => {
-    map[item.id] = { ...item, children: [] }
-  })
-
-  // 构建树
-  source.forEach(item => {
-    const node = map[item.id]
-    if (!node) return
-
-    if (item.parentId && map[item.parentId]) {
-      const parent = map[item.parentId]
-      if (parent?.children) {
-        parent.children.push(node)
+  // 有搜索时，过滤并重建树
+  const matchedIds = new Set()
+  flatPermissions.value.forEach(p => {
+    if (p.name.includes(searchQuery.value) || p.code.includes(searchQuery.value)) {
+      matchedIds.add(p.id)
+      // 添加祖先节点
+      let curr = p
+      while (curr?.parentId) {
+        matchedIds.add(curr.parentId)
+        curr = flatPermissions.value.find(x => x.id === curr?.parentId)
+        if (!curr) break
       }
-    } else if (!item.parentId) {
-      tree.push(node)
     }
   })
 
-  return tree
+  // 递归过滤树
+  const filterTree = (nodes) => {
+    return nodes
+      .filter(node => matchedIds.has(node.id))
+      .map(node => ({
+        ...node,
+        children: node.children?.length ? filterTree(node.children) : []
+      }))
+  }
+
+  return filterTree(permissionTreeData.value)
 })
 
 // 方法
@@ -220,18 +221,22 @@ const getAncestors = (id, list = []) => {
 const togglePermissionSelect = (permissionId) => {
   if (!activeRoleId.value) return
 
+  // 统一转为字符串处理
+  const pid = String(permissionId)
   const currentPerms = new Set(rolePermissionMap.value[activeRoleId.value] || [])
 
-  if (currentPerms.has(permissionId)) {
+  if (currentPerms.has(pid)) {
     // 取消选中：取消自己和所有后代
-    currentPerms.delete(permissionId)
+    currentPerms.delete(pid)
     const descendants = getDescendants(permissionId)
-    descendants.forEach(d => currentPerms.delete(d))
+    descendants.forEach(d => currentPerms.delete(String(d)))
   } else {
-    // 选中：选中自己和所有祖先
-    currentPerms.add(permissionId)
+    // 选中：选中自己、所有祖先、所有后代
+    currentPerms.add(pid)
     const ancestors = getAncestors(permissionId)
-    ancestors.forEach(a => currentPerms.add(a))
+    ancestors.forEach(a => currentPerms.add(String(a)))
+    const descendants = getDescendants(permissionId)
+    descendants.forEach(d => currentPerms.add(String(d)))
   }
 
   rolePermissionMap.value = {
@@ -296,8 +301,103 @@ const handleDeleteNode = async (nodeId) => {
   }
 }
 
+// 角色表单相关
+const roleDialogVisible = ref(false)
+const isEditingRole = ref(false)
+const roleSubmitting = ref(false)
+const roleFormRef = ref(null)
+const roleForm = ref({
+  id: null,
+  name: '',
+  code: '',
+  description: ''
+})
+const roleRules = {
+  name: [{ required: true, message: '请输入角色名称' }],
+  code: [
+    { required: true, message: '请输入角色编码' },
+    { pattern: /^[a-zA-Z_][a-zA-Z0-9_]*$/, message: '编码只能包含字母、数字和下划线，且以字母或下划线开头' }
+  ]
+}
+
+const resetRoleForm = () => {
+  roleForm.value = { id: null, name: '', code: '', description: '' }
+  isEditingRole.value = false
+}
+
 const handleAddRole = () => {
-  MessagePlugin.info('添加角色功能开发中...')
+  resetRoleForm()
+  roleDialogVisible.value = true
+}
+
+const handleEditRole = (role) => {
+  roleForm.value = {
+    id: role.id,
+    name: role.name,
+    code: role.code,
+    description: role.description || ''
+  }
+  isEditingRole.value = true
+  roleDialogVisible.value = true
+}
+
+const handleDeleteRole = async (roleId) => {
+  try {
+    const response = await permissionApi.deleteRole(roleId)
+    if (response.code === 200) {
+      MessagePlugin.success('删除成功')
+      // 如果删除的是当前选中的角色，清空选中
+      if (String(roleId) === activeRoleId.value) {
+        activeRoleId.value = ''
+      }
+      await loadRoles()
+      // 重新选中第一个角色
+      if (roles.value.length > 0 && !activeRoleId.value) {
+        activeRoleId.value = String(roles.value[0].id)
+        await loadRolePermissions(activeRoleId.value)
+      }
+    } else {
+      MessagePlugin.error(response.message || '删除失败')
+    }
+  } catch (error) {
+    console.error('Failed to delete role:', error)
+    MessagePlugin.error('删除失败')
+  }
+}
+
+const handleRoleSubmit = async () => {
+  const valid = await roleFormRef.value?.validate()
+  if (valid !== true) return
+
+  try {
+    roleSubmitting.value = true
+    let response
+    if (isEditingRole.value) {
+      response = await permissionApi.updateRole(roleForm.value.id, {
+        name: roleForm.value.name,
+        description: roleForm.value.description
+      })
+    } else {
+      response = await permissionApi.createRole({
+        name: roleForm.value.name,
+        code: roleForm.value.code,
+        description: roleForm.value.description
+      })
+    }
+
+    if (response.code === 200) {
+      MessagePlugin.success(isEditingRole.value ? '更新成功' : '创建成功')
+      roleDialogVisible.value = false
+      await loadRoles()
+    } else {
+      MessagePlugin.error(response.message || '操作失败')
+    }
+  } catch (error) {
+    console.error('Failed to submit role:', error)
+    MessagePlugin.error('操作失败')
+  } finally {
+    roleSubmitting.value = false
+  }
 }
 
 const handleSave = async () => {

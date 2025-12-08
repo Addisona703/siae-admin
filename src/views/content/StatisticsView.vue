@@ -115,7 +115,7 @@ import { MessagePlugin } from 'tdesign-vue-next'
 import { contentApi } from '@/api/content'
 
 // 数据
-const summary = ref < Partial < StatisticsSummary >> ({})
+const summary = ref({})
 const days = ref(7)
 
 // 图表引用

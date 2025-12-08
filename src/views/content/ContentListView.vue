@@ -102,7 +102,7 @@
               <span v-if="row.type === 4" class="duration-badge">05:20</span>
             </div>
             <div class="content-text">
-              <div class="content-title" :title="row.title">{{ row.title }}</div>
+              <div class="content-title" :title="row.title" @click="handleDetail(row)">{{ row.title }}</div>
               <div class="content-desc">{{ row.description || '暂无摘要' }}</div>
             </div>
           </div>
@@ -135,6 +135,9 @@
         <!-- 自定义：操作列 -->
         <template #op="{ row }">
           <div class="op-btns">
+            <span class="op-btn default" @click="handleDetail(row)">
+              <t-icon name="file" /> 详情
+            </span>
             <span class="op-btn primary" @click="handleEdit(row)">
               <t-icon name="edit" /> 编辑
             </span>
@@ -155,6 +158,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { getAllContentList } from '@/api/content/content'
+import { contentApi } from '@/api/content'
 
 const router = useRouter()
 
@@ -169,9 +173,9 @@ const TYPE_MAP = {
 
 // 状态映射
 const STATUS_MAP = {
-  0: { text: '草稿', theme: 'draft' },
-  1: { text: '待审核', theme: 'pending' },
-  2: { text: '已发布', theme: 'published' },
+  0: { text: '草稿', theme: 'default' },
+  1: { text: '待审核', theme: 'warning' },
+  2: { text: '已发布', theme: 'success' },
 }
 
 // 下拉菜单选项
@@ -251,7 +255,7 @@ const fetchData = async () => {
     if (searchForm.status !== undefined) param.params.status = searchForm.status
     if (searchForm.uploadedBy) param.params.uploadedBy = searchForm.uploadedBy
 
-    console.log('查询参数:', param)
+    // console.log('查询参数:', param)
     const res = await getAllContentList(param)
 
     if (res.code === 200 && res.data) {
@@ -267,13 +271,17 @@ const fetchData = async () => {
           ? STATUS_STRING_TO_NUMBER[item.status] ?? 0
           : item.status
 
+        // 根据 categoryId 从分类列表中查找分类名称（前端补充）
+        const category = categories.value.find(c => c.id === item.categoryId)
+        const categoryName = item.categoryName || category?.name || '-'
+
         return {
           id: item.id,
           title: item.title,
           description: item.description,
           type: typeNum,
           categoryId: item.categoryId,
-          categoryName: item.categoryName || '-',
+          categoryName: categoryName,
           uploadedByName: item.authorNickname || '-',
           status: statusNum,
           cover: item.coverUrl || null,
@@ -310,13 +318,13 @@ const loadCategories = async () => {
       }
     }
 
-    console.log('加载分类列表，请求参数:', pageDTO)
+    // console.log('加载分类列表，请求参数:', pageDTO)
     const res = await contentApi.getCategoryPage(pageDTO)
-    console.log('分类列表响应:', res)
+    // console.log('分类列表响应:', res)
 
     if (res.code === 200 && res.data) {
       categories.value = res.data.records || []
-      console.log('分类列表加载成功，数量:', categories.value.length, categories.value)
+      // console.log('分类列表加载成功，数量:', categories.value.length, categories.value)
     } else {
       console.error('分类列表加载失败:', res.message)
     }
@@ -356,6 +364,13 @@ const handleEdit = (row) => {
     name: 'ContentEdit',
     params: { id: row.id },
     query: { type: row.type }
+  })
+}
+
+const handleDetail = (row) => {
+  router.push({
+    name: 'ContentDetail',
+    params: { id: row.id }
   })
 }
 
@@ -400,7 +415,9 @@ const formatNumber = (num) => {
   return num > 1000 ? (num / 1000).toFixed(1) + 'k' : num
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // 先加载分类列表，再加载内容列表（以便前端补充分类名称）
+  await loadCategories()
   fetchData()
 })
 </script>
@@ -549,6 +566,41 @@ onMounted(() => {
 :deep(.t-table) {
   .t-table__header th {
     white-space: nowrap;
+  }
+}
+
+.op-btns {
+  display: flex;
+  gap: 8px;
+  
+  .op-btn {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 14px;
+    transition: color 0.2s;
+    
+    &.default {
+      color: var(--td-text-color-secondary);
+      &:hover {
+        color: var(--td-brand-color);
+      }
+    }
+    
+    &.primary {
+      color: var(--td-brand-color);
+      &:hover {
+        color: var(--td-brand-color-hover);
+      }
+    }
+    
+    &.danger {
+      color: var(--td-error-color);
+      &:hover {
+        color: var(--td-error-color-hover);
+      }
+    }
   }
 }
 </style>

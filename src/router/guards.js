@@ -1,28 +1,32 @@
 import { useAuthStore, usePermissionStore } from '@/stores'
 import { MessagePlugin } from 'tdesign-vue-next'
+import { waitForInit } from '@/main'
 
 /**
- * Authentication guard - checks if user is authenticated
+ * 认证守卫 - 检查用户是否已登录
  */
 export async function authGuard(to, from, next) {
+  // 等待应用初始化完成
+  await waitForInit()
+  
   const authStore = useAuthStore()
 
-  // If going to login page and already authenticated, redirect to dashboard
+  // 已登录用户访问登录页时，重定向到首页
   if (to.name === 'Login' && authStore.isAuthenticated) {
     next({ path: '/' })
     return
   }
 
-  // Check if route requires authentication
+  // 检查路由是否需要认证
   const requiresAuth = to.matched.some((record) => record.meta?.requiresAuth !== false)
 
   if (requiresAuth && !authStore.isAuthenticated) {
-    // Only show message if not coming from login page
+    // 非登录页跳转时显示提示
     if (from.name !== 'Login') {
       MessagePlugin.warning('请先登录')
     }
 
-    // Redirect to login with return URL
+    // 重定向到登录页，并携带返回地址
     next({
       name: 'Login',
       query: { redirect: to.fullPath },
@@ -34,27 +38,57 @@ export async function authGuard(to, from, next) {
 }
 
 /**
- * Permission guard - checks if user has required permissions
+ * 权限守卫 - 检查用户是否有访问权限（支持权限和角色）
  */
 export async function permissionGuard(to, from, next) {
   const authStore = useAuthStore()
   const permissionStore = usePermissionStore()
 
-  // Skip permission check for non-authenticated routes
+  // 非认证路由跳过权限检查
   const requiresAuth = to.matched.some((record) => record.meta?.requiresAuth !== false)
   if (!requiresAuth || !authStore.isAuthenticated) {
     next()
     return
   }
 
-  // Check permissions for the route
+  // 如果权限数据还没加载，先等待初始化
+  if (!permissionStore.hasAnyPermission && authStore.currentUser?.permissions?.length > 0) {
+    permissionStore.initializePermissions()
+  }
+
+  // ROLE_ROOT 超级管理员直接放行
+  if (permissionStore.hasRole('ROLE_ROOT')) {
+    next()
+    return
+  }
+
+  // 检查路由所需权限
   const permission = to.meta?.permission
+  const roles = to.meta?.roles // 支持角色数组
 
+  // 如果路由没有配置权限要求，直接放行
+  if (!permission && (!roles || roles.length === 0)) {
+    next()
+    return
+  }
+
+  // 权限检查
   if (permission && !permissionStore.hasPermission(permission)) {
-    // Show permission denied message
-    MessagePlugin.error('您没有访问此页面的权限')
+    // 如果有角色配置，检查角色（角色和权限满足其一即可）
+    if (roles && roles.length > 0 && permissionStore.hasAnyOfRoles(roles)) {
+      next()
+      return
+    }
 
-    // Redirect to dashboard or previous page
+    MessagePlugin.error('您没有访问此页面的权限')
+    const fallbackRoute = from.name ? from : { path: '/' }
+    next(fallbackRoute)
+    return
+  }
+
+  // 仅角色检查（没有配置权限时）
+  if (!permission && roles && roles.length > 0 && !permissionStore.hasAnyOfRoles(roles)) {
+    MessagePlugin.error('您没有访问此页面的权限')
     const fallbackRoute = from.name ? from : { path: '/' }
     next(fallbackRoute)
     return
@@ -64,17 +98,15 @@ export async function permissionGuard(to, from, next) {
 }
 
 /**
- * Route loading guard - handles loading states
+ * 加载守卫 - 处理加载状态
  */
 export async function loadingGuard(to, from, next) {
-  // You can add loading logic here if needed
-  // For example, show a global loading indicator
-
+  // 可在此添加全局加载指示器逻辑
   next()
 }
 
 /**
- * Title guard - updates document title
+ * 标题守卫 - 更新页面标题
  */
 export function titleGuard(to) {
   const title = to.meta?.title
@@ -86,28 +118,23 @@ export function titleGuard(to) {
 }
 
 /**
- * Error handling guard - handles navigation errors
+ * 错误守卫 - 处理导航错误
  */
 export function errorGuard(error, to, from) {
-  console.error('Navigation error:', error)
-
-  // Show error message
+  console.error('导航错误:', error)
   MessagePlugin.error('页面导航失败，请重试')
-
-  // You can add more sophisticated error handling here
-  // For example, redirect to error page or retry navigation
 }
 
 /**
- * Scroll behavior configuration
+ * 滚动行为配置
  */
 export function scrollBehavior(to, from, savedPosition) {
-  // If there's a saved position (browser back/forward), use it
+  // 浏览器前进/后退时，恢复保存的位置
   if (savedPosition) {
     return savedPosition
   }
 
-  // If navigating to an anchor, scroll to it
+  // 导航到锚点时，平滑滚动到目标
   if (to.hash) {
     return {
       el: to.hash,
@@ -115,22 +142,15 @@ export function scrollBehavior(to, from, savedPosition) {
     }
   }
 
-  // Otherwise, scroll to top
+  // 默认滚动到顶部
   return { top: 0 }
 }
 
 /**
- * Analytics guard - tracks page views
+ * 分析守卫 - 追踪页面访问（生产环境）
  */
 export function analyticsGuard(to, from) {
-  // You can add analytics tracking here
-  // For example, track page views, user navigation patterns, etc.
-
   if (import.meta.env.PROD) {
-    // Example: gtag('event', 'page_view', {
-    //   page_path: to.path,
-    //   page_title: to.meta?.title,
-    //   from_path: from.path,
-    // })
+    // 可在此添加页面访问统计逻辑
   }
 }

@@ -157,8 +157,8 @@ const awardsByLevelLoading = ref(false)
 const rankingLoading = ref(false)
 
 // 周期选择
-const memberTrendPeriod = ref < 'month' | 'year' > ('month')
-const awardTrendPeriod = ref < 'month' | 'year' > ('month')
+const memberTrendPeriod = ref('month')
+const awardTrendPeriod = ref('month')
 
 // 获奖趋势时间筛选
 const awardTrendMonthStart = ref()

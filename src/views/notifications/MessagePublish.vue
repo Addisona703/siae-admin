@@ -148,78 +148,7 @@
         </t-form>
       </div>
 
-      <!-- 右侧：实时预览 -->
-      <div class="preview-section">
-        <div class="preview-label">终端实时预览</div>
-        <div class="device-mockup">
-          <div class="device-notch"></div>
-          
-          <!-- 状态栏 -->
-          <div class="status-bar">
-            <span>09:41</span>
-            <div class="status-icons">
-              <WifiIcon />
-              <BatteryIcon />
-            </div>
-          </div>
-
-          <!-- 预览内容区 -->
-          <div class="preview-area">
-            <!-- 站内信预览 -->
-            <transition name="fade">
-              <div v-if="channel === 'system'" class="preview-system">
-                <div class="preview-time">刚刚</div>
-                <div class="notification-card">
-                  <div class="notification-icon" :class="getNotificationIconClass()">
-                    <component :is="getNotificationIcon()" />
-                  </div>
-                  <div class="notification-content">
-                    <div class="notification-title">{{ formData.system.title || '通知标题' }}</div>
-                    <div class="notification-text">{{ formData.system.content || '这里将显示通知的具体内容...' }}</div>
-                    <div v-if="formData.system.link" class="notification-link">
-                      查看详情 <ChevronRightIcon />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </transition>
-
-            <!-- 邮件预览 -->
-            <transition name="fade">
-              <div v-if="channel === 'email'" class="preview-email">
-                <div class="email-header">
-                  <div class="email-to">To: {{ formData.email.recipients ? formData.email.recipients.split(';')[0] + '...' : '收件人' }}</div>
-                  <div class="email-subject">{{ formData.email.subject || '无主题' }}</div>
-                </div>
-                <div class="email-body">
-                  {{ formData.email.content || '邮件内容预览...' }}
-                </div>
-              </div>
-            </transition>
-
-            <!-- 短信预览 -->
-            <transition name="fade">
-              <div v-if="channel === 'sms'" class="preview-sms">
-                <div class="sms-time">
-                  <span class="time-badge">星期一 14:20</span>
-                </div>
-                <div class="sms-bubble-wrapper">
-                  <div class="sms-avatar">S</div>
-                  <div class="sms-bubble">
-                    <p>{{ formData.sms.content || '短信内容预览...' }}</p>
-                    <div v-if="formData.sms.templateCode" class="sms-template">
-                      Template: {{ formData.sms.templateCode }}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </transition>
-          </div>
-          
-          <!-- 底部Home条 -->
-          <div class="home-indicator"></div>
-        </div>
-      </div>
+      <!-- 已移除实时预览部分 -->
     </div>
   </div>
 </template>
@@ -229,28 +158,22 @@ import { ref, reactive } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { useRouter } from 'vue-router'
 import { notificationApi } from '@/api/notification'
-import type { MessageChannel, MessagePublishForm } from '@/types/notification'
 import { 
   SendIcon, 
   HistoryIcon, 
   NotificationIcon, 
   MailIcon, 
   ChatIcon,
-  WifiIcon,
-  BatteryIcon,
   LinkIcon,
-  ChevronRightIcon,
-  SettingIcon,
-  TimeIcon
 } from 'tdesign-icons-vue-next'
 
 const router = useRouter()
 const formRef = ref()
 const sending = ref(false)
-const channel = ref<MessageChannel>('system')
+const channel = ref('system')
 
 // 表单数据
-const formData = reactive<MessagePublishForm>({
+const formData = reactive({
   system: {
     type: 1,
     targetType: 'all',
@@ -282,8 +205,16 @@ const rules = {
   'sms.content': [{ required: true, message: '请输入内容' }]
 }
 
+// 通知类型映射 (前端数字 -> 后端期望的中文名称)
+// 后端 NotificationType 枚举使用 @JsonValue 标注在 name 字段上
+const NOTIFICATION_TYPE_MAP = {
+  1: '系统通知',
+  2: '公告', 
+  3: '提醒'
+}
+
 // 提交表单
-const onSubmit = async ({ validateResult, firstError }: any) => {
+const onSubmit = async ({ validateResult, firstError }) => {
   if (validateResult !== true) {
     MessagePlugin.warning(firstError)
     return
@@ -293,40 +224,90 @@ const onSubmit = async ({ validateResult, firstError }: any) => {
   
   try {
     if (channel.value === 'system') {
-      const userIds = formData.system.targetType === 'specific' 
-        ? formData.system.userIds.split(',').map(id => Number(id.trim())).filter(id => !isNaN(id))
-        : undefined
+      // 站内信发送
+      if (formData.system.targetType === 'specific') {
+        // 指定用户发送：循环调用 /send 接口
+        const userIds = formData.system.userIds
+          .split(',')
+          .map(id => Number(id.trim()))
+          .filter(id => !isNaN(id) && id > 0)
 
-      await notificationApi.broadcastSystemNotification({
-        type: formData.system.type,
-        targetType: formData.system.targetType,
-        userIds,
-        title: formData.system.title,
-        content: formData.system.content,
-        linkUrl: formData.system.link || undefined
-      })
+        if (userIds.length === 0) {
+          MessagePlugin.warning('请输入有效的用户ID')
+          sending.value = false
+          return
+        }
+
+        // 批量发送给指定用户
+        const sendPromises = userIds.map(userId => 
+          notificationApi.sendNotification({
+            userId,
+            type: NOTIFICATION_TYPE_MAP[formData.system.type],
+            title: formData.system.title,
+            content: formData.system.content,
+            linkUrl: formData.system.link || undefined
+          })
+        )
+        
+        const results = await Promise.allSettled(sendPromises)
+        const successCount = results.filter(r => r.status === 'fulfilled').length
+        const failCount = results.filter(r => r.status === 'rejected').length
+        
+        if (failCount > 0) {
+          MessagePlugin.warning(`发送完成：成功 ${successCount} 个，失败 ${failCount} 个`)
+        } else {
+          MessagePlugin.success(`成功发送给 ${successCount} 个用户`)
+        }
+      } else {
+        // 全员广播 - 使用 broadcastSystemNotification 接口
+        await notificationApi.broadcastSystemNotification({
+          type: NOTIFICATION_TYPE_MAP[formData.system.type],
+          title: formData.system.title,
+          content: formData.system.content,
+          linkUrl: formData.system.link || undefined
+        })
+        MessagePlugin.success('广播消息已发送')
+      }
+      
+      resetForm()
     } else if (channel.value === 'email') {
       const recipients = formData.email.recipients.split(';').map(r => r.trim()).filter(r => r)
+      
+      if (recipients.length === 0) {
+        MessagePlugin.warning('请输入有效的收件人邮箱')
+        sending.value = false
+        return
+      }
       
       await notificationApi.sendBatchEmails({
         recipients,
         subject: formData.email.subject,
         content: formData.email.content
       })
+      
+      MessagePlugin.success('邮件发送任务已提交')
+      resetForm()
     } else if (channel.value === 'sms') {
       const phones = formData.sms.phones.split(',').map(p => p.trim()).filter(p => p)
+      
+      if (phones.length === 0) {
+        MessagePlugin.warning('请输入有效的手机号码')
+        sending.value = false
+        return
+      }
       
       await notificationApi.sendBatchSms({
         phones,
         templateCode: formData.sms.templateCode,
         content: formData.sms.content
       })
+      
+      MessagePlugin.success('短信发送任务已提交')
+      resetForm()
     }
-
-    MessagePlugin.success('发送任务已提交')
-    resetForm()
-  } catch (error: any) {
-    MessagePlugin.error(error.message || '发送失败')
+  } catch (error) {
+    console.error('发送失败:', error)
+    MessagePlugin.error(error.response?.data?.message || error.message || '发送失败，请稍后重试')
   } finally {
     sending.value = false
   }
@@ -356,30 +337,14 @@ const resetForm = () => {
 
 // 查看历史记录
 const viewHistory = () => {
-  router.push('/notifications/history')
-}
-
-// 获取通知图标类名
-const getNotificationIconClass = () => {
-  const type = formData.system.type
-  if (type === 1) return 'icon-blue'
-  if (type === 2) return 'icon-orange'
-  return 'icon-green'
-}
-
-// 获取通知图标组件
-const getNotificationIcon = () => {
-  const type = formData.system.type
-  if (type === 1) return SettingIcon
-  if (type === 2) return NotificationIcon
-  return TimeIcon
+  router.push('/notifications')
 }
 </script>
 
 <style scoped lang="less">
 .message-publish-page {
   padding: 24px;
-  background-color: #f3f4f7;
+  background-color: var(--td-bg-color-page);
   min-height: 100vh;
 }
 
@@ -393,7 +358,7 @@ const getNotificationIcon = () => {
 .page-title {
   font-size: 24px;
   font-weight: bold;
-  color: #1f2937;
+  color: var(--td-text-color-primary);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -401,341 +366,58 @@ const getNotificationIcon = () => {
 }
 
 .page-subtitle {
-  color: #6b7280;
+  color: var(--td-text-color-secondary);
   font-size: 14px;
   margin: 4px 0 0 0;
 }
 
 .content-wrapper {
   display: flex;
-  gap: 24px;
-  
-  @media (max-width: 1024px) {
-    flex-direction: column;
-  }
+  justify-content: center;
 }
 
 .form-section {
-  flex: 1;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 24px;
+  width: 100%;
+  max-width: 800px; /* 限制最大宽度，保持美观 */
+  background: var(--td-bg-color-container);
+  border-radius: var(--td-radius-default);
+  box-shadow: var(--td-shadow-1);
+  padding: 32px;
 }
 
 .channel-selector {
-  margin-bottom: 24px;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--td-component-border);
 }
 
 .form-label {
   display: block;
-  font-size: 14px;
-  font-weight: bold;
-  color: #374151;
-  margin-bottom: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--td-text-color-primary);
+  margin-bottom: 16px;
 }
 
 .radio-content {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
+  padding: 4px 8px;
 }
 
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: 24px;
 }
 
 .form-actions {
-  margin-top: 32px;
+  margin-top: 40px;
   padding-top: 24px;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--td-component-border);
   display: flex;
+  justify-content: flex-end; /* 按钮靠右 */
   gap: 16px;
-}
-
-.preview-section {
-  width: 360px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  
-  @media (max-width: 1024px) {
-    width: 100%;
-  }
-}
-
-.preview-label {
-  font-size: 14px;
-  color: #6b7280;
-  font-weight: bold;
-  margin-bottom: 12px;
-}
-
-.device-mockup {
-  border: 8px solid #1f2937;
-  border-radius: 30px;
-  overflow: hidden;
-  background: #fff;
-  position: relative;
-  height: 600px;
-  width: 320px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
-
-.device-notch {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 120px;
-  height: 20px;
-  background: #1f2937;
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
-  z-index: 20;
-}
-
-.status-bar {
-  height: 48px;
-  background: #f3f4f6;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  padding: 0 16px 8px;
-  border-bottom: 1px solid #e5e7eb;
-  font-size: 12px;
-  color: #4b5563;
-  font-weight: 500;
-}
-
-.status-icons {
-  display: flex;
-  gap: 4px;
-}
-
-.preview-area {
-  height: calc(100% - 48px);
-  overflow-y: auto;
-  background-color: #f9fafb;
-  padding: 16px;
-  position: relative;
-  
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-.home-indicator {
-  position: absolute;
-  bottom: 4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 128px;
-  height: 4px;
-  background: #d1d5db;
-  border-radius: 9999px;
-}
-
-// 站内信预览
-.preview-system {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.preview-time {
-  text-align: center;
-  font-size: 12px;
-  color: #9ca3af;
-  margin: 8px 0;
-}
-
-.notification-card {
-  background: white;
-  padding: 12px;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
-  display: flex;
-  gap: 12px;
-}
-
-.notification-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  flex-shrink: 0;
-  
-  &.icon-blue {
-    background: #3b82f6;
-  }
-  
-  &.icon-orange {
-    background: #f97316;
-  }
-  
-  &.icon-green {
-    background: #10b981;
-  }
-}
-
-.notification-content {
-  flex: 1;
-  min-width: 0;
-}
-
-.notification-title {
-  font-weight: bold;
-  font-size: 14px;
-  color: #1f2937;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.notification-text {
-  font-size: 12px;
-  color: #6b7280;
-  margin-top: 4px;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  word-break: break-word;
-}
-
-.notification-link {
-  margin-top: 8px;
-  color: #3b82f6;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-}
-
-// 邮件预览
-.preview-email {
-  background: white;
-  height: 100%;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.email-header {
-  background: #f9fafb;
-  padding: 12px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.email-to {
-  font-size: 12px;
-  color: #6b7280;
-  margin-bottom: 4px;
-}
-
-.email-subject {
-  font-weight: bold;
-  font-size: 14px;
-  color: #1f2937;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.email-body {
-  padding: 16px;
-  font-size: 14px;
-  color: #4b5563;
-  flex: 1;
-  overflow-y: auto;
-  word-break: break-word;
-  white-space: pre-wrap;
-  font-family: serif;
-}
-
-// 短信预览
-.preview-sms {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-top: 16px;
-}
-
-.sms-time {
-  display: flex;
-  justify-content: center;
-}
-
-.time-badge {
-  font-size: 12px;
-  background: #e5e7eb;
-  padding: 4px 8px;
-  border-radius: 4px;
-  color: #6b7280;
-}
-
-.sms-bubble-wrapper {
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
-}
-
-.sms-avatar {
-  width: 32px;
-  height: 32px;
-  background: #d1d5db;
-  border-radius: 50%;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 12px;
-}
-
-.sms-bubble {
-  background: white;
-  border: 1px solid #e5e7eb;
-  padding: 12px;
-  border-radius: 16px;
-  border-bottom-left-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  max-width: 80%;
-  font-size: 14px;
-  color: #1f2937;
-  word-break: break-word;
-  position: relative;
-  
-  p {
-    margin: 0;
-  }
-}
-
-.sms-template {
-  font-size: 10px;
-  color: #9ca3af;
-  margin-top: 4px;
-}
-
-// 动画
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-  transform: translateY(10px);
 }
 </style>

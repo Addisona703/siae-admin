@@ -1,18 +1,18 @@
-// Form validation utilities
+// 表单验证工具
 
-// Email validation regex
+// 邮箱验证正则
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-// Phone validation regex (supports various formats)
+// 手机号验证正则 (支持多种格式)
 const PHONE_REGEX = /^(\+?86)?1[3-9]\d{9}$/
 
-// Password strength regex (at least 8 chars, contains letter and number)
+// 密码强度正则 (至少8位，包含字母和数字)
 const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/
 
-// Username regex (alphanumeric and underscore, 3-20 chars)
+// 用户名正则 (字母数字下划线，3-20位)
 const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/
 
-// Student ID regex (typically 8-12 digits)
+// 学号正则 (通常8-12位数字)
 const STUDENT_ID_REGEX = /^\d{8,12}$/
 
 /**
@@ -148,7 +148,7 @@ export const ValidationHelpers = {
  * Custom validators for specific business logic
  */
 export const CustomValidators = {
-  // Validate password confirmation
+  // 验证密码确认
   confirmPassword: (originalPassword) => {
     return (rule, value) => {
       return new Promise((resolve, reject) => {
@@ -161,7 +161,7 @@ export const CustomValidators = {
     }
   },
 
-  // Validate unique username (would need API call)
+  // 验证用户名唯一性 (需要 API 调用)
   uniqueUsername: (checkFn) => {
     return async (rule, value) => {
       if (!value) return
@@ -172,7 +172,7 @@ export const CustomValidators = {
     }
   },
 
-  // Validate unique email (would need API call)
+  // 验证邮箱唯一性 (需要 API 调用)
   uniqueEmail: (checkFn) => {
     return async (rule, value) => {
       if (!value) return
@@ -183,7 +183,7 @@ export const CustomValidators = {
     }
   },
 
-  // Validate date range
+  // 验证日期范围
   dateRange: (startDate, endDate) => {
     return (rule, value) => {
       return new Promise((resolve, reject) => {
@@ -200,7 +200,7 @@ export const CustomValidators = {
     }
   },
 
-  // Validate file size
+  // 验证文件大小
   fileSize: (maxSizeInMB) => {
     return (rule, value) => {
       return new Promise((resolve, reject) => {
@@ -219,7 +219,7 @@ export const CustomValidators = {
     }
   },
 
-  // Validate file type
+  // 验证文件类型
   fileType: (allowedTypes) => {
     return (rule, value) => {
       return new Promise((resolve, reject) => {

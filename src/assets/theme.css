@@ -91,6 +91,10 @@ html[theme-mode='dark'] {
   --td-bg-color-container-active: #3f3f46 !important; /* 激活状态背景 */
   --td-bg-color-container-select: #1e3a8a !important; /* 选中状态背景 (深邃蓝) */
   --td-bg-color-component: #27272a !important;      /* 输入框背景色 (Zinc 800) */
+  
+  /* 强制覆盖可能的其他背景色变量 */
+  --td-bg-color-page-1: #000000 !important;
+  --td-bg-color-page-2: #000000 !important;
 
   /* Menu specific colors */
   --td-bg-color-menu-active: #27272a !important;

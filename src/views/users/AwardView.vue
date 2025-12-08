@@ -6,7 +6,7 @@
 </template>
 
 <script setup>
-// Award management placeholder - will be implemented in task 11.5
+// 获奖管理占位 - 将在任务 11.5 中实现
 </script>
 
 <style scoped>

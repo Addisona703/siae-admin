@@ -7,7 +7,7 @@ export const APP_CONFIG = {
   dateFormat: 'YYYY-MM-DD',
 
   // Environment-based configuration
-  apiBaseUrl: import.meta.env.VITE_API_BASE_URL || '/api',
+  apiBaseUrl: import.meta.env.VITE_API_BASE_URL || '/api/v1',
   apiTimeout: 30000,
   dashboardRefreshInterval: 60000,
   logRefreshInterval: 30000,

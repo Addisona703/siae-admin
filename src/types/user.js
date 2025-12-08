@@ -1,4 +1,4 @@
-// User management related types (JSDoc definitions for JavaScript)
+// 用户管理相关类型 (JavaScript JSDoc 定义)
 
 /**
  * 成员类型（后端返回的是描述字符串）

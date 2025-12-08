@@ -78,13 +78,13 @@ const cachedViews = computed(() => {
   overflow-y: auto;
   overflow-x: hidden;
   
-  // 隐藏滚动条
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  // 隐藏滚动条 - 已移除，以修复无法滚动的问题
+  // scrollbar-width: none;
+  // -ms-overflow-style: none;
   
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  // &::-webkit-scrollbar {
+  //   display: none;
+  // }
 }
 
 .app-content {
@@ -94,13 +94,13 @@ const cachedViews = computed(() => {
   overflow-y: auto;
   overflow-x: hidden;
   
-  // 隐藏滚动条
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  // 隐藏滚动条 - 已移除，以修复无法滚动的问题
+  // scrollbar-width: none;
+  // -ms-overflow-style: none;
   
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  // &::-webkit-scrollbar {
+  //   display: none;
+  // }
 }
 
 .app-footer {

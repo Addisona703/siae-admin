@@ -47,23 +47,33 @@ export const useAuthStore = defineStore('auth', () => {
       const result = await authApi.login(credentials)
       console.log('Auth Store - 登录响应:', result)
 
-      // Store tokens
-      TokenManager.setAccessToken(result.data.accessToken)
-      TokenManager.setRefreshToken(result.data.refreshToken)
-      TokenManager.setTokenExpires(result.data.expiresIn)
-      console.log('Auth Store - Token 已保存')
-
-      // Handle different response formats from backend
-      // Backend might return userInfo nested object or flat properties
-      const responseData = result.data
-      const userData = responseData.userInfo || {
-        id: responseData.id || null,
-        username: responseData.username,
-        email: responseData.email,
-        avatar: responseData.avatar,
-        roles: responseData.roles,
-        permissions: responseData.permissions,
+      // Store tokens first
+      console.log('Auth Store - 完整响应结构:', JSON.stringify(result, null, 2))
+      console.log('Auth Store - result.data:', result.data)
+      console.log('Auth Store - result.data.accessToken:', result.data?.accessToken)
+      
+      const tokenData = result.data
+      if (!tokenData?.accessToken) {
+        console.error('Auth Store - 响应中没有 accessToken!')
+        throw new Error('登录响应格式错误：缺少 accessToken')
       }
+      
+      TokenManager.setAccessToken(tokenData.accessToken)
+      TokenManager.setRefreshToken(tokenData.refreshToken)
+      TokenManager.setTokenExpires(tokenData.expiresIn)
+      
+      console.log('Auth Store - Token 已保存，验证:', {
+        savedAccessToken: localStorage.getItem('access_token')?.substring(0, 20) + '...',
+        savedRefreshToken: localStorage.getItem('refresh_token')?.substring(0, 20) + '...',
+        savedExpires: localStorage.getItem('token_expires'),
+      })
+
+      // Fetch complete user info from /me endpoint
+      console.log('Auth Store - 获取完整用户信息...')
+      const userResult = await authApi.getUserInfo()
+      console.log('Auth Store - 用户信息响应:', userResult)
+
+      const userData = userResult.data
       userInfo.value = userData
       saveUserInfo(userData)
       console.log('Auth Store - 用户信息已保存:', userInfo.value)
@@ -77,7 +87,7 @@ export const useAuthStore = defineStore('auth', () => {
     } catch (error) {
       console.error('Auth Store - 登录失败:', error)
       // Clear any partial state
-      await logout()
+      // await logout()
       throw error
     } finally {
       isLoading.value = false
@@ -128,35 +138,59 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const initializeAuth = async () => {
-    // Check if we have valid tokens
+    // console.log('[Auth] initializeAuth called')
+
+    // 先尝试从 localStorage 加载用户信息
+    const storedUserInfo = loadUserInfo()
+    if (storedUserInfo) {
+      userInfo.value = storedUserInfo
+    }
+
+    // 检查是否有 token（不管是否过期）
+    const hasToken = TokenManager.getAccessToken()
+    const hasRefreshToken = TokenManager.getRefreshToken()
+
+    if (!hasToken && !hasRefreshToken) {
+      clearUserInfo()
+      userInfo.value = null
+      return
+    }
+
+    // 如果 access token 过期但有 refresh token，尝试刷新
+    if (!TokenManager.hasValidToken() && hasRefreshToken) {
+      const refreshed = await refreshToken()
+      if (!refreshed) {
+        return
+      }
+    }
+
+    // 现在应该有有效的 token 了，获取用户信息
     if (TokenManager.hasValidToken()) {
-      // Try to load user info from localStorage first
-      const storedUserInfo = loadUserInfo()
+      // 初始化权限
       if (storedUserInfo) {
-        userInfo.value = storedUserInfo
-        // Initialize permissions from stored user info
         const { usePermissionStore } = await import('./permission')
         const permissionStore = usePermissionStore()
         permissionStore.initializePermissions()
       }
 
       try {
-        // Fetch fresh user info from API
+        // 从 API 获取最新用户信息
         const result = await authApi.getUserInfo()
         userInfo.value = result.data
         saveUserInfo(result.data)
 
-        // Update permissions with fresh data
+        // 更新权限
         const { usePermissionStore } = await import('./permission')
         const permissionStore = usePermissionStore()
         permissionStore.initializePermissions()
       } catch (error) {
-        // If fetching user info fails, clear tokens
-        await logout()
+        console.error('[Auth] getUserInfo failed:', error)
+        // 获取用户信息失败，但不清除本地存储的信息（可能只是网络问题）
+        // 只有在没有本地用户信息时才登出
+        if (!storedUserInfo) {
+          await logout()
+        }
       }
-    } else {
-      // No valid token, clear any stored user info
-      clearUserInfo()
     }
   }
 
@@ -167,8 +201,8 @@ export const useAuthStore = defineStore('auth', () => {
 
   return {
     // State
-    userInfo: null,
-    isLoading: false,
+    userInfo,
+    isLoading,
     // Getters
     isAuthenticated,
     currentUser,

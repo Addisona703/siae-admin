@@ -11,25 +11,33 @@
     </div>
 
     <div class="role-items">
-      <div v-for="role in roles" :key="role.id" :class="['role-item', { active: activeRoleId === role.id }]"
+      <div v-for="role in roles" :key="role.id" :class="['role-item', { active: String(activeRoleId) === String(role.id) }]"
         @click="handleSelect(role.id)">
         <div class="role-info">
           <h4 class="role-name">{{ role.name }}</h4>
-          <p class="role-desc">{{ role.description }}</p>
+          <p class="role-desc">{{ role.description || '暂无描述' }}</p>
           <div class="role-meta">
-            <t-tag size="small" variant="outline">
-              {{ role.count }} 个成员
-            </t-tag>
+            <t-tag size="small" variant="outline">{{ role.code }}</t-tag>
           </div>
         </div>
-        <div v-if="activeRoleId === role.id" class="active-indicator"></div>
+        <div class="role-actions" @click.stop>
+          <t-button variant="text" size="small" shape="square" @click="handleEdit(role)">
+            <template #icon><t-icon name="edit" /></template>
+          </t-button>
+          <t-popconfirm content="确定删除该角色吗？" @confirm="handleDelete(role.id)">
+            <t-button variant="text" size="small" shape="square" theme="danger">
+              <template #icon><t-icon name="delete" /></template>
+            </t-button>
+          </t-popconfirm>
+        </div>
+        <div v-if="String(activeRoleId) === String(role.id)" class="active-indicator"></div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-const props = defineProps({
+defineProps({
   roles: {
     type: Array,
     required: true,
@@ -41,7 +49,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:activeRoleId', 'add'])
+const emit = defineEmits(['update:activeRoleId', 'add', 'edit', 'delete'])
 
 const handleSelect = (id) => {
   emit('update:activeRoleId', id)
@@ -49,6 +57,14 @@ const handleSelect = (id) => {
 
 const handleAdd = () => {
   emit('add')
+}
+
+const handleEdit = (role) => {
+  emit('edit', role)
+}
+
+const handleDelete = (id) => {
+  emit('delete', id)
 }
 </script>
 
@@ -116,6 +132,10 @@ const handleAdd = () => {
   &:hover {
     border-color: var(--td-brand-color);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+    .role-actions {
+      opacity: 1;
+    }
   }
 
   &.active {
@@ -135,7 +155,27 @@ const handleAdd = () => {
         color: white;
       }
     }
+
+    .role-actions {
+      :deep(.t-button) {
+        color: rgba(255, 255, 255, 0.8);
+
+        &:hover {
+          color: white;
+        }
+      }
+    }
   }
+}
+
+.role-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
 }
 
 .role-info {

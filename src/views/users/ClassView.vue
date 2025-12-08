@@ -267,7 +267,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { MessagePlugin, DialogPlugin } from 'tdesign-vue-next'
 import { userApi } from '@/api'
 
-// State
+// 状态
 const loading = ref(false)
 const saving = ref(false)
 const dialogVisible = ref(false)
@@ -277,7 +277,7 @@ const tableData = ref([])
 const hierarchyData = ref({})
 const formRef = ref()
 
-// Search form
+// 搜索表单
 const searchForm = reactive({
   name: '',
   college: '',
@@ -286,14 +286,14 @@ const searchForm = reactive({
   status: undefined
 })
 
-// Pagination
+// 分页
 const pagination = reactive({
   current: 1,
   pageSize: 10,
   total: 0
 })
 
-// Form data
+// 表单数据
 const formData = ref({
   id: '',
   name: '',
@@ -305,7 +305,7 @@ const formData = ref({
   status: 'active'
 })
 
-// Form validation rules
+// 表单验证规则
 const formRules = {
   name: [
     { required: true, message: '班级名称不能为空', trigger: 'blur' }
@@ -324,7 +324,7 @@ const formRules = {
   ]
 }
 
-// Table columns
+// 表格列
 const columns = [
   { colKey: 'name', title: '班级名称', width: 200 },
   { colKey: 'college', title: '学院', width: 150 },
@@ -337,7 +337,7 @@ const columns = [
   { colKey: 'operation', title: '操作', width: 150, fixed: 'right' }
 ]
 
-// Methods
+// 方法
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('zh-CN')
 }
@@ -409,7 +409,7 @@ const handleReset = () => {
   handleSearch()
 }
 
-const handlePageChange = (pageInfo: any) => {
+const handlePageChange = (pageInfo) => {
   pagination.current = pageInfo.current
   pagination.pageSize = pageInfo.pageSize
   loadClasses()
@@ -430,7 +430,7 @@ const handleCreate = () => {
   dialogVisible.value = true
 }
 
-const handleEdit = (classItem: Class) => {
+const handleEdit = (classItem) => {
   dialogMode.value = 'edit'
   formData.value = {
     id: classItem.id,
@@ -522,7 +522,7 @@ const handleDelete = (classItem) => {
   })
 }
 
-// Lifecycle
+// 生命周期
 onMounted(() => {
   loadClasses()
 })
