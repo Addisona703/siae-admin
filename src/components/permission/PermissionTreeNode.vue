@@ -86,7 +86,8 @@ const props = defineProps({
 const emit = defineEmits(['toggle-select', 'toggle-expand', 'drop-node', 'delete-node'])
 
 const isExpanded = computed(() => props.expandedNodes.has(props.node.id))
-const isSelected = computed(() => props.rolePermissions.includes(props.node.id))
+// 统一转为字符串比较，避免类型不一致问题
+const isSelected = computed(() => props.rolePermissions.includes(String(props.node.id)))
 const hasChildren = computed(() => props.node.children && props.node.children.length > 0)
 
 const handleToggleExpand = () => {

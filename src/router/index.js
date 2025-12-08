@@ -1,9 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { scrollBehavior } from './guards'
+import {
+  scrollBehavior,
+  authGuard,
+  permissionGuard,
+  titleGuard,
+  errorGuard
+} from './guards'
 
-// Define routes with lazy loading
+// 路由配置（懒加载）
 const routes = [
-  // Public routes
+  // 公开路由
   {
     path: '/login',
     name: 'Login',
@@ -14,7 +20,7 @@ const routes = [
     },
   },
 
-  // Full-screen content creation (no layout)
+  // 全屏内容创建页（无布局）
   {
     path: '/content/create',
     name: 'ContentCreate',
@@ -25,7 +31,31 @@ const routes = [
     },
   },
 
-  // Full-screen notification center (no layout)
+  // 全屏内容编辑页（无布局）
+  {
+    path: '/content/edit/:id',
+    name: 'ContentEdit',
+    component: () => import('@/views/content/ContentEditView.vue'),
+    meta: {
+      requiresAuth: true,
+      hideInMenu: true,
+      permission: 'content:edit',
+    },
+  },
+
+  // 全屏内容详情页（无布局）
+  {
+    path: '/content/detail/:id',
+    name: 'ContentDetail',
+    component: () => import('@/views/content/ContentDetailView.vue'),
+    meta: {
+      requiresAuth: true,
+      hideInMenu: true,
+      permission: 'content:view',
+    },
+  },
+
+  // 全屏通知中心（无布局）
   {
     path: '/notifications',
     name: 'NotificationCenter',
@@ -36,7 +66,7 @@ const routes = [
     },
   },
 
-  // Message publish page (no layout)
+  // 消息发布页（无布局）
   {
     path: '/message/publish',
     name: 'MessagePublish',
@@ -48,7 +78,7 @@ const routes = [
     },
   },
 
-  // Protected routes with layout
+  // 需要认证的路由（带布局）
   {
     path: '/',
     component: () => import('@/layouts/AppLayout.vue'),
@@ -64,11 +94,11 @@ const routes = [
         component: () => import('@/views/dashboard/DashboardView.vue'),
         meta: {
           icon: 'dashboard',
-          // No permission required for dashboard - accessible to all authenticated users
+          // 仪表盘无需权限，所有已认证用户可访问
         },
       },
 
-      // Authentication Management
+      // 权限管理
       {
         path: 'auth',
         name: 'AuthManagement',
@@ -78,21 +108,12 @@ const routes = [
         },
         children: [
           {
-            path: 'permissions',
-            name: 'PermissionManagement',
+            path: 'role-permission',
+            name: 'RolePermissionManagement',
             component: () => import('@/views/auth/PermissionView.vue'),
             meta: {
               icon: 'control-platform',
               permission: 'auth:permission:view',
-            },
-          },
-          {
-            path: 'roles',
-            name: 'RoleManagement',
-            component: () => import('@/views/auth/RoleView.vue'),
-            meta: {
-              icon: 'usergroup',
-              permission: 'auth:role:view',
             },
           },
           {
@@ -107,7 +128,7 @@ const routes = [
         ],
       },
 
-      // User Management
+      // 用户管理
       {
         path: 'users',
         name: 'UserManagement',
@@ -182,7 +203,7 @@ const routes = [
         ],
       },
 
-      // Award Management
+      // 奖项管理
       {
         path: 'awards',
         name: 'AwardManagement',
@@ -241,7 +262,7 @@ const routes = [
         ],
       },
 
-      // Content Management
+      // 内容管理
       {
         path: 'content',
         name: 'ContentManagement',
@@ -259,16 +280,7 @@ const routes = [
               permission: 'content:view',
             },
           },
-          {
-            path: 'edit/:id',
-            name: 'ContentEdit',
-            component: () => import('@/views/content/ContentEditView.vue'),
-            meta: {
-              icon: 'edit',
-              permission: 'content:edit',
-              hideInMenu: true,
-            },
-          },
+
           {
             path: 'categories',
             name: 'CategoryManagement',
@@ -314,10 +326,19 @@ const routes = [
               permission: 'content:statistics:view',
             },
           },
+          {
+            path: 'trash',
+            name: 'ContentTrash',
+            component: () => import('@/views/content/ContentTrashView.vue'),
+            meta: {
+              icon: 'delete',
+              permission: 'content:view',
+            },
+          },
         ],
       },
 
-      // Logging and Monitoring
+      // 日志管理
       {
         path: 'logs',
         name: 'LogManagement',
@@ -335,21 +356,12 @@ const routes = [
               permission: 'log:login:view',
             },
           },
-          {
-            path: 'audit',
-            name: 'AuditLogs',
-            component: () => import('@/views/logs/AuditLogView.vue'),
-            meta: {
-              icon: 'file-search',
-              permission: 'log:audit:view',
-            },
-          },
         ],
       },
     ],
   },
 
-  // Catch-all route for 404
+  // 404 兜底路由
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
@@ -366,6 +378,10 @@ const router = createRouter({
   scrollBehavior,
 })
 
-// setupRouterGuards(router)
+// 注册路由守卫
+router.beforeEach(authGuard)
+router.beforeEach(permissionGuard)
+router.afterEach(titleGuard)
+router.onError(errorGuard)
 
 export default router

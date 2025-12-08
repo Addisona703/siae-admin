@@ -1,4 +1,4 @@
-// Notification related types (JSDoc definitions for JavaScript)
+// 通知相关类型 (JavaScript JSDoc 定义)
 
 /**
  * @typedef {Object} NotificationVO

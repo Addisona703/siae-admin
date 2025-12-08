@@ -1,7 +1,7 @@
 import axios from 'axios'
-// const BaseUrl = '/api'
+import { APP_CONFIG } from '@/config/app.config'
 
-const baseURL = '/api'
+const baseURL = APP_CONFIG.apiBaseUrl
 
 const instance = axios.create({
   baseURL,

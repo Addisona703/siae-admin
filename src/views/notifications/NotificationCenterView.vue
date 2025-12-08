@@ -159,103 +159,6 @@
           </div>
         </t-tab-panel>
 
-        <!-- Tab 2: 邮件发送日志 -->
-        <t-tab-panel value="email_log" label="邮件日志">
-          <div class="tab-content">
-            <div class="log-toolbar">
-              <t-input 
-                v-model="emailSearch" 
-                placeholder="搜索收件人邮箱" 
-                style="width: 240px"
-              >
-                <template #suffix-icon><t-icon name="search" /></template>
-              </t-input>
-              <t-select 
-                v-model="logStatusFilter" 
-                placeholder="状态" 
-                clearable 
-                style="width: 120px"
-              >
-                <t-option :value="1" label="成功"></t-option>
-                <t-option :value="2" label="失败"></t-option>
-                <t-option :value="0" label="待发送"></t-option>
-              </t-select>
-              <t-button theme="default" variant="outline" @click="fetchLogs">
-                刷新
-              </t-button>
-            </div>
-
-            <t-table
-              row-key="id"
-              :data="emailLogs"
-              :columns="emailColumns"
-              :loading="logLoading"
-              stripe
-              hover
-            >
-              <template #status="{ row }">
-                <t-tag theme="success" variant="light" v-if="row.status === 1">
-                  <t-icon name="check-circle" class="mr-1"/>成功
-                </t-tag>
-                <t-tooltip v-else-if="row.status === 2" :content="row.error_msg">
-                  <t-tag theme="danger" variant="light" class="cursor-help">
-                    <t-icon name="error-circle" class="mr-1"/>失败
-                  </t-tag>
-                </t-tooltip>
-                <t-tag theme="warning" variant="light" v-else>
-                  <t-icon name="time" class="mr-1"/>待发送
-                </t-tag>
-              </template>
-              <template #op="{ row }">
-                <t-link theme="primary" v-if="row.status === 2">重试</t-link>
-              </template>
-            </t-table>
-          </div>
-        </t-tab-panel>
-
-        <!-- Tab 3: 短信发送日志 -->
-        <t-tab-panel value="sms_log" label="短信日志">
-          <div class="tab-content">
-            <div class="log-toolbar">
-              <t-input 
-                v-model="smsSearch" 
-                placeholder="搜索手机号" 
-                style="width: 240px"
-              >
-                <template #suffix-icon><t-icon name="search" /></template>
-              </t-input>
-              <t-select 
-                v-model="logStatusFilter" 
-                placeholder="状态" 
-                clearable 
-                style="width: 120px"
-              >
-                <t-option :value="1" label="成功"></t-option>
-                <t-option :value="2" label="失败"></t-option>
-                <t-option :value="0" label="待发送"></t-option>
-              </t-select>
-            </div>
-
-            <t-table
-              row-key="id"
-              :data="smsLogs"
-              :columns="smsColumns"
-              stripe
-              hover
-            >
-              <template #status="{ row }">
-                <t-tag theme="success" variant="light" v-if="row.status === 1">
-                  成功
-                </t-tag>
-                <t-tooltip v-else-if="row.status === 2" :content="row.error_msg">
-                  <t-tag theme="danger" variant="light">失败</t-tag>
-                </t-tooltip>
-                <t-tag theme="warning" variant="light" v-else>待发送</t-tag>
-              </template>
-            </t-table>
-          </div>
-        </t-tab-panel>
-
       </t-tabs>
     </div>
     </div>
@@ -267,10 +170,12 @@ import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { useAuthStore } from '@/stores/auth'
+import { useNotificationStore } from '@/stores/notification'
 import { notificationApi } from '@/api/notification'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const notificationStore = useNotificationStore()
 
 const userInfo = computed(() => authStore.currentUser)
 
@@ -294,7 +199,7 @@ const handleLogout = async () => {
 }
 
 const goToPublish = () => {
-  router.push('/notifications/publish')
+  router.push('/message/publish')
 }
 
 
@@ -384,7 +289,7 @@ const getTypeConfig = (type) => {
 const readNotification = async (item) => {
   if (!item.is_read) {
     try {
-      await notificationApi.markAsRead(item.id)
+      await notificationStore.markAsRead(item.id)
       item.is_read = true
     } catch (error) {
       console.error('Failed to mark as read:', error)
@@ -394,7 +299,7 @@ const readNotification = async (item) => {
 
 const markAllRead = async () => {
   try {
-    await notificationApi.markAllAsRead()
+    await notificationStore.markAllAsRead()
     notifications.value.forEach(n => n.is_read = true)
     MessagePlugin.success('全部已标记为已读')
   } catch (error) {
@@ -403,7 +308,7 @@ const markAllRead = async () => {
   }
 }
 
-const deleteNotification = async (item: Notification) => {
+const deleteNotification = async (item) => {
   try {
     await notificationApi.deleteNotification(item.id)
     notifications.value = notifications.value.filter(n => n.id !== item.id)

@@ -33,6 +33,15 @@ export const contentApi = {
   },
 
   /**
+   * Restore content from trash
+   * @param id Content ID
+   * @returns Promise with void result
+   */
+  restoreContent: async (id) => {
+    return post(`/content/restore/${id}`)
+  },
+
+  /**
    * Get content by ID
    * @param contentId Content ID
    * @returns Promise with content details
@@ -299,22 +308,24 @@ export const contentApi = {
   },
 
   /**
-   * Get comment list by content ID
-   * @param contentId Content ID
-   * @param pageDTO Pagination parameters
-   * @returns Promise with paginated comments
+   * 分页查询根评论（包含子评论数量和前几条子评论预览）
+   * @param contentId 内容ID
+   * @param pageDTO 分页参数，params中可传sortBy(createTime/likeCount)和sortOrder(asc/desc)
+   * @returns Promise with paginated root comments
    */
   getCommentsByContent: async (contentId, pageDTO) => {
-    return post(`/content/comments/${contentId}/page`, pageDTO)
+    return post(`/content/comments/${contentId}/root/page`, pageDTO)
   },
 
   /**
-   * Get paginated comment list
-   * @param pageDTO Pagination and filter parameters
-   * @returns Promise with paginated comments
+   * 分页查询子评论（用于展开更多）
+   * @param contentId 内容ID
+   * @param rootId 根评论ID
+   * @param pageDTO 分页参数
+   * @returns Promise with paginated child comments
    */
-  getCommentPage: async (pageDTO) => {
-    return post('/content/comments/page', pageDTO)
+  getChildComments: async (contentId, rootId, pageDTO = { pageNum: 1, pageSize: 50 }) => {
+    return post(`/content/comments/${contentId}/children/${rootId}/page`, pageDTO)
   },
 
   // ========== User Interactions ==========
@@ -335,6 +346,16 @@ export const contentApi = {
    */
   cancelAction: async (actionData) => {
     return del('/content/interactions/action', { data: actionData })
+  },
+
+  /**
+   * Get liked target IDs
+   * @param targetIds Target ID list
+   * @param targetType Target type (CONTENT or COMMENT)
+   * @returns Promise with liked ID set
+   */
+  getLikedIds: async (targetIds, targetType) => {
+    return post('/content/interactions/liked', targetIds, { params: { targetType } })
   },
 
   // ========== Favorites Management ==========

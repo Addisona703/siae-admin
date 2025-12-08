@@ -56,6 +56,12 @@
         </template>
         内容列表
       </t-menu-item>
+      <t-menu-item value="content-audit">
+        <template #icon>
+          <t-icon name="check-circle" />
+        </template>
+        内容审核
+      </t-menu-item>
       <t-menu-item value="category-tag">
         <template #icon>
           <t-icon name="layers" />
@@ -67,6 +73,12 @@
           <t-icon name="chart-bar" />
         </template>
         数据统计
+      </t-menu-item>
+      <t-menu-item value="content-trash">
+        <template #icon>
+          <t-icon name="delete" />
+        </template>
+        回收站
       </t-menu-item>
     </t-submenu>
 
@@ -98,17 +110,17 @@
       <template #icon>
         <t-icon name="user-setting" />
       </template>
-      <t-menu-item value="permissions">
+      <t-menu-item value="role-permission">
         <template #icon>
           <t-icon name="lock" />
         </template>
-        权限管理
+        角色权限
       </t-menu-item>
-      <t-menu-item value="roles">
+      <t-menu-item value="user-roles">
         <template #icon>
           <t-icon name="user-circle" />
         </template>
-        角色管理
+        用户角色
       </t-menu-item>
     </t-submenu>
 
@@ -121,12 +133,6 @@
           <t-icon name="login" />
         </template>
         登录日志
-      </t-menu-item>
-      <t-menu-item value="audit-logs">
-        <template #icon>
-          <t-icon name="file-search" />
-        </template>
-        审核日志
       </t-menu-item>
     </t-submenu>
     <t-menu-item value="resource">
@@ -160,18 +166,18 @@ const activeMenu = computed(() => {
     'MemberList': 'member-list',
     'MemberStatistics': 'member-statistics',
     'ContentList': 'content-list',
+    'ContentAudit': 'content-audit',
     'CategoryTagManagement': 'category-tag',
     'ContentStatistics': 'content-statistics',
+    'ContentTrash': 'content-trash',
     'AwardList': 'award-list',
     'AwardConfig': 'award-config',
     'AwardStatistics': 'award-statistics',
-    'PermissionManagement': 'permissions',
-    'RoleManagement': 'roles',
+    'RolePermissionManagement': 'role-permission',
+    'UserRoleManagement': 'user-roles',
     'LoginLogs': 'login-logs',
-    'AuditLogs': 'audit-logs',
     'UserAudit': 'user-audit',
     'UserBlacklist': 'user-blacklist'
-    // 'resource': 'http://localhost:7080/home'
   }
 
   return menuMap[name] || 'dashboard'
@@ -190,15 +196,16 @@ const handleMenuChange = (value) => {
     'member-list': '/users/members',
     'member-statistics': '/users/statistics',
     'content-list': '/content/list',
+    'content-audit': '/content/audit',
     'category-tag': '/content/category-tag',
     'content-statistics': '/content/statistics',
+    'content-trash': '/content/trash',
     'award-list': '/awards/list',
     'award-config': '/awards/config',
     'award-statistics': '/awards/statistics',
-    'permissions': '/auth/permissions',
-    'roles': '/auth/roles',
+    'role-permission': '/auth/role-permission',
+    'user-roles': '/auth/user-roles',
     'login-logs': '/logs/login',
-    'audit-logs': '/logs/audit',
     'user-audit': '/users/audit',
     'user-blacklist': '/users/blacklist'
   }

@@ -9,10 +9,10 @@
 export function optimizeThemeTransition(callback) {
   const root = document.documentElement
   
-  // Add class to disable transitions
+  // 添加类以禁用过渡
   root.classList.add('theme-transitioning')
   
-  // Execute the theme change
+  // 执行主题切换
   callback()
   
   // Re-enable transitions after a frame
@@ -46,7 +46,7 @@ export async function performViewTransition(callback, options) {
     Math.max(y, window.innerHeight - y)
   )
 
-  // Add class to disable other transitions
+  // 添加类以禁用其他过渡
   const root = document.documentElement
   root.classList.add('theme-switching')
 
@@ -57,7 +57,7 @@ export async function performViewTransition(callback, options) {
   try {
     await transition.ready
 
-    // Use Web Animations API for better performance
+    // 使用 Web Animations API 以获得更好的性能
     const animation = root.animate(
       {
         clipPath: [

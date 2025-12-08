@@ -3,7 +3,7 @@
  */
 import { MessagePlugin, NotifyPlugin } from 'tdesign-vue-next'
 
-// Default retry configuration
+// 默认重试配置
 const DEFAULT_RETRY_CONFIG = {
   maxRetries: 3,
   retryDelay: 1000,
@@ -11,7 +11,7 @@ const DEFAULT_RETRY_CONFIG = {
   timeout: 10000
 }
 
-// Error log storage
+// 错误日志存储
 const ERROR_LOG_KEY = 'multi_theme_error_log'
 const MAX_ERROR_LOGS = 50
 
@@ -25,7 +25,7 @@ export function createThemeError(code, message, themeId, originalError) {
   error.originalError = originalError
   error.timestamp = Date.now()
   
-  // Determine if error is recoverable and retryable
+  // 判断错误是否可恢复和可重试
   error.recoverable = isRecoverableError(code)
   error.retryable = isRetryableError(code)
   
@@ -104,10 +104,10 @@ export function handleThemeError(error, options = {}) {
   const message = getErrorMessage(error)
   const suggestion = getRecoverySuggestion(error)
   
-  // Log error
+  // 记录错误
   logThemeError(error)
   
-  // Console logging with details
+  // 控制台输出详细信息
   console.error('[Theme Error]', {
     code: error.code,
     message: message,
@@ -118,7 +118,7 @@ export function handleThemeError(error, options = {}) {
     originalError: error.originalError || null
   })
   
-  // Show user feedback
+  // 显示用户反馈
   if (showMessage && error.retryable && onRetry) {
     MessagePlugin.error({
       content: `${message}。${suggestion}`,
@@ -165,13 +165,13 @@ export function logThemeError(error) {
     
     const logs = getErrorLogs()
     
-    // Add new log
+    // 添加新日志
     logs.unshift(errorLog)
     
-    // Keep only recent logs
+    // 只保留最近的日志
     const trimmedLogs = logs.slice(0, MAX_ERROR_LOGS)
     
-    // Save to localStorage
+    // 保存到 localStorage
     localStorage.setItem(ERROR_LOG_KEY, JSON.stringify(trimmedLogs))
   } catch (e) {
     console.warn('Failed to log theme error:', e)
@@ -233,12 +233,12 @@ export async function retryOperation(operation, config = {}) {
   
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      // Create timeout promise
+      // 创建超时 Promise
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => reject(new Error('Operation timeout')), timeout)
       })
       
-      // Race between operation and timeout
+      // 操作和超时竞争
       const result = await Promise.race([
         operation(),
         timeoutPromise
@@ -257,28 +257,28 @@ export async function retryOperation(operation, config = {}) {
     } catch (error) {
       lastError = error
       
-      // If this was the last attempt, throw the error
+      // 如果是最后一次尝试，抛出错误
       if (attempt === maxRetries) {
         break
       }
       
-      // Calculate delay with exponential backoff
+      // 计算指数退避延迟
       const delay = retryDelay * Math.pow(backoffMultiplier, attempt)
       
       console.warn(`[Theme Retry] Attempt ${attempt + 1}/${maxRetries} failed, retrying in ${delay}ms...`, error)
       
-      // Show retry message to user
+      // 向用户显示重试消息
       MessagePlugin.warning({
         content: `正在重试... (${attempt + 1}/${maxRetries})`,
         duration: 3000
       })
       
-      // Wait before retrying
+      // 等待后重试
       await new Promise(resolve => setTimeout(resolve, delay))
     }
   }
   
-  // All retries failed
+  // 所有重试都失败
   throw lastError || new Error('Operation failed after all retries')
 }
 

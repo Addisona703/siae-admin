@@ -2,7 +2,7 @@
   <t-head-menu :theme="menuTheme" height="64px" @change="handleMenuChange" class="header-menu">
     <template #logo>
       <div class="logo-section">
-        <img src="/public/favicon.ico" alt="" class="logo-icon">
+        <img src="/favicon.ico" alt="" class="logo-icon">
         <span class="logo-text">SIAE 管理系统</span>
       </div>
     </template>
@@ -27,11 +27,13 @@
         </template>
       </t-button>
 
-      <t-badge :count="notificationCount" :max-count="99">
-        <t-button style="margin-right: 15px;" variant="text" shape="square" @click="handleNotifications">
-          <t-icon name="notification" />
-        </t-button>
-      </t-badge>
+      <div class="notification-badge-wrapper">
+        <t-badge :count="notificationCount" :max-count="99" :offset="[-5, 5]">
+          <t-button variant="text" shape="square" @click="handleNotifications">
+            <t-icon name="notification" />
+          </t-button>
+        </t-badge>
+      </div>
 
       <t-dropdown :min-column-width="160">
         <t-button style="margin-right: 30px;" variant="text" shape="square">
@@ -70,17 +72,19 @@ import { useRouter, useRoute } from 'vue-router'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
-import { notificationApi } from '@/api/notification'
+import { useNotificationStore } from '@/stores/notification'
 
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 const appStore = useAppStore()
+const notificationStore = useNotificationStore()
 
 const userInfo = computed(() => authStore.currentUser)
 const isDarkTheme = computed(() => appStore.isDarkTheme)
 const menuTheme = computed(() => appStore.isDarkTheme ? 'dark' : 'light')
-const notificationCount = ref(0)
+// 使用 store 中的未读数量，实时更新
+const notificationCount = computed(() => notificationStore.unreadCount)
 const currentTime = ref('')
 
 // 更新时间
@@ -98,26 +102,13 @@ const updateTime = () => {
   currentTime.value = `${year}-${month}-${day} ${weekDay} ${hours}:${minutes}:${seconds}`
 }
 
-// 加载未读通知数量
-const loadUnreadCount = async () => {
-  try {
-    const response = await notificationApi.getUnreadCount()
-    if (response.code === 200 && response.data !== undefined) {
-      notificationCount.value = response.data
-    }
-  } catch (error) {
-    console.error('Failed to load unread count:', error)
-  }
-}
-
-// 定时刷新未读数量
-let refreshTimer = null
 let timeTimer = null
 
 onMounted(() => {
-  // loadUnreadCount()
-  // 每30秒刷新一次未读数量
-  // refreshTimer = window.setInterval(loadUnreadCount, 30000)
+  // 初始化通知 store（建立 SSE 连接）
+  if (authStore.isAuthenticated && !notificationStore.initialized) {
+    notificationStore.bootstrap()
+  }
 
   // 初始化时间并每秒更新
   updateTime()
@@ -125,9 +116,6 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  if (refreshTimer) {
-    clearInterval(refreshTimer)
-  }
   if (timeTimer) {
     clearInterval(timeTimer)
   }
@@ -152,7 +140,7 @@ const breadcrumbs = computed(() => {
 })
 
 const handleMenuChange = () => {
-  // Header menu logic removed as it is replaced by breadcrumbs
+  // 头部菜单逻辑已移除，改用面包屑导航
 }
 
 const handleToggleTheme = (event) => {
@@ -396,6 +384,12 @@ const handleLogout = async () => {
   align-items: center;
   gap: 12px;
   padding-right: 12px;
+}
+
+.notification-badge-wrapper {
+  position: relative;
+  display: inline-flex;
+  margin-right: 15px;
 }
 
 // 暗黑模式下的操作按钮

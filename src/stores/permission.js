@@ -7,6 +7,7 @@ export const usePermissionStore = defineStore('permission', () => {
   // State
   const allPermissions = ref([])
   const userPermissions = ref(new Set())
+  const userRoles = ref(new Set())
   const isLoading = ref(false)
 
   // Getters
@@ -23,6 +24,10 @@ export const usePermissionStore = defineStore('permission', () => {
     userPermissions.value = new Set(permissions)
   }
 
+  const setUserRoles = (roles) => {
+    userRoles.value = new Set(roles)
+  }
+
   const setAllPermissions = (permissions) => {
     allPermissions.value = permissions
   }
@@ -31,8 +36,16 @@ export const usePermissionStore = defineStore('permission', () => {
     return userPermissions.value.has(permission)
   }
 
+  const hasRole = (role) => {
+    return userRoles.value.has(role)
+  }
+
   const hasAnyOfPermissions = (permissions) => {
     return permissions.some((permission) => userPermissions.value.has(permission))
+  }
+
+  const hasAnyOfRoles = (roles) => {
+    return roles.some((role) => userRoles.value.has(role))
   }
 
   const hasAllPermissions = (permissions) => {
@@ -44,10 +57,14 @@ export const usePermissionStore = defineStore('permission', () => {
     if (authStore.currentUser?.permissions) {
       setUserPermissions(authStore.currentUser.permissions)
     }
+    if (authStore.currentUser?.roles) {
+      setUserRoles(authStore.currentUser.roles)
+    }
   }
 
   const clearPermissions = () => {
     userPermissions.value.clear()
+    userRoles.value.clear()
     allPermissions.value = []
   }
 
@@ -67,6 +84,7 @@ export const usePermissionStore = defineStore('permission', () => {
     // State
     allPermissions: [],
     userPermissions: new Set(),
+    userRoles: new Set(),
     isLoading: false,
     // Getters
     permissionTree,
@@ -74,9 +92,12 @@ export const usePermissionStore = defineStore('permission', () => {
 
     // Actions
     setUserPermissions,
+    setUserRoles,
     setAllPermissions,
     hasPermission,
+    hasRole,
     hasAnyOfPermissions,
+    hasAnyOfRoles,
     hasAllPermissions,
     initializePermissions,
     clearPermissions,

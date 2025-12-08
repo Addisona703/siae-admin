@@ -421,7 +421,6 @@ const filteredTags = computed(() => {
 const tagColumns = [
   { colKey: 'name', title: '标签名称', width: 200 },
   { colKey: 'description', title: '描述', ellipsis: true },
-  { colKey: 'usageCount', title: '使用次数', width: 120, align: 'center' },
   { colKey: 'createdAt', title: '创建时间', width: 180 },
   { colKey: 'op', title: '操作', width: 150, fixed: 'right' }
 ]
@@ -541,7 +540,7 @@ const formatDate = (dateStr) => {
 // ================== 初始化 ==================
 onMounted(() => {
   loadCategories()
-  // loadTags()
+  loadTags()
 })
 </script>
 

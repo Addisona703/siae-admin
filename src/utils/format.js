@@ -1,4 +1,4 @@
-// General formatting utilities
+// 通用格式化工具
 
 /**
  * Format file size in bytes to human readable format
@@ -48,12 +48,12 @@ export const truncateText = (text, maxLength) => {
 export const formatPhoneMask = (phone) => {
   if (!phone || phone.length < 7) return phone
   
-  // Mobile phone (11 digits)
+  // 手机号 (11位)
   if (phone.length === 11) {
     return `${phone.substring(0, 3)}****${phone.substring(7)}`
   }
   
-  // Landline or other
+  // 座机或其他
   const lastFour = phone.substring(phone.length - 4)
   const prefix = phone.substring(0, phone.length - 7)
   return `${prefix}***${lastFour}`

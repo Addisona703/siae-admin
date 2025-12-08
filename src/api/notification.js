@@ -10,7 +10,7 @@ export const notificationApi = {
    * @returns Promise with result
    */
   sendEmailCode: async (email) => {
-    return post('/notification/email/code/send', null, { 
+    return post('/notification/email/code/send', null, {
       params: { email }
     })
   },
@@ -62,7 +62,7 @@ export const notificationApi = {
    * @returns Promise with result
    */
   markAsRead: async (id) => {
-    return put(`/notification/${id}/read`)
+    return put(`/notification/${id}/status`, null, { params: { isRead: true } })
   },
 
   /**
@@ -70,7 +70,7 @@ export const notificationApi = {
    * @returns Promise with result
    */
   markAllAsRead: async () => {
-    return put('/notification/read-all')
+    return put('/notification/status-all', null, { params: { isRead: true } })
   },
 
   /**
@@ -187,15 +187,13 @@ export const notificationApi = {
     return post('/notification/email/template/test/activity-reminder', null, { params })
   },
 
-  // ========== Message Publishing ==========
-
   /**
    * Broadcast system notification
    * @param data System notification data
    * @returns Promise with result
    */
   broadcastSystemNotification: async (data) => {
-    return post('/notification/system/broadcast', data)
+    return post('/notification/broadcast', data)
   },
 
   /**

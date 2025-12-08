@@ -151,7 +151,7 @@ const handleThemeChange = (newThemeId) => {
   saveLayout()
 }
 
-// Lifecycle
+// 生命周期
 onMounted(() => {
   // 加载保存的主题
   loadSavedTheme()

@@ -15,8 +15,8 @@
           </div>
         </div>
         
-        <span class="text-xs text-gray-400 ml-2" v-if="lastSaved">上次保存: {{ lastSaved }}</span>
-        <span class="text-xs text-gray-400 ml-2" v-else-if="loading">加载中...</span>
+        <span class="text-xs ml-2" style="color: var(--td-text-color-disabled);" v-if="lastSaved">上次保存: {{ lastSaved }}</span>
+        <span class="text-xs ml-2" style="color: var(--td-text-color-disabled);" v-else-if="loading">加载中...</span>
       </div>
 
       <div class="flex gap-2">
@@ -31,80 +31,53 @@
     <!-- 主体布局 -->
     <div class="flex-1 flex overflow-hidden" v-if="!loading">
       <!-- 左侧：主要编辑区 -->
-      <main class="flex-1 flex flex-col bg-gray-50 relative min-w-0 overflow-hidden">
+      <main class="flex-1 flex flex-col relative min-w-0 overflow-hidden" style="background: var(--td-bg-color-page);">
         <!-- 通用标题输入 -->
-        <div class="px-6 py-5 shrink-0 bg-white border-b">
+        <div class="px-6 py-5 shrink-0 border-b"
+          style="background: var(--td-bg-color-container); border-color: var(--td-component-border);">
           <input 
             v-model="form.title" 
             type="text" 
             placeholder="请输入标题..." 
-            class="w-full text-xl font-normal border-none focus:ring-0 outline-none placeholder:text-gray-300 text-gray-700"
+            class="w-full text-xl font-normal border-none focus:ring-0 outline-none"
+            style="background: transparent; color: var(--td-text-color-primary);"
           >
         </div>
 
         <!-- 文字类内容编辑区 (文章/笔记/提问) -->
         <div v-if="isTextContent" class="flex-1 flex flex-col overflow-hidden">
           <!-- 编辑模式切换栏 -->
-          <div class="px-8 py-2 flex items-center justify-between bg-white border-b shrink-0 z-10">
-            <div class="text-xs text-gray-400 flex items-center gap-2">
-              <span v-if="form.type === 2" class="text-orange-500 bg-orange-50 px-2 py-1 rounded">提问模式</span>
+          <div class="px-8 py-2 flex items-center justify-between border-b shrink-0 z-10"
+            style="background: var(--td-bg-color-container); border-color: var(--td-component-border);">
+            <div class="text-xs flex items-center gap-2" style="color: var(--td-text-color-placeholder);">
+              <span v-if="form.type === 2" class="px-2 py-1 rounded" style="color: var(--td-warning-color); background-color: var(--td-warning-color-1);">提问模式</span>
               <span v-else>编辑模式</span>
             </div>
             
-            <div class="flex bg-gray-100 p-0.5 rounded-md">
+            <div class="flex p-0.5 rounded-md" style="background: var(--td-bg-color-component);">
               <button 
                 @click="switchEditorMode('word')"
-                class="px-3 py-1 rounded text-xs font-medium transition-all"
-                :class="editorMode === 'word' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500'"
+                class="px-3 py-1 rounded text-xs font-medium transition-all editor-mode-btn"
+                :class="editorMode === 'word' ? 'editor-mode-active' : 'editor-mode-normal'"
               >Word 模式</button>
               <button 
                 @click="switchEditorMode('markdown')"
-                class="px-3 py-1 rounded text-xs font-medium transition-all"
-                :class="editorMode === 'markdown' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500'"
+                class="px-3 py-1 rounded text-xs font-medium transition-all editor-mode-btn"
+                :class="editorMode === 'markdown' ? 'editor-mode-active' : 'editor-mode-normal'"
               >Markdown</button>
             </div>
           </div>      
     <!-- 编辑器主体 -->
           <div class="flex-1 flex flex-col overflow-hidden relative">
-            <!-- Word 模式 -->
+            <!-- Word 模式 (TinyMCE 富文本编辑器) -->
             <div v-show="editorMode === 'word'" class="h-full flex flex-col">
-              <!-- Word 工具栏 -->
-              <div class="word-toolbar">
-                <select class="toolbar-select">
-                  <option>Normal</option>
-                  <option>标题 1</option>
-                  <option>标题 2</option>
-                  <option>标题 3</option>
-                </select>
-                <div class="toolbar-divider"></div>
-                <button class="toolbar-btn" title="加粗"><FormatHorizontalAlignCenterIcon /></button>
-                <button class="toolbar-btn" title="斜体"><EditIcon /></button>
-                <button class="toolbar-btn" title="下划线">U</button>
-                <button class="toolbar-btn" title="删除线">S</button>
-                <div class="toolbar-divider"></div>
-                <button class="toolbar-btn" title="字体颜色">A</button>
-                <button class="toolbar-btn" title="背景色">🎨</button>
-                <div class="toolbar-divider"></div>
-                <button class="toolbar-btn" title="有序列表">≡</button>
-                <button class="toolbar-btn" title="无序列表">⋮</button>
-                <button class="toolbar-btn" title="对齐">≣</button>
-                <div class="toolbar-divider"></div>
-                <button class="toolbar-btn" title="链接"><LinkIcon /></button>
-                <button class="toolbar-btn" title="图片"><ImageIcon /></button>
-                <button class="toolbar-btn" title="引用">❝</button>
-                <button class="toolbar-btn" title="代码"><CodeIcon /></button>
-              </div>
-              
-              <!-- 编辑区域 -->
-              <div class="flex-1 overflow-y-auto bg-gray-50 p-6">
-                <div class="word-paper">
-                  <textarea 
-                    v-model="form.content" 
-                    placeholder="在此编辑内容..."
-                    class="w-full h-full min-h-[600px] !border-none focus:!ring-0 !outline-none resize-none text-base leading-relaxed"
-                    @input="autoSave"
-                  ></textarea>
-                </div>
+              <div class="flex-1 overflow-hidden tinymce-wrapper">
+                <Editor
+                  :key="appStore.isDarkTheme ? 'dark' : 'light'"
+                  v-model="form.content"
+                  :init="tinymceInit"
+                  @input="autoSave"
+                />
               </div>
             </div>
 
@@ -118,7 +91,7 @@
                 <t-tooltip content="斜体 (Ctrl+I)">
                   <button class="markdown-btn !border-0" @click="insertMd('italic')"><EditIcon /></button>
                 </t-tooltip>
-                <div class="!w-px !h-4 !bg-gray-300 !mx-1"></div>
+                <div class="!w-px !h-4 !mx-1" style="background: var(--td-component-border);"></div>
                 <t-tooltip content="一级标题">
                   <button class="markdown-btn !font-bold !border-0" @click="insertMd('h1')">H1</button>
                 </t-tooltip>
@@ -128,7 +101,7 @@
                 <t-tooltip content="三级标题">
                   <button class="markdown-btn !font-bold !border-0" @click="insertMd('h3')">H3</button>
                 </t-tooltip>
-                <div class="!w-px !h-4 !bg-gray-300 !mx-1"></div>
+                <div class="!w-px !h-4 !mx-1" style="background: var(--td-component-border);"></div>
                 <t-tooltip content="引用">
                   <button class="markdown-btn !border-0" @click="insertMd('quote')"><ChatIcon /></button>
                 </t-tooltip>
@@ -145,16 +118,17 @@
 
               <!-- 编辑与预览分屏 -->
               <div class="flex-1 flex overflow-hidden">
-                <div class="w-1/2 h-full border-r bg-gray-50 flex flex-col">
+                <div class="w-1/2 h-full border-r flex flex-col" style="background: var(--td-bg-color-secondarycontainer); border-color: var(--td-component-border);">
                   <textarea 
                     ref="mdTextarea"
                     v-model="form.content" 
-                    class="w-full h-full p-6 resize-none border-none bg-transparent focus:ring-0 outline-none md-editor-textarea text-sm text-gray-700" 
+                    class="w-full h-full p-6 resize-none border-none bg-transparent focus:ring-0 outline-none md-editor-textarea text-sm" 
+                    style="color: var(--td-text-color-primary);"
                     placeholder="# 编辑你的 Markdown 内容..."
                     @input="autoSave"
                   ></textarea>
                 </div>
-                <div class="w-1/2 h-full bg-white prose max-w-none overflow-y-auto p-8" v-html="compiledMarkdown"></div>
+                <div class="w-1/2 h-full prose max-w-none overflow-y-auto p-8" style="background: var(--td-bg-color-container); color: var(--td-text-color-primary);" v-html="compiledMarkdown"></div>
               </div>
             </div>
           </div>
@@ -251,10 +225,11 @@
       </main>
 
       <!-- 右侧：侧边栏设置 -->
-      <aside class="w-80 bg-white border-l flex flex-col h-full overflow-y-auto z-10">
+      <aside class="w-80 border-l flex flex-col h-full overflow-y-auto z-10"
+        style="background: var(--td-bg-color-container); border-color: var(--td-component-border);">
         <div class="sidebar-card">
-          <h3 class="font-medium text-gray-700 mb-3 text-sm flex items-center gap-2">
-            <RootListIcon size="16px" /> 发布设置
+          <h3 class="font-medium mb-3 text-sm flex items-center gap-2" style="color: var(--td-text-color-primary);">
+            <RootListIcon :size="16" /> 发布设置
           </h3>
           <t-form label-align="top" :data="form">
             <t-form-item label="所属分类" name="categoryId">
@@ -263,8 +238,18 @@
               </t-select>
             </t-form-item>
 
-            <t-form-item label="标签 (Tags)" name="tags">
-              <t-tag-input v-model="form.tags" placeholder="输入回车添加" />
+            <t-form-item label="标签 (Tags)" name="tagIds">
+              <t-select
+                v-model="form.tagIds"
+                :options="tagOptions"
+                placeholder="输入搜索标签"
+                multiple
+                filterable
+                :filter="filterTags"
+                :loading="tagLoading"
+                @search="handleTagSearch"
+                @focus="handleTagFocus"
+              />
             </t-form-item>
 
             <t-form-item label="摘要" name="description">
@@ -274,29 +259,36 @@
         </div>
 
         <div class="sidebar-card" v-if="[0, 1, 4].includes(form.type)">
-          <h3 class="font-medium text-gray-700 mb-3 text-sm flex items-center gap-2">
-            <ImageIcon size="16px" /> 封面设置
+          <h3 class="font-medium mb-3 text-sm flex items-center gap-2" style="color: var(--td-text-color-primary);">
+            <ImageIcon :size="16" /> 封面设置
           </h3>
-          <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-lg p-4 text-center hover:border-blue-400 transition-colors">
+          <div class="cover-upload-zone">
             <t-upload
               v-model="coverList"
               theme="image"
               accept="image/*"
               :max="1"
               :auto-upload="false"
+              :before-upload="handleCoverBeforeUpload"
+              @change="handleCoverChange"
             ></t-upload>
-            <div class="text-xs text-gray-400 mt-2">建议尺寸 16:9 <br> 支持 JPG/PNG, Max 5MB</div>
+            <div class="text-xs mt-2" style="color: var(--td-text-color-placeholder);">
+              建议尺寸 16:9 <br> 支持 JPG/PNG, Max 5MB
+            </div>
+            <div v-if="coverUploading" class="text-xs mt-2" style="color: var(--td-brand-color);">
+              上传中... {{ coverUploadProgress }}%
+            </div>
           </div>
         </div>
 
         <div class="sidebar-card" v-if="form.type === 2">
-          <h3 class="font-medium text-gray-700 mb-3 text-sm flex items-center gap-2">
-            <WalletIcon size="16px" /> 悬赏设置
+          <h3 class="font-medium mb-3 text-sm flex items-center gap-2" style="color: var(--td-text-color-primary);">
+            <WalletIcon :size="16" /> 悬赏设置
           </h3>
-          <div class="bg-orange-50 p-4 rounded border border-orange-100">
+          <div class="p-4 rounded border" style="background-color: var(--td-warning-color-1); border-color: var(--td-warning-color-2);">
             <div class="flex items-center justify-between mb-2">
-              <span class="text-orange-800 text-sm font-bold">悬赏积分</span>
-              <span class="text-2xl font-bold text-orange-600">{{ form.questionReward || 0 }}</span>
+              <span class="text-sm font-bold" style="color: var(--td-warning-color-active);">悬赏积分</span>
+              <span class="text-2xl font-bold" style="color: var(--td-warning-color);">{{ form.questionReward || 0 }}</span>
             </div>
             <input type="range" v-model="form.questionReward" min="0" max="100" step="10" class="w-full accent-orange-500">
           </div>
@@ -316,8 +308,12 @@ import { ref, reactive, computed, nextTick, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { marked } from 'marked'
+import Editor from '@tinymce/tinymce-vue'
 import { contentApi } from '@/api/content'
-import type { ContentUpdateDTO, CategoryVO } from '@/types'
+import { useAppStore } from '@/stores/app'
+import { useAuthStore } from '@/stores/auth'
+import { MediaUploader } from '@/utils/upload-utils'
+import { createImageUploadHandler, getTinymceConfig } from '@/utils/tinymce-utils'
 import {
   ArrowLeftIcon,
   SendIcon,
@@ -341,6 +337,14 @@ import {
 
 const router = useRouter()
 const route = useRoute()
+const appStore = useAppStore()
+const authStore = useAuthStore()
+
+// 媒体上传器实例
+const mediaUploader = new MediaUploader({
+  baseUrl: '/api/v1/media',
+  tenantId: 'admin',
+})
 
 // 内容类型定义
 const contentTypes = [
@@ -353,12 +357,13 @@ const contentTypes = [
 
 // 表单数据
 const form = reactive({
-  id: null as number | null,
+  id: null,
+  detailId: null, // 详情记录的 ID，更新时需要
   title: '',
   type: 0,
   content: '',
-  categoryId: null as number | null,
-  tags: [] as string[],
+  categoryId: null,
+  tagIds: [],
   description: '',
   duration: 0,
   resolution: '1080p',
@@ -366,21 +371,100 @@ const form = reactive({
   fileUrl: '',
   fileName: '',
   fileSize: 0,
-  coverUrl: ''
+  coverUrl: '',
+  coverFileId: null // 已有封面的文件 ID
 })
 
 // 状态管理
 const loading = ref(true)
 const submitting = ref(false)
 const editorMode = ref('word')
-const lastSaved = ref<string | null>(null)
-const uploadFiles = ref<any[]>([])
-const coverList = ref<any[]>([])
+const lastSaved = ref(null)
+const uploadFiles = ref([])
+const coverList = ref([])
 const showReplaceUpload = ref(false)
-const mdTextarea = ref<HTMLTextAreaElement | null>(null)
+const mdTextarea = ref(null)
+const coverUploading = ref(false)
+const coverUploadProgress = ref(0)
+const coverFileId = ref(null) // 存储封面的 fileId
+
+// 存储上传的图片映射 (临时URL -> fileId)
+const uploadedImages = ref(new Map())
+
+// TinyMCE 图片上传处理函数
+const imageUploadHandler = createImageUploadHandler({
+  mediaUploader,
+  getUserId: () => authStore.currentUser?.userId,
+  uploadedImages: uploadedImages.value,
+})
+
+// TinyMCE 配置
+const tinymceInit = computed(() =>
+  getTinymceConfig({
+    isDark: appStore.isDarkTheme,
+    imageUploadHandler,
+  })
+)
 
 // 分类数据
-const categories = ref<CategoryVO[]>([])
+const categories = ref([])
+
+// 标签数据
+const tagOptions = ref([])
+const tagLoading = ref(false)
+const allTags = ref([])
+
+// 加载标签列表
+const fetchTags = async () => {
+  tagLoading.value = true
+  try {
+    const res = await contentApi.getTagPage({
+      pageNum: 1,
+      pageSize: 100,
+      params: {}
+    })
+    if (res.code === 200 && res.data) {
+      allTags.value = res.data.records || []
+      tagOptions.value = allTags.value.map(tag => ({
+        label: tag.name,
+        value: tag.id
+      }))
+    }
+  } catch (e) {
+    console.error('获取标签列表失败:', e)
+  } finally {
+    tagLoading.value = false
+  }
+}
+
+// 标签搜索过滤
+const filterTags = (search, option) => {
+  return option.label.toLowerCase().includes(search.toLowerCase())
+}
+
+// 标签搜索处理
+const handleTagSearch = (search) => {
+  if (!search) {
+    tagOptions.value = allTags.value.map(tag => ({
+      label: tag.name,
+      value: tag.id
+    }))
+    return
+  }
+  tagOptions.value = allTags.value
+    .filter(tag => tag.name.toLowerCase().includes(search.toLowerCase()))
+    .map(tag => ({
+      label: tag.name,
+      value: tag.id
+    }))
+}
+
+// 标签获取焦点时加载
+const handleTagFocus = () => {
+  if (allTags.value.length === 0) {
+    fetchTags()
+  }
+}
 
 // 计算属性
 const currentType = computed(() => {
@@ -412,7 +496,7 @@ onMounted(async () => {
     // 加载分类和内容数据
     await Promise.all([
       loadCategories(),
-      loadContentData(contentId as string, contentType as string)
+      loadContentData(contentId, contentType)
     ])
   } catch (error) {
     MessagePlugin.error('加载数据失败')
@@ -431,8 +515,10 @@ const loadCategories = async () => {
       params: { enable: 1 }
     }
     const res = await contentApi.getCategoryPage(pageDTO)
+    console.log('分类列表响应:', res)
     if (res.code === 200 && res.data) {
       categories.value = res.data.records || []
+      console.log('分类列表加载成功:', categories.value)
     }
   } catch (error) {
     console.error('加载分类失败:', error)
@@ -440,7 +526,7 @@ const loadCategories = async () => {
 }
 
 // 类型映射：后端字符串 -> 前端数字
-const typeStringToNumber: Record<string, number> = {
+const typeStringToNumber = {
   'article': 0,
   'note': 1,
   'question': 2,
@@ -449,7 +535,7 @@ const typeStringToNumber: Record<string, number> = {
 }
 
 // 加载内容数据
-const loadContentData = async (id: string, type?: string) => {
+const loadContentData = async (id, type) => {
   try {
     const contentId = parseInt(id)
     const res = await contentApi.getContentById(contentId)
@@ -467,13 +553,38 @@ const loadContentData = async (id: string, type?: string) => {
       form.id = content.id || null
       form.title = content.title || ''
       form.type = contentType
-      form.categoryId = content.categoryId || null
-      form.tags = (content as any).tagIds ? (content as any).tagIds.map((id: number) => id.toString()) : []
+      form.tagIds = content.tagIds || []
       form.description = content.description || ''
+      
+      // 分类ID：优先使用返回的 categoryId，否则根据 categoryName 反查
+      if (content.categoryId) {
+        form.categoryId = content.categoryId
+      } else if (content.categoryName && categories.value.length > 0) {
+        const category = categories.value.find(c => c.name === content.categoryName)
+        form.categoryId = category?.id || null
+        console.log('根据分类名称反查分类ID:', content.categoryName, '->', form.categoryId)
+      } else {
+        form.categoryId = null
+      }
+      
+      // 保存已有封面的文件 ID（字符串 UUID）
+      form.coverFileId = content.coverFileId || null
+      
+      console.log('加载的内容数据:', {
+        id: form.id,
+        categoryId: form.categoryId,
+        categoryName: content.categoryName,
+        coverFileId: content.coverFileId,
+        formCoverFileId: form.coverFileId,
+        categoriesCount: categories.value.length,
+      })
       
       // 根据类型填充详细信息
       if (detail) {
-        const detailData = detail as any
+        const detailData = detail
+        
+        // 保存详情记录的 ID（更新时需要）
+        form.detailId = detailData.id || null
         
         // 文字类内容 (文章/笔记/问题)
         if ([0, 1, 2].includes(contentType)) {
@@ -522,7 +633,7 @@ const loadContentData = async (id: string, type?: string) => {
       MessagePlugin.error(res.message || '加载内容失败')
       router.back()
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error('加载内容失败:', error)
     MessagePlugin.error(error.message || '加载内容失败')
     router.back()
@@ -530,11 +641,11 @@ const loadContentData = async (id: string, type?: string) => {
 }
 
 // Methods
-const switchEditorMode = (mode: string) => {
+const switchEditorMode = (mode) => {
   editorMode.value = mode
 }
 
-const insertMd = (type: string) => {
+const insertMd = (type) => {
   const textarea = mdTextarea.value
   if (!textarea) return
   
@@ -585,9 +696,64 @@ const insertMd = (type: string) => {
   autoSave()
 }
 
-const handleFileChange = (val: any[]) => {
+const handleFileChange = (val) => {
   if (val && val.length > 0) {
     uploadFiles.value = val
+  }
+}
+
+// 封面上传前校验
+const handleCoverBeforeUpload = (file) => {
+  const isImage = file.type.startsWith('image/')
+  const isLt5M = file.size / 1024 / 1024 < 5
+  
+  if (!isImage) {
+    MessagePlugin.warning('只能上传图片文件')
+    return false
+  }
+  if (!isLt5M) {
+    MessagePlugin.warning('封面图片大小不能超过 5MB')
+    return false
+  }
+  return true
+}
+
+// 封面选择变化时上传
+const handleCoverChange = async (val) => {
+  if (!val || val.length === 0) {
+    coverFileId.value = null
+    return
+  }
+  
+  const file = val[0].raw
+  if (!file) return
+  
+  coverUploading.value = true
+  coverUploadProgress.value = 0
+  
+  try {
+    const userId = authStore.currentUser?.userId
+    
+    const task = await mediaUploader.upload(file, {
+      ownerId: userId ? String(userId) : '',
+      accessPolicy: 'PUBLIC',
+      bizTags: ['content-cover'],
+      onProgress: (percent) => {
+        coverUploadProgress.value = percent
+      },
+    })
+    
+    console.log('封面上传完成，task:', task)
+    coverFileId.value = task.fileId
+    console.log('设置 coverFileId:', coverFileId.value)
+    MessagePlugin.success('封面上传成功')
+  } catch (error) {
+    console.error('封面上传失败:', error)
+    MessagePlugin.error('封面上传失败: ' + (error.message || '未知错误'))
+    coverList.value = []
+    coverFileId.value = null
+  } finally {
+    coverUploading.value = false
   }
 }
 
@@ -600,7 +766,7 @@ const confirmReplace = () => {
   }
 }
 
-const formatFileSize = (bytes: number) => {
+const formatFileSize = (bytes) => {
   if (bytes === 0) return '0 B'
   const k = 1024
   const sizes = ['B', 'KB', 'MB', 'GB']
@@ -623,15 +789,7 @@ const saveDraft = async () => {
   try {
     MessagePlugin.loading('保存草稿中...')
     
-    const updateData: ContentUpdateDTO = {
-      id: form.id!,
-      title: form.title || '未命名',
-      type: form.type,
-      categoryId: form.categoryId || undefined,
-      description: form.description,
-      status: 0, // 草稿状态
-      ...buildContentFields()
-    }
+    const updateData = buildSubmitData('DRAFT')
     
     const res = await contentApi.editContent(updateData)
     
@@ -641,32 +799,80 @@ const saveDraft = async () => {
     } else {
       MessagePlugin.error(res.message || '保存草稿失败')
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error('保存草稿失败:', error)
     MessagePlugin.error(error.message || '保存草稿失败')
   }
 }
 
-// 构建内容字段
-const buildContentFields = () => {
-  const fields: any = {}
-  
-  if (form.type === 0) {
-    // 文章
-    fields.articleContent = form.content
-  } else if (form.type === 1) {
-    // 笔记
-    fields.noteContent = form.content
-  } else if (form.type === 2) {
-    // 问题
-    fields.questionContent = form.content
-  } else if (form.type === 3 || form.type === 4) {
-    // 文件/视频
-    fields.fileUrl = form.fileUrl
-    fields.fileName = form.fileName
+// 内容类型映射 (数字 -> 字符串)
+const typeMap = {
+  0: 'article',
+  1: 'note',
+  2: 'question',
+  3: 'file',
+  4: 'video',
+}
+
+// 构建提交数据
+const buildSubmitData = (status) => {
+  // 调试：打印封面相关信息
+  console.log('封面信息:', {
+    coverFileId: coverFileId.value,
+    formCoverFileId: form.coverFileId,
+    formType: form.type
+  })
+
+  const data = {
+    id: form.id,
+    title: form.title,
+    type: typeMap[form.type] || 'article',
+    categoryId: form.categoryId || undefined,
+    description: form.description,
+    tagIds: form.tagIds || [],
   }
   
-  return fields
+  // 只有明确指定状态时才传，null 表示保持原状态
+  if (status) {
+    data.status = status
+  }
+
+  // 封面 (文章/笔记/视频可能有封面)
+  // 优先使用新上传的封面 ID，否则使用已有的封面 ID
+  if ([0, 1, 4].includes(form.type)) {
+    const fileId = coverFileId.value || form.coverFileId
+    console.log('使用的封面 fileId:', fileId)
+    if (fileId) {
+      data.coverFileId = fileId
+    }
+  }
+
+  // 构建 detail 对象（更新时需要包含 id）
+  if ([0, 1, 2].includes(form.type)) {
+    // 文字类内容
+    data.detail = {
+      id: form.detailId, // 详情记录 ID
+      content: form.content,
+    }
+  } else if (form.type === 3) {
+    // 文件
+    data.detail = {
+      id: form.detailId,
+      filePath: form.fileUrl,
+      fileName: form.fileName,
+      fileSize: form.fileSize,
+    }
+  } else if (form.type === 4) {
+    // 视频
+    data.detail = {
+      id: form.detailId,
+      videoUrl: form.fileUrl,
+      duration: form.duration,
+      resolution: form.resolution,
+    }
+  }
+
+  return data
 }
 
 const handleSubmit = async () => {
@@ -694,15 +900,9 @@ const handleSubmit = async () => {
     submitting.value = true
     MessagePlugin.loading('更新中...')
     
-    const updateData: ContentUpdateDTO = {
-      id: form.id!,
-      title: form.title,
-      type: form.type,
-      categoryId: form.categoryId || undefined,
-      description: form.description,
-      status: 2, // 已发布状态
-      ...buildContentFields()
-    }
+    // 编辑时不改变原有状态，传 null 让后端保持原状态
+    const updateData = buildSubmitData(null)
+    console.log('Update Data:', updateData)
     
     const res = await contentApi.editContent(updateData)
     
@@ -715,7 +915,7 @@ const handleSubmit = async () => {
     } else {
       MessagePlugin.error(res.message || '更新失败')
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error('更新失败:', error)
     MessagePlugin.error(error.message || '更新失败')
   } finally {
@@ -726,14 +926,15 @@ const handleSubmit = async () => {
 const goBack = () => {
   router.back()
 }
-</script><style 
-scoped>
+</script>
+
+<style scoped>
 /* 顶部导航栏 */
 .header-bar {
-  background: white;
+  background: var(--td-bg-color-container);
   padding: 0 24px;
   height: 56px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--td-component-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -753,84 +954,72 @@ scoped>
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: #f3f4f6;
-  border: 1px solid #e5e7eb;
+  background: var(--td-bg-color-component);
+  border: 1px solid var(--td-component-border);
   border-radius: 6px;
   font-size: 14px;
   font-weight: 500;
-  color: #374151;
+  color: var(--td-text-color-primary);
 }
 
-/* Word 工具栏 */
-.word-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 16px;
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.toolbar-select {
-  padding: 4px 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  color: #333;
-  background: white;
+/* 编辑模式切换按钮 */
+.editor-mode-btn {
   cursor: pointer;
-  outline: none;
+  border: none;
 }
 
-.toolbar-select:hover {
-  border-color: #0052d9;
+.editor-mode-active {
+  color: var(--td-brand-color) !important;
+  background: var(--td-bg-color-container) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.toolbar-btn {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 32px !important;
-  height: 32px !important;
-  padding: 0 !important;
-  border: none !important;
+.editor-mode-normal {
+  color: var(--td-text-color-secondary) !important;
   background: transparent !important;
-  border-radius: 4px !important;
-  color: #666 !important;
-  font-size: 16px !important;
-  font-weight: bold !important;
-  cursor: pointer !important;
-  transition: all 0.2s !important;
 }
 
-.toolbar-btn:hover {
-  background: #f3f4f6 !important;
-  color: #0052d9 !important;
+.editor-mode-normal:hover {
+  background: var(--td-bg-color-container-hover) !important;
 }
 
-.toolbar-divider {
-  width: 1px;
-  height: 20px;
-  background: #e5e7eb;
-  margin: 0 4px;
-}
-
-/* Word 模式模拟纸张效果 */
-.word-paper {
+/* TinyMCE 编辑器包装器 */
+.tinymce-wrapper {
   width: 100%;
-  max-width: 800px;
-  min-height: 100%;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  margin: 0 auto;
-  padding: 32px 48px;
-  border-radius: 2px;
+  height: 100%;
+}
+
+.tinymce-wrapper :deep(.tox-tinymce) {
+  border: none !important;
+  border-radius: 0 !important;
+  height: 100% !important;
+}
+
+.tinymce-wrapper :deep(.tox-editor-header) {
+  border-bottom: 1px solid var(--td-component-border) !important;
+  background: var(--td-bg-color-container) !important;
+}
+
+.tinymce-wrapper :deep(.tox-toolbar-overlord) {
+  background: var(--td-bg-color-container) !important;
+}
+
+.tinymce-wrapper :deep(.tox-toolbar__primary) {
+  background: var(--td-bg-color-container) !important;
+}
+
+.tinymce-wrapper :deep(.tox-edit-area) {
+  background: var(--td-bg-color-page) !important;
+}
+
+.tinymce-wrapper :deep(.tox-edit-area__iframe) {
+  background: var(--td-bg-color-container) !important;
 }
 
 /* Markdown 模式样式 */
 .markdown-toolbar {
-  background: #fff;
-  border-bottom: 1px solid #e5e7eb;
+  background: var(--td-bg-color-container);
+  border-bottom: 1px solid var(--td-component-border);
   padding: 6px 16px;
   display: flex;
   gap: 8px;
@@ -840,7 +1029,7 @@ scoped>
 .markdown-btn {
   padding: 4px 8px !important;
   border-radius: 4px !important;
-  color: #666 !important;
+  color: var(--td-text-color-secondary) !important;
   cursor: pointer !important;
   transition: all 0.2s !important;
   display: flex !important;
@@ -851,8 +1040,8 @@ scoped>
 }
 
 .markdown-btn:hover {
-  background-color: #f3f4f6 !important;
-  color: #0052d9 !important;
+  background-color: var(--td-bg-color-container-hover) !important;
+  color: var(--td-brand-color) !important;
 }
 
 .md-editor-textarea {
@@ -865,8 +1054,9 @@ scoped>
   font-size: 2em;
   font-weight: bold;
   margin-bottom: 0.5em;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--td-component-border);
   padding-bottom: 0.3em;
+  color: var(--td-text-color-primary);
 }
 
 .prose :deep(h2) {
@@ -874,6 +1064,7 @@ scoped>
   font-weight: bold;
   margin-bottom: 0.5em;
   margin-top: 1em;
+  color: var(--td-text-color-primary);
 }
 
 .prose :deep(h3) {
@@ -881,38 +1072,43 @@ scoped>
   font-weight: bold;
   margin-bottom: 0.5em;
   margin-top: 1em;
+  color: var(--td-text-color-primary);
 }
 
 .prose :deep(p) {
   margin-bottom: 1em;
   line-height: 1.6;
+  color: var(--td-text-color-primary);
 }
 
 .prose :deep(ul) {
   list-style-type: disc;
   padding-left: 1.5em;
   margin-bottom: 1em;
+  color: var(--td-text-color-primary);
 }
 
 .prose :deep(ol) {
   list-style-type: decimal;
   padding-left: 1.5em;
   margin-bottom: 1em;
+  color: var(--td-text-color-primary);
 }
 
 .prose :deep(blockquote) {
-  border-left: 4px solid #e5e7eb;
+  border-left: 4px solid var(--td-component-border);
   padding-left: 1em;
-  color: #6b7280;
+  color: var(--td-text-color-secondary);
   margin: 1em 0;
 }
 
 .prose :deep(code) {
-  background: #f1f5f9;
+  background: var(--td-bg-color-secondarycontainer);
   padding: 2px 4px;
   border-radius: 4px;
   font-family: monospace;
   font-size: 0.9em;
+  color: var(--td-text-color-primary);
 }
 
 .prose :deep(pre) {
@@ -931,21 +1127,35 @@ scoped>
 }
 
 .prose :deep(a) {
-  color: #0052d9;
+  color: var(--td-brand-color);
   text-decoration: underline;
 }
 
 /* 侧边栏 */
 .sidebar-card {
-  background: #fff;
+  background: var(--td-bg-color-container);
   padding: 18px 20px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--td-component-border);
+}
+
+/* 封面上传区域 */
+.cover-upload-zone {
+  background: var(--td-bg-color-secondarycontainer);
+  border: 2px dashed var(--td-component-border);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.cover-upload-zone:hover {
+  border-color: var(--td-brand-color);
 }
 
 /* 当前文件卡片 */
 .current-file-card {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--td-bg-color-container);
+  border: 1px solid var(--td-component-border);
   border-radius: 12px;
   padding: 16px 20px;
   display: flex;
@@ -965,7 +1175,7 @@ scoped>
 .file-icon-wrapper {
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  background: var(--td-bg-color-secondarycontainer);
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -974,7 +1184,7 @@ scoped>
 
 .file-icon {
   font-size: 24px !important;
-  color: #6b7280 !important;
+  color: var(--td-text-color-secondary) !important;
 }
 
 .file-details {
@@ -984,7 +1194,7 @@ scoped>
 .file-name {
   font-size: 14px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--td-text-color-primary);
   margin-bottom: 4px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -999,11 +1209,11 @@ scoped>
 }
 
 .file-size {
-  color: #6b7280;
+  color: var(--td-text-color-secondary);
 }
 
 .file-status {
-  color: #10b981;
+  color: var(--td-success-color);
   font-weight: 500;
 }
 
@@ -1014,7 +1224,7 @@ scoped>
   align-items: center;
   justify-content: center;
   padding: 40px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: var(--td-bg-color-page);
   overflow-y: auto;
 }
 
@@ -1031,7 +1241,7 @@ scoped>
 }
 
 .upload-zone-wrapper {
-  background: white;
+  background: var(--td-bg-color-container);
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
@@ -1039,16 +1249,16 @@ scoped>
 
 /* 上传区域 */
 .upload-zone {
-  border: 3px dashed #d1d5db;
+  border: 3px dashed var(--td-component-border);
   border-radius: 16px;
   padding: 48px 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  background: var(--td-bg-color-container);
   cursor: pointer;
   transition: all 0.3s ease;
-  background: white;
   position: relative;
   overflow: hidden;
   min-height: 280px;
@@ -1064,10 +1274,10 @@ scoped>
 }
 
 .upload-zone:hover {
-  border-color: #0052d9;
+  border-color: var(--td-brand-color);
   border-style: solid;
   transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgba(0, 82, 217, 0.15);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
 }
 
 .upload-zone:hover::before {
@@ -1077,14 +1287,14 @@ scoped>
 .upload-icon-wrapper {
   width: 72px;
   height: 72px;
-  background: linear-gradient(135deg, #0052d9 0%, #0084ff 100%);
+  background: var(--td-brand-color);
   border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 20px;
   transition: all 0.3s ease;
-  box-shadow: 0 8px 16px rgba(0, 82, 217, 0.2);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
 .upload-zone:hover .upload-icon-wrapper {
@@ -1100,7 +1310,7 @@ scoped>
 .upload-title {
   font-size: 18px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--td-text-color-primary);
   margin-bottom: 6px;
 }
 
@@ -1108,17 +1318,17 @@ scoped>
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #6b7280;
+  color: var(--td-text-color-secondary);
   font-size: 13px;
   margin-bottom: 16px;
 }
 
 .upload-hint {
-  color: #6b7280;
+  color: var(--td-text-color-secondary);
 }
 
 .upload-divider {
-  color: #d1d5db;
+  color: var(--td-component-border);
 }
 
 .upload-formats {
@@ -1130,25 +1340,25 @@ scoped>
 
 .format-tag {
   padding: 4px 12px;
-  background: #f3f4f6;
-  border: 1px solid #e5e7eb;
+  background: var(--td-bg-color-secondarycontainer);
+  border: 1px solid var(--td-component-border);
   border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
-  color: #6b7280;
+  color: var(--td-text-color-secondary);
   transition: all 0.2s;
 }
 
 .upload-zone:hover .format-tag {
-  background: #e7f3ff;
-  border-color: #0052d9;
-  color: #0052d9;
+  background: var(--td-brand-color-light);
+  border-color: var(--td-brand-color);
+  color: var(--td-brand-color);
 }
 
 /* 视频设置卡片 */
 .video-settings-card {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--td-bg-color-container);
+  border: 1px solid var(--td-component-border);
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
@@ -1160,18 +1370,18 @@ scoped>
   gap: 8px;
   margin-bottom: 20px;
   padding-bottom: 16px;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--td-component-border);
 }
 
 .settings-icon {
   font-size: 18px !important;
-  color: #0052d9 !important;
+  color: var(--td-brand-color) !important;
 }
 
 .settings-title {
   font-size: 16px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--td-text-color-primary);
 }
 
 .settings-grid {
@@ -1189,6 +1399,6 @@ scoped>
 .setting-label {
   font-size: 14px;
   font-weight: 500;
-  color: #374151;
+  color: var(--td-text-color-primary);
 }
 </style>

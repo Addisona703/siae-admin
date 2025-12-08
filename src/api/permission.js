@@ -176,41 +176,41 @@ export const permissionApi = {
   // ========== User-Role Assignment Operations ==========
 
   /**
-   * Get roles assigned to a user
-   * @param userId User ID
-   * @returns Promise with role list
+   * 分页查询用户角色关联列表
+   * @param params 分页和筛选参数 { userId, roleId, username, roleName }
+   * @returns Promise with paginated user-role list
    */
-  getUserRoles: async (userId) => {
-    return get(`/auth/users/${userId}/roles`)
+  getUserRoleList: async (params) => {
+    return post('/auth/users/roles/list', params)
   },
 
   /**
-   * Assign roles to a user
+   * 为用户分配单个角色
    * @param userId User ID
-   * @param roleIds Array of role IDs to assign
-   * @returns Promise with void result
+   * @param roleId Role ID to assign
+   * @returns Promise with boolean result
    */
-  assignRolesToUser: async (userId, roleIds) => {
-    return post(`/auth/users/${userId}/role`, { roleId: roleIds[0] })
+  assignRoleToUser: async (userId, roleId) => {
+    return post(`/auth/users/${userId}/role`, { roleId })
   },
 
   /**
-   * Remove role from a user
-   * @param userId User ID
-   * @param roleId Role ID to remove
-   * @returns Promise with void result
-   */
-  removeRoleFromUser: async (userId, roleId) => {
-    return del(`/auth/users/${userId}/roles/${roleId}`)
-  },
-
-  /**
-   * Batch assign roles to multiple users
+   * 批量给用户分配同一个角色
+   * @param roleId Role ID
    * @param userIds Array of user IDs
-   * @param roleIds Array of role IDs to assign
-   * @returns Promise with void result
+   * @returns Promise with boolean result
    */
-  batchAssignRoles: async (userIds, roleIds) => {
-    return post('/auth/users/roles/batch', { userIds, roleIds })
+  batchAssignRoleToUsers: async (roleId, userIds) => {
+    return post(`/auth/users/roles/${roleId}`, { userIds })
+  },
+
+  /**
+   * 更新用户角色关联
+   * @param userRoleId User-Role relation ID
+   * @param updateData Update data
+   * @returns Promise with boolean result
+   */
+  updateUserRole: async (userRoleId, updateData) => {
+    return put(`/auth/users/roles/${userRoleId}`, updateData)
   }
 }

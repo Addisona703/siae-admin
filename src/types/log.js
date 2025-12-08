@@ -1,4 +1,4 @@
-// Logging and audit related types (JSDoc definitions for JavaScript)
+// 日志和审计相关类型 (JavaScript JSDoc 定义)
 
 /**
  * @typedef {Object} AuditLog

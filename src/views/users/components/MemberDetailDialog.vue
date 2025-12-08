@@ -563,7 +563,7 @@ const viewAllAwards = () => {
   }
 }
 
-// TDesign Descriptions 样式调整
+// TDesign 描述组件样式调整
 :deep(.t-descriptions__header) {
   margin-bottom: 12px;
   font-size: 15px;

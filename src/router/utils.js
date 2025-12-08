@@ -1,24 +1,33 @@
 import { usePermissionStore } from '@/stores'
 
 /**
- * Convert routes to menu items for navigation
- * @param {Array} routes - Vue Router routes
- * @returns {Array} Menu items
+ * 将路由转换为菜单项（支持权限和角色）
  */
 export function routesToMenuItems(routes) {
   const permissionStore = usePermissionStore()
   const menuItems = []
+  const isRoot = permissionStore.hasRole('ROLE_ROOT')
 
   for (const route of routes) {
-    // Skip routes that should be hidden in menu
-    if (route.meta?.hideInMenu) {
-      continue
-    }
+    if (route.meta?.hideInMenu) continue
 
-    // Check if user has permission for this route
-    const permission = route.meta?.permission
-    if (permission && !permissionStore.hasPermission(permission)) {
-      continue
+    // ROLE_ROOT 超级管理员跳过权限检查
+    if (!isRoot) {
+      const permission = route.meta?.permission
+      const roles = route.meta?.roles
+
+      // 权限检查：有权限配置时检查权限
+      if (permission && !permissionStore.hasPermission(permission)) {
+        // 如果有角色配置，检查角色（角色和权限满足其一即可）
+        if (!(roles && roles.length > 0 && permissionStore.hasAnyOfRoles(roles))) {
+          continue
+        }
+      }
+
+      // 仅角色检查（没有配置权限时）
+      if (!permission && roles && roles.length > 0 && !permissionStore.hasAnyOfRoles(roles)) {
+        continue
+      }
     }
 
     const menuItem = {
@@ -26,20 +35,18 @@ export function routesToMenuItems(routes) {
       title: route.meta?.title || route.name,
       icon: route.meta?.icon,
       path: route.path,
-      permission: permission,
+      permission,
       children: undefined
     }
 
-    // Process children routes
-    if (route.children && route.children.length > 0) {
+    if (route.children?.length > 0) {
       const childMenuItems = routesToMenuItems(route.children)
       if (childMenuItems.length > 0) {
         menuItem.children = childMenuItems
       }
     }
 
-    // Only add menu item if it has children or is not a parent-only route
-    if (!route.children || route.children.length === 0 || (menuItem.children && menuItem.children.length > 0)) {
+    if (!route.children || route.children.length === 0 || menuItem.children?.length > 0) {
       menuItems.push(menuItem)
     }
   }
@@ -48,32 +55,7 @@ export function routesToMenuItems(routes) {
 }
 
 /**
- * Find route by name
- * @param {Array} routes - Routes to search
- * @param {string} name - Route name to find
- * @returns {Object|null} Found route or null
- */
-export function findRouteByName(routes, name) {
-  for (const route of routes) {
-    if (route.name === name) {
-      return route
-    }
-    
-    if (route.children) {
-      const found = findRouteByName(route.children, name)
-      if (found) {
-        return found
-      }
-    }
-  }
-  
-  return null
-}
-
-/**
- * Get breadcrumb items from current route
- * @param {Object} route - Current route object
- * @returns {Array} Breadcrumb items
+ * 获取面包屑导航项
  */
 export function getBreadcrumbItems(route) {
   const breadcrumbs = []
@@ -89,43 +71,4 @@ export function getBreadcrumbItems(route) {
   })
   
   return breadcrumbs
-}
-
-/**
- * Check if route is accessible by current user
- * @param {Object} route - Route to check
- * @returns {boolean} Whether route is accessible
- */
-export function isRouteAccessible(route) {
-  const permissionStore = usePermissionStore()
-  const permission = route.meta?.permission
-  
-  if (!permission) {
-    return true
-  }
-  
-  return permissionStore.hasPermission(permission)
-}
-
-/**
- * Get all accessible routes for current user
- * @param {Array} routes - Routes to filter
- * @returns {Array} Accessible routes
- */
-export function getAccessibleRoutes(routes) {
-  const accessibleRoutes = []
-  
-  for (const route of routes) {
-    if (isRouteAccessible(route)) {
-      const accessibleRoute = { ...route }
-      
-      if (route.children) {
-        accessibleRoute.children = getAccessibleRoutes(route.children)
-      }
-      
-      accessibleRoutes.push(accessibleRoute)
-    }
-  }
-  
-  return accessibleRoutes
 }

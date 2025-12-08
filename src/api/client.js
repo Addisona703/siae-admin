@@ -41,7 +41,7 @@ const refreshAccessToken = async () => {
 
   try {
     const response = await axios.post(
-      `${APP_CONFIG.apiBaseUrl}/auth/refresh`,
+      `${APP_CONFIG.apiBaseUrl}/auth/refresh-token`,
       { refreshToken },
       { timeout: APP_CONFIG.apiTimeout },
     )
@@ -224,9 +224,77 @@ const refreshAccessToken = async () => {
 //   },
 // )
 
-// Helper function for making API calls with proper typing
+// Base axios instance
+export const apiClient = axios.create({
+  baseURL: APP_CONFIG.apiBaseUrl,
+  timeout: APP_CONFIG.apiTimeout,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
+
+// Request interceptor - add token
+apiClient.interceptors.request.use(
+  (config) => {
+    if (config.skipAuth) {
+      return config
+    }
+    const accessToken = TokenManager.getAccessToken()
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`
+    }
+    return config
+  },
+  (error) => Promise.reject(error)
+)
+
+// Response interceptor - handle errors
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config
+
+    // 跳过不需要刷新 token 的请求
+    if (originalRequest.skipRefresh) {
+      return Promise.reject(error)
+    }
+
+    // 只有在 token 确实过期时才尝试刷新
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true
+
+      // 检查 token 是否真的过期了
+      const hasValidToken = TokenManager.hasValidToken()
+      if (hasValidToken) {
+        // token 还有效，可能是其他原因导致 401（如权限问题），不刷新
+        console.warn('[API] 401 但 token 仍有效，可能是权限问题')
+        return Promise.reject(error)
+      }
+
+      // 检查是否有 refresh token
+      const refreshToken = TokenManager.getRefreshToken()
+      if (!refreshToken) {
+        // 没有 refresh token，直接拒绝
+        return Promise.reject(error)
+      }
+
+      try {
+        const newToken = await refreshAccessToken()
+        originalRequest.headers.Authorization = `Bearer ${newToken}`
+        return apiClient(originalRequest)
+      } catch (refreshError) {
+        // 刷新失败，但不立即清除 token，让用户可以重试
+        console.error('[API] Token 刷新失败:', refreshError)
+        return Promise.reject(refreshError)
+      }
+    }
+    return Promise.reject(error)
+  }
+)
+
+// Helper function for making API calls
 export const makeRequest = (config) => {
-  // return apiClient(config).then((response) => response.data)
+  return apiClient(config).then((response) => response.data)
 }
 
 // Helper functions for different HTTP methods
