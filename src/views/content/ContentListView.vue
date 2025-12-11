@@ -163,7 +163,6 @@ import { useRouter } from 'vue-router'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { getAllContentList } from '@/api/content/content'
 import { contentApi } from '@/api/content'
-import { contentApi } from '@/api/content'
 
 const router = useRouter()
 
@@ -284,10 +283,6 @@ const fetchData = async () => {
         const category = categories.value.find(c => c.id === item.categoryId)
         const categoryName = item.categoryName || category?.name || '-'
 
-        // 根据 categoryId 从分类列表中查找分类名称（前端补充）
-        const category = categories.value.find(c => c.id === item.categoryId)
-        const categoryName = item.categoryName || category?.name || '-'
-
         return {
           id: item.id,
           title: item.title,
@@ -391,13 +386,6 @@ const handleDetail = (row) => {
   })
 }
 
-const handleDetail = (row) => {
-  router.push({
-    name: 'ContentDetail',
-    params: { id: row.id }
-  })
-}
-
 const handleDelete = async (row) => {
   try {
     // 移至垃圾箱 (isTrash=1)
@@ -439,9 +427,6 @@ const formatNumber = (num) => {
   return num > 1000 ? (num / 1000).toFixed(1) + 'k' : num
 }
 
-onMounted(async () => {
-  // 先加载分类列表，再加载内容列表（以便前端补充分类名称）
-  await loadCategories()
 onMounted(async () => {
   // 先加载分类列表，再加载内容列表（以便前端补充分类名称）
   await loadCategories()

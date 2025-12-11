@@ -64,7 +64,6 @@
                 class="px-3 py-1 rounded text-xs font-medium transition-all editor-mode-btn"
                 :class="editorMode === 'markdown' ? 'editor-mode-active' : 'editor-mode-normal'">Markdown</button>
             </div>
-            </div>
           </div>
 
           <!-- 编辑器主体 -->
@@ -150,7 +149,6 @@
             <!-- 上传区域 -->
             <t-upload v-model="uploadFiles" draggable theme="custom" :accept="form.type === 4 ? 'video/*' : '*'"
               :auto-upload="false" @change="handleFileChange" class="w-full">
-              :auto-upload="false" @change="handleFileChange" class="w-full">
               <template #dragContent>
                 <div class="upload-zone">
                   <div class="upload-icon-wrapper">
@@ -230,7 +228,6 @@
         style="background: var(--td-bg-color-container); border-color: var(--td-component-border);">
         <div class="sidebar-card">
           <h3 class="font-medium mb-3 text-sm flex items-center gap-2" style="color: var(--td-text-color-primary);">
-          <h3 class="font-medium mb-3 text-sm flex items-center gap-2" style="color: var(--td-text-color-primary);">
             <RootListIcon :size="16" /> 发布设置
           </h3>
           <t-form label-align="top" :data="form">
@@ -254,7 +251,6 @@
 
         <div class="sidebar-card" v-if="[0, 1, 4].includes(form.type)">
           <h3 class="font-medium mb-3 text-sm flex items-center gap-2" style="color: var(--td-text-color-primary);">
-          <h3 class="font-medium mb-3 text-sm flex items-center gap-2" style="color: var(--td-text-color-primary);">
             <ImageIcon :size="16" /> 封面设置
           </h3>
           <div class="cover-upload-zone">
@@ -271,14 +267,11 @@
 
         <div class="sidebar-card" v-if="form.type === 2">
           <h3 class="font-medium mb-3 text-sm flex items-center gap-2" style="color: var(--td-text-color-primary);">
-          <h3 class="font-medium mb-3 text-sm flex items-center gap-2" style="color: var(--td-text-color-primary);">
             <WalletIcon :size="16" /> 悬赏设置
           </h3>
           <div class="p-4 rounded border"
             style="background-color: var(--td-warning-color-1); border-color: var(--td-warning-color-2);">
             <div class="flex items-center justify-between mb-2">
-              <span class="text-sm font-bold" style="color: var(--td-warning-color-active);">悬赏积分</span>
-              <span class="text-2xl font-bold" style="color: var(--td-warning-color);">{{ questionReward }}</span>
               <span class="text-sm font-bold" style="color: var(--td-warning-color-active);">悬赏积分</span>
               <span class="text-2xl font-bold" style="color: var(--td-warning-color);">{{ questionReward }}</span>
             </div>
@@ -293,11 +286,9 @@
 
 <script setup>
 import { ref, reactive, computed, nextTick, onMounted } from 'vue'
-import { ref, reactive, computed, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { marked } from 'marked'
-import Editor from '@tinymce/tinymce-vue'
 import Editor from '@tinymce/tinymce-vue'
 import {
   ArrowLeftIcon,
@@ -326,25 +317,8 @@ import {
   getTinymceConfig,
   convertImagesToMediaProtocol
 } from '@/utils/tinymce-utils'
-import { contentApi } from '@/api/content'
-import { useAppStore } from '@/stores/app'
-import { useAuthStore } from '@/stores/auth'
-import { MediaUploader } from '@/utils/upload-utils'
-import {
-  createImageUploadHandler,
-  getTinymceConfig,
-  convertImagesToMediaProtocol
-} from '@/utils/tinymce-utils'
 
 const router = useRouter()
-const appStore = useAppStore()
-const authStore = useAuthStore()
-
-// 媒体上传器实例
-const mediaUploader = new MediaUploader({
-  baseUrl: '/api/v1/media',
-  tenantId: 'admin',
-})
 const appStore = useAppStore()
 const authStore = useAuthStore()
 
@@ -369,7 +343,6 @@ const form = reactive({
   type: 0,
   content: '',
   categoryId: null,
-  tagIds: [],
   tagIds: [],
   description: '',
   duration: 0,
@@ -410,91 +383,6 @@ const tinymceInit = computed(() =>
 )
 
 // 分类数据
-const categories = ref([])
-
-// 标签数据
-const tagOptions = ref([])
-const tagLoading = ref(false)
-const allTags = ref([]) // 缓存所有标签
-
-// 加载标签列表
-const fetchTags = async () => {
-  tagLoading.value = true
-  try {
-    const res = await contentApi.getTagPage({
-      pageNum: 1,
-      pageSize: 100,
-      params: {}
-    })
-    if (res.code === 200 && res.data) {
-      allTags.value = res.data.records || []
-      tagOptions.value = allTags.value.map(tag => ({
-        label: tag.name,
-        value: tag.id
-      }))
-    }
-  } catch (e) {
-    console.error('获取标签列表失败:', e)
-  } finally {
-    tagLoading.value = false
-  }
-}
-
-// 标签搜索过滤
-const filterTags = (search, option) => {
-  return option.label.toLowerCase().includes(search.toLowerCase())
-}
-
-// 标签搜索处理
-const handleTagSearch = (search) => {
-  if (!search) {
-    tagOptions.value = allTags.value.map(tag => ({
-      label: tag.name,
-      value: tag.id
-    }))
-    return
-  }
-  // 本地过滤
-  tagOptions.value = allTags.value
-    .filter(tag => tag.name.toLowerCase().includes(search.toLowerCase()))
-    .map(tag => ({
-      label: tag.name,
-      value: tag.id
-    }))
-}
-
-// 标签获取焦点时加载
-const handleTagFocus = () => {
-  if (allTags.value.length === 0) {
-    fetchTags()
-  }
-}
-
-const fetchCategories = async () => {
-  try {
-    // 使用 getCategoryPage 获取分类列表
-    const res = await contentApi.getCategoryPage({
-      page: 1,
-      size: 100 // 获取所有分类
-    })
-    // 处理分页响应结构: { code: 200, data: { records: [...] } }
-    if (res.code === 200 && res.data) {
-      categories.value = res.data.records || res.data || []
-    } else if (res.records) {
-      // 兼容直接返回分页数据的情况
-      categories.value = res.records
-    } else {
-      categories.value = []
-    }
-  } catch (e) {
-    console.error('获取分类列表失败:', e)
-    categories.value = []
-  }
-}
-
-onMounted(() => {
-  fetchCategories()
-})
 const categories = ref([])
 
 // 标签数据

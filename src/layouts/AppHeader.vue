@@ -21,6 +21,14 @@
     </div>
 
     <template #operations>
+      <t-tooltip content="AI 助手">
+        <t-button style="margin-right: 15px;" variant="text" shape="circle" @click="handleAIChat">
+          <template #icon>
+            <t-icon name="logo-github" />
+          </template>
+        </t-button>
+      </t-tooltip>
+
       <t-button style="margin-right: 15px;" variant="text" shape="circle" @click="handleToggleTheme($event)">
         <template #icon>
           <t-icon :name="isDarkTheme ? 'sunny' : 'moon'" />
@@ -145,6 +153,10 @@ const handleMenuChange = () => {
 
 const handleToggleTheme = (event) => {
   appStore.toggleTheme(event)
+}
+
+const handleAIChat = () => {
+  router.push('/ai/chat')
 }
 
 const handleNotifications = () => {

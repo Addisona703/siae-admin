@@ -80,7 +80,6 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
-import { ref, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { useAuthStore } from '@/stores'
@@ -91,19 +90,15 @@ const authStore = useAuthStore()
 
 const formRef = ref()
 const isLoading = ref(false)
-const formRef = ref()
-const isLoading = ref(false)
 
 const formData = reactive({
   username: '',
-  password: '',
   password: '',
 })
 
 const formRules = {
   username: [
     { required: true, message: '请输入用户名' },
-    { min: 3, message: '用户名至少3位' },
     { min: 3, message: '用户名至少3位' },
   ],
   password: [
@@ -112,14 +107,7 @@ const formRules = {
   ],
 }
 
-    { min: 6, message: '密码至少6位' },
-  ],
-}
-
 const handleSubmit = async () => {
-  const validateResult = await formRef.value?.validate()
-  if (validateResult !== true) return
-
   const validateResult = await formRef.value?.validate()
   if (validateResult !== true) return
 
@@ -127,13 +115,11 @@ const handleSubmit = async () => {
     isLoading.value = true
     await authStore.login(formData)
     MessagePlugin.success('登录成功')
-    MessagePlugin.success('登录成功')
 
     const redirect = route.query.redirect || '/dashboard'
     const targetPath = redirect === '/' ? '/dashboard' : redirect
     await router.replace(targetPath)
   } catch (error) {
-    const errorMessage = error?.response?.data?.message || error?.message || '登录失败'
     const errorMessage = error?.response?.data?.message || error?.message || '登录失败'
     MessagePlugin.error(errorMessage)
   } finally {
@@ -144,7 +130,6 @@ const handleSubmit = async () => {
 
 <style scoped lang="less">
 .login-view {
-  min-height: 100vh;
   min-height: 100vh;
   display: flex;
   align-items: center;

@@ -78,6 +78,17 @@ const routes = [
     },
   },
 
+  // AI 聊天页（全屏无布局）
+  {
+    path: '/ai/chat',
+    name: 'AIChat',
+    component: () => import('@/views/ai/ChatView.vue'),
+    meta: {
+      requiresAuth: true,
+      hideInMenu: true,
+    },
+  },
+
   // 需要认证的路由（带布局）
   {
     path: '/',

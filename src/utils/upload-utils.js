@@ -27,7 +27,7 @@
 // 默认配置
 const DEFAULT_CONFIG = {
   baseUrl: '/api/v1/media',
-  tenantId: '',
+  tenantId: 'ai',
   ownerId: '',
   accessPolicy: 'PUBLIC',
   chunkSize: 10 * 1024 * 1024, // 10MB
