@@ -69,9 +69,11 @@
 
 <script setup>
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { useNotificationStore } from '@/stores/notification'
 
+const router = useRouter()
 const notificationStore = useNotificationStore()
 
 const markingId = ref(null)
@@ -119,7 +121,8 @@ const handleNotificationClick = async (item) => {
   }
 
   if (item.linkUrl) {
-    window.open(item.linkUrl, '_blank', 'noopener')
+    // 使用 Vue Router 在当前页面内跳转
+    router.push(item.linkUrl)
   }
 }
 
