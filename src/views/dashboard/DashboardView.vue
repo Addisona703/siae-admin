@@ -196,9 +196,12 @@ const loadMemberOverview = async () => {
       pageSize: 1000
     })
 
+    console.log('成员概览API响应:', res)
+
     if (res && res.code === 200 && res.data) {
       // 处理返回的数据，统计各类成员数量
       const members = res.data.records || res.data.list || res.data || []
+      console.log('成员数据数量:', members.length)
 
       // 根据实际数据结构统计
       const stats = {
@@ -216,16 +219,16 @@ const loadMemberOverview = async () => {
           stats.disabledUsers++
         }
 
-        // 根据 lifecycleStatus 字段统计正式成员和候选成员
-        if (member.lifecycleStatus === '正式成员') {
+        // 根据 statusName 或 lifecycleStatus 字段统计正式成员和候选成员
+        if (member.statusName === '正式成员' || member.lifecycleStatus === 2) {
           stats.formalMembers++
-        } else if (member.lifecycleStatus === '候选成员') {
+        } else if (member.statusName === '候选成员' || member.lifecycleStatus === 1) {
           stats.candidateMembers++
         }
       })
 
       memberOverview.value = stats
-      // console.log('成员统计:', memberOverview.value)
+      console.log('成员统计结果:', memberOverview.value)
     }
   } catch (error) {
     console.error('加载成员概览失败:', error)
@@ -242,7 +245,7 @@ const loadAwardOverview = async () => {
       pageNum: 1,
       pageSize: 1000
     })
-    console.log(res);
+    // console.log(res);
 
     if (res.code === 200) {
       awardOverview.value = res.data
@@ -271,7 +274,10 @@ const loadMembershipTrend = async () => {
 
       members.forEach(member => {
         // 统计转正人数（使用 joinDate）
-        if (member.lifecycleStatus === '正式成员' && member.joinDate) {
+        const isFormal = member.statusName === '正式成员' || member.lifecycleStatus === 2
+        const isCandidate = member.statusName === '候选成员' || member.lifecycleStatus === 1
+
+        if (isFormal && member.joinDate) {
           let period
           if (memberTrendPeriod.value === 'month') {
             period = member.joinDate.substring(0, 7) // YYYY-MM
@@ -286,7 +292,7 @@ const loadMembershipTrend = async () => {
         }
 
         // 统计候选入会人数（使用 createdAt）
-        if (member.lifecycleStatus === '候选成员' && member.createdAt) {
+        if (isCandidate && member.createdAt) {
           let period
           if (memberTrendPeriod.value === 'month') {
             period = member.createdAt.substring(0, 7) // YYYY-MM
@@ -327,7 +333,7 @@ const loadAwardTrend = async () => {
       pageNum: 1,
       pageSize: 1000  // 注意：改为 pageSize（大写 S）
     })
-    console.log(res);
+    // console.log(res);
 
 
     if (res && res.code === 200 && res.data) {
@@ -368,7 +374,7 @@ const loadAwardTrend = async () => {
           levelCounts: periodStats[period]
         }))
 
-      console.log('获奖趋势数据:', awardTrendDetail.value)
+      // console.log('获奖趋势数据:', awardTrendDetail.value)
     }
   } catch (error) {
     console.error('加载获奖趋势失败:', error)
@@ -444,16 +450,19 @@ const loadDepartments = async () => {
     })
 
     if (res && res.code === 200 && res.data) {
+      console.log('部门统计API响应:', res)
+
       const members = res.data.records || []
+      console.log('成员数据:', members)
 
-      // 只统计正式成员
-      const formalMembers = members.filter(m => m.lifecycleStatus === '正式成员')
-
-      // 按部门分组统计
+      // 按部门分组统计（统计所有有部门的成员）
       const deptStats = {}
 
-      formalMembers.forEach(member => {
-        const deptName = member.departmentName || '未分配部门'
+      members.forEach(member => {
+        // 只统计有部门信息的成员
+        if (!member.departmentName) return
+
+        const deptName = member.departmentName
 
         if (!deptStats[deptName]) {
           deptStats[deptName] = {
@@ -465,14 +474,20 @@ const loadDepartments = async () => {
         }
 
         deptStats[deptName].totalMembers++
-        deptStats[deptName].formalMembers++
+
+        // 根据 statusName 或 lifecycleStatus 判断成员类型
+        if (member.statusName === '正式成员' || member.lifecycleStatus === 2) {
+          deptStats[deptName].formalMembers++
+        } else if (member.statusName === '候选成员' || member.lifecycleStatus === 1) {
+          deptStats[deptName].candidateMembers++
+        }
       })
 
       // 转换为数组并按总人数排序
       departments.value = Object.values(deptStats)
         .sort((a, b) => b.totalMembers - a.totalMembers)
 
-      console.log('部门统计:', departments.value)
+      console.log('部门统计结果:', departments.value)
     }
   } catch (error) {
     console.error('加载部门统计失败:', error)

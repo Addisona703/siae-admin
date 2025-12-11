@@ -93,9 +93,9 @@ export const useAppStore = defineStore('app', () => {
 
   return {
     // State
-    sidebarCollapsed: false,
-    theme: 'light',
-    isMobile: false,
+    sidebarCollapsed,
+    theme,
+    isMobile,
     // Getters
     isDarkTheme,
     isLightTheme,

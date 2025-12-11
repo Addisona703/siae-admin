@@ -50,7 +50,7 @@ const chartOption = computed(() => {
         roseType: 'area',
         itemStyle: {
           borderRadius: 8,
-          borderColor: '#fff',
+          // borderColor: '#fff',
           borderWidth: 2
         },
         label: {

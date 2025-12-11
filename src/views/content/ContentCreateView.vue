@@ -19,7 +19,8 @@
           </button>
         </div>
 
-        <span class="text-xs ml-2" style="color: var(--td-text-color-disabled);" v-if="lastSaved">上次保存: {{ lastSaved }}</span>
+        <span class="text-xs ml-2" style="color: var(--td-text-color-disabled);" v-if="lastSaved">上次保存: {{ lastSaved
+          }}</span>
         <span class="text-xs ml-2" style="color: var(--td-text-color-disabled);" v-else>草稿状态</span>
       </div>
 
@@ -39,12 +40,9 @@
       <!-- 左侧：主要创作区 -->
       <main class="flex-1 flex flex-col relative min-w-0 overflow-hidden" style="background: var(--td-bg-color-page);">
         <!-- 通用标题输入 -->
-        <div class="px-6 py-5 shrink-0 border-b"
-          style="background: var(--td-bg-color-container); border-color: var(--td-component-border);">
-          <input v-model="form.title" type="text" placeholder="请输入引人注目的标题..."
-            class="w-full text-xl font-normal border-none focus:ring-0 outline-none"
-            style="background: transparent; color: var(--td-text-color-primary);"
-            :style="{ '::placeholder': { color: 'var(--td-text-color-placeholder)' } }">
+        <div class="title-input-wrapper">
+          <input v-model="form.title" type="text" placeholder="请输入引人注目的标题..." class="title-input">
+          <div class="title-underline"></div>
         </div>
 
         <!-- 场景 A: 文字创作 (文章/笔记/提问) -->
@@ -53,10 +51,12 @@
           <div class="px-8 py-2 flex items-center justify-between border-b shrink-0 z-10"
             style="background: var(--td-bg-color-container); border-color: var(--td-component-border);">
             <div class="text-xs flex items-center gap-2" style="color: var(--td-text-color-placeholder);">
-              <span v-if="form.type === 2" class="px-2 py-1 rounded" style="color: var(--td-warning-color); background-color: var(--td-warning-color-1);">提问模式：请详细描述问题背景</span>
+              <span v-if="form.type === 2" class="px-2 py-1 rounded"
+                style="color: var(--td-warning-color); background-color: var(--td-warning-color-1);">提问模式：请详细描述问题背景</span>
               <span v-else>创作模式</span>
             </div>
-            <div v-if="[0, 1].includes(form.type)" class="flex p-0.5 rounded-md" style="background: var(--td-bg-color-component);">
+            <div v-if="[0, 1].includes(form.type)" class="flex p-0.5 rounded-md"
+              style="background: var(--td-bg-color-component);">
               <button @click="switchEditorMode('word')"
                 class="px-3 py-1 rounded text-xs font-medium transition-all editor-mode-btn"
                 :class="editorMode === 'word' ? 'editor-mode-active' : 'editor-mode-normal'">Word 模式</button>
@@ -71,12 +71,8 @@
             <!-- Word 模式 (TinyMCE 富文本编辑器) -->
             <div v-show="editorMode === 'word'" class="h-full flex flex-col">
               <div class="flex-1 overflow-hidden tinymce-wrapper">
-                <Editor
-                  :key="appStore.isDarkTheme ? 'dark' : 'light'"
-                  v-model="form.content"
-                  :init="tinymceInit"
-                  @input="autoSave"
-                />
+                <Editor :key="appStore.isDarkTheme ? 'dark' : 'light'" v-model="form.content" :init="tinymceInit"
+                  @input="autoSave" />
               </div>
             </div>
 
@@ -129,13 +125,16 @@
 
               <!-- 编辑与预览分屏 -->
               <div class="flex-1 flex overflow-hidden">
-                <div class="w-1/2 h-full border-r flex flex-col" style="background: var(--td-bg-color-secondarycontainer); border-color: var(--td-component-border);">
+                <div class="w-1/2 h-full border-r flex flex-col"
+                  style="background: var(--td-bg-color-secondarycontainer); border-color: var(--td-component-border);">
                   <textarea ref="mdTextarea" v-model="form.content"
                     class="w-full h-full p-6 resize-none border-none bg-transparent focus:ring-0 outline-none md-editor-textarea text-sm"
-                    style="color: var(--td-text-color-primary);"
-                    placeholder="# 开始你的 Markdown 写作..." @input="autoSave"></textarea>
+                    style="color: var(--td-text-color-primary);" placeholder="# 开始你的 Markdown 写作..."
+                    @input="autoSave"></textarea>
                 </div>
-                <div class="w-1/2 h-full prose max-w-none overflow-y-auto p-8" style="background: var(--td-bg-color-container); color: var(--td-text-color-primary);" v-html="compiledMarkdown"></div>
+                <div class="w-1/2 h-full prose max-w-none overflow-y-auto p-8"
+                  style="background: var(--td-bg-color-container); color: var(--td-text-color-primary);"
+                  v-html="compiledMarkdown"></div>
               </div>
             </div>
           </div>
@@ -236,17 +235,8 @@
             </t-form-item>
 
             <t-form-item label="标签 (Tags)" name="tagIds">
-              <t-select
-                v-model="form.tagIds"
-                :options="tagOptions"
-                placeholder="输入搜索标签"
-                multiple
-                filterable
-                :filter="filterTags"
-                :loading="tagLoading"
-                @search="handleTagSearch"
-                @focus="handleTagFocus"
-              />
+              <t-select v-model="form.tagIds" :options="tagOptions" placeholder="输入搜索标签" multiple filterable
+                :filter="filterTags" :loading="tagLoading" @search="handleTagSearch" @focus="handleTagFocus" />
             </t-form-item>
 
             <t-form-item label="摘要" name="description">
@@ -261,15 +251,8 @@
             <ImageIcon :size="16" /> 封面设置
           </h3>
           <div class="cover-upload-zone">
-            <t-upload 
-              v-model="coverList" 
-              theme="image" 
-              accept="image/*" 
-              :max="1" 
-              :auto-upload="false"
-              :before-upload="handleCoverBeforeUpload"
-              @change="handleCoverChange"
-            ></t-upload>
+            <t-upload v-model="coverList" theme="image" accept="image/*" :max="1" :auto-upload="false"
+              :before-upload="handleCoverBeforeUpload" @change="handleCoverChange"></t-upload>
             <div class="text-xs mt-2" style="color: var(--td-text-color-placeholder);">
               建议尺寸 16:9 <br> 支持 JPG/PNG, Max 5MB
             </div>
@@ -283,7 +266,8 @@
           <h3 class="font-medium mb-3 text-sm flex items-center gap-2" style="color: var(--td-text-color-primary);">
             <WalletIcon :size="16" /> 悬赏设置
           </h3>
-          <div class="p-4 rounded border" style="background-color: var(--td-warning-color-1); border-color: var(--td-warning-color-2);">
+          <div class="p-4 rounded border"
+            style="background-color: var(--td-warning-color-1); border-color: var(--td-warning-color-2);">
             <div class="flex items-center justify-between mb-2">
               <span class="text-sm font-bold" style="color: var(--td-warning-color-active);">悬赏积分</span>
               <span class="text-2xl font-bold" style="color: var(--td-warning-color);">{{ questionReward }}</span>
@@ -372,9 +356,13 @@ const mdTextarea = ref(null)
 const coverUploading = ref(false)
 const coverUploadProgress = ref(0)
 const coverFileId = ref(null) // 存储封面的 fileId
+const mainFileId = ref(null) // 存储主文件的 fileId (用于文件/视频类型)
 
 // 存储上传的图片映射 (临时URL -> fileId)
 const uploadedImages = ref(new Map())
+
+// 自动保存定时器
+let autoSaveTimer = null
 
 // TinyMCE 图片上传处理函数
 const imageUploadHandler = createImageUploadHandler({
@@ -493,7 +481,7 @@ const handleTypeChange = (val) => {
   form.type = val
   form.content = ''
   uploadFiles.value = []
-  
+
   // 提问模式强制使用 Markdown，其他模式默认 Word
   if (val === 2) {
     editorMode.value = 'markdown'
@@ -574,7 +562,7 @@ const handleFileChange = (val) => {
 const handleCoverBeforeUpload = (file) => {
   const isImage = file.type.startsWith('image/')
   const isLt5M = file.size / 1024 / 1024 < 5
-  
+
   if (!isImage) {
     MessagePlugin.warning('只能上传图片文件')
     return false
@@ -592,16 +580,16 @@ const handleCoverChange = async (val) => {
     coverFileId.value = null
     return
   }
-  
+
   const file = val[0].raw
   if (!file) return
-  
+
   coverUploading.value = true
   coverUploadProgress.value = 0
-  
+
   try {
     const userId = authStore.currentUser?.userId
-    
+
     const task = await mediaUploader.upload(file, {
       ownerId: userId ? String(userId) : '',
       accessPolicy: 'PUBLIC',
@@ -610,7 +598,7 @@ const handleCoverChange = async (val) => {
         coverUploadProgress.value = percent
       },
     })
-    
+
     coverFileId.value = task.fileId
     MessagePlugin.success('封面上传成功')
   } catch (error) {
@@ -631,9 +619,16 @@ const formatFileSize = (bytes) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
+// 防抖自动保存
 const autoSave = () => {
-  const now = new Date()
-  lastSaved.value = `${now.getHours()}:${now.getMinutes() < 10 ? '0' + now.getMinutes() : now.getMinutes()}`
+  if (autoSaveTimer) {
+    clearTimeout(autoSaveTimer)
+  }
+  autoSaveTimer = setTimeout(() => {
+    const now = new Date()
+    lastSaved.value = `${now.getHours()}:${now.getMinutes() < 10 ? '0' + now.getMinutes() : now.getMinutes()}`
+    // 可以在这里添加实际的草稿保存逻辑
+  }, 2000) // 2秒防抖
 }
 
 // 内容类型映射 (数字 -> 字符串)
@@ -650,26 +645,26 @@ const handleSubmit = async () => {
     MessagePlugin.warning('请输入标题')
     return
   }
-  
+
   if (!form.categoryId) {
     MessagePlugin.warning('请选择分类')
     return
   }
-  
+
   if (!form.description) {
     MessagePlugin.warning('请输入摘要')
     return
   }
-  
+
   MessagePlugin.loading('发布中...')
-  
+
   try {
     // 处理内容，将图片URL转换为 media://{fileId} 格式
     const processedContent = convertImagesToMediaProtocol(form.content, uploadedImages.value)
-    
+
     // 获取当前用户ID
     const userId = authStore.currentUser?.userId
-    
+
     // 构建后端期望的数据结构
     const submitData = {
       title: form.title,
@@ -684,25 +679,25 @@ const handleSubmit = async () => {
         content: processedContent,
       },
     }
-    
+
     console.log('Submit Data:', submitData)
-    
+
     // 调用发布API
     const res = await contentApi.publishContent(submitData)
-    
+
     if (res.code === 200) {
       MessagePlugin.success('发布成功！')
-      
+
       // 清空上传图片映射
       uploadedImages.value.clear()
       coverFileId.value = null
-      
+
       // 返回内容列表
       router.push('/content/list')
     } else {
       MessagePlugin.error(res.message || '发布失败')
     }
-    
+
   } catch (error) {
     console.error('发布失败:', error)
     MessagePlugin.error('发布失败: ' + (error.message || '未知错误'))
@@ -716,27 +711,75 @@ const goBack = () => {
 
 
 <style scoped>
-/* 顶部导航栏 */
+/* ========== CSS 变量定义 ========== */
+:root {
+  --transition-base: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+  
+  /* 深色主题颜色 */
+  --dark-bg-primary: #1a1d2e;
+  --dark-bg-secondary: #22273b;
+  --dark-bg-tertiary: #2a2f45;
+  --dark-border: #363b52;
+  --dark-text-primary: #e4e6eb;
+  --dark-text-secondary: #a0a3b5;
+  --dark-text-disabled: #6b6f85;
+}
+
+/* ========== 顶部导航栏 ========== */
 .header-bar {
-  background: var(--td-bg-color-container);
-  padding: 0 24px;
+  background: var(--dark-bg-secondary, var(--td-bg-color-container));
+  padding: 0 clamp(16px, 4vw, 24px);
   height: 56px;
-  border-bottom: 1px solid var(--td-component-border);
+  border-bottom: 1px solid var(--dark-border, var(--td-component-border));
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
   z-index: 50;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 2vw, 12px);
+  flex: 1;
+  min-width: 0;
 }
 
 /* 类型切换按钮 */
 .type-btn {
   cursor: pointer;
+  transition: var(--transition-base);
+  position: relative;
+  white-space: nowrap;
+}
+
+.type-btn::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--td-brand-color);
+  transform: translateX(-50%);
+  transition: width 0.3s ease;
 }
 
 .type-btn-active {
   color: var(--td-brand-color) !important;
   background: var(--td-brand-color-light) !important;
+  font-weight: 500;
+}
+
+.type-btn-active::after {
+  width: 60%;
 }
 
 .type-btn-normal {
@@ -746,15 +789,15 @@ const goBack = () => {
 
 .type-btn-normal:hover {
   background: var(--td-bg-color-container-hover) !important;
+  color: var(--td-text-color-primary) !important;
+  transform: translateY(-1px);
 }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.type-btn-normal:active {
+  transform: translateY(0);
 }
 
-/* 编辑器区域样式 */
+/* ========== 编辑器区域 ========== */
 .editor-container {
   height: calc(100vh - 64px);
 }
@@ -763,12 +806,25 @@ const goBack = () => {
 .editor-mode-btn {
   cursor: pointer;
   border: none;
+  transition: var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.editor-mode-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--td-brand-color);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .editor-mode-active {
   color: var(--td-brand-color) !important;
   background: var(--td-bg-color-container) !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 82, 217, 0.1);
+  font-weight: 500;
 }
 
 .editor-mode-normal {
@@ -778,23 +834,34 @@ const goBack = () => {
 
 .editor-mode-normal:hover {
   background: var(--td-bg-color-container-hover) !important;
+  color: var(--td-text-color-primary) !important;
 }
 
-/* TinyMCE 编辑器包装器 */
+.editor-mode-normal:active {
+  transform: scale(0.98);
+}
+
+/* ========== TinyMCE 编辑器 ========== */
 .tinymce-wrapper {
   width: 100%;
   height: 100%;
+  position: relative;
 }
 
 .tinymce-wrapper :deep(.tox-tinymce) {
   border: none !important;
   border-radius: 0 !important;
   height: 100% !important;
+  transition: var(--transition-base);
 }
 
 .tinymce-wrapper :deep(.tox-editor-header) {
   border-bottom: 1px solid var(--td-component-border) !important;
   background: var(--td-bg-color-container) !important;
+  backdrop-filter: blur(8px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .tinymce-wrapper :deep(.tox-toolbar-overlord) {
@@ -803,157 +870,352 @@ const goBack = () => {
 
 .tinymce-wrapper :deep(.tox-toolbar__primary) {
   background: var(--td-bg-color-container) !important;
+  padding: 8px 12px;
+}
+
+.tinymce-wrapper :deep(.tox-tbtn) {
+  transition: var(--transition-base);
+  border-radius: 4px;
+}
+
+.tinymce-wrapper :deep(.tox-tbtn:hover) {
+  background: var(--td-bg-color-container-hover) !important;
 }
 
 .tinymce-wrapper :deep(.tox-edit-area) {
   background: var(--td-bg-color-page) !important;
+  padding: 24px;
 }
 
 .tinymce-wrapper :deep(.tox-edit-area__iframe) {
   background: var(--td-bg-color-container) !important;
 }
 
-/* Markdown 模式样式 */
+/* ========== Markdown 编辑器 ========== */
 .markdown-toolbar {
-  background: var(--td-bg-color-container);
-  border-bottom: 1px solid var(--td-component-border);
-  padding: 6px 16px;
+  background: var(--dark-bg-secondary, var(--td-bg-color-container));
+  border-bottom: 1px solid var(--dark-border, var(--td-component-border));
+  padding: 8px 16px;
   display: flex;
-  gap: 8px;
+  gap: 4px;
   align-items: center;
+  flex-wrap: wrap;
+  backdrop-filter: blur(8px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .markdown-btn {
-  padding: 4px 8px !important;
-  border-radius: 4px !important;
+  padding: 6px 10px !important;
+  border-radius: 6px !important;
   color: var(--td-text-color-secondary) !important;
   cursor: pointer !important;
-  transition: all 0.2s !important;
+  transition: var(--transition-base) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   border: none !important;
   background: transparent !important;
+  position: relative;
+  min-width: 32px;
+  min-height: 32px;
+}
+
+.markdown-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  background: var(--td-brand-color);
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
 
 .markdown-btn:hover {
   background-color: var(--td-bg-color-container-hover) !important;
   color: var(--td-brand-color) !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.markdown-btn:hover::after {
+  opacity: 0.05;
+}
+
+.markdown-btn:active {
+  transform: translateY(0);
 }
 
 .md-editor-textarea {
-  font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
-  line-height: 1.6;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Menlo', 'Monaco', 'Courier New', monospace;
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+  transition: var(--transition-base);
 }
 
-/* Markdown 预览样式 */
+.md-editor-textarea:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgba(0, 82, 217, 0.1);
+}
+
+/* ========== Markdown 预览样式 ========== */
+.prose {
+  scroll-behavior: smooth;
+}
+
 .prose :deep(h1) {
   font-size: 2em;
-  font-weight: bold;
+  font-weight: 700;
   margin-bottom: 0.5em;
-  border-bottom: 1px solid var(--td-component-border);
+  margin-top: 0.5em;
+  border-bottom: 2px solid var(--td-component-border);
   padding-bottom: 0.3em;
   color: var(--td-text-color-primary);
+  line-height: 1.3;
 }
 
 .prose :deep(h2) {
   font-size: 1.5em;
-  font-weight: bold;
+  font-weight: 600;
   margin-bottom: 0.5em;
-  margin-top: 1em;
+  margin-top: 1.2em;
   color: var(--td-text-color-primary);
+  line-height: 1.4;
 }
 
 .prose :deep(h3) {
   font-size: 1.25em;
-  font-weight: bold;
+  font-weight: 600;
   margin-bottom: 0.5em;
   margin-top: 1em;
   color: var(--td-text-color-primary);
+  line-height: 1.4;
 }
 
 .prose :deep(p) {
-  margin-bottom: 1em;
-  line-height: 1.6;
+  margin-bottom: 1.2em;
+  line-height: 1.7;
   color: var(--td-text-color-primary);
+}
+
+.prose :deep(ul),
+.prose :deep(ol) {
+  padding-left: 1.8em;
+  margin-bottom: 1.2em;
+  color: var(--td-text-color-primary);
+  line-height: 1.7;
 }
 
 .prose :deep(ul) {
   list-style-type: disc;
-  padding-left: 1.5em;
-  margin-bottom: 1em;
-  color: var(--td-text-color-primary);
 }
 
 .prose :deep(ol) {
   list-style-type: decimal;
-  padding-left: 1.5em;
-  margin-bottom: 1em;
-  color: var(--td-text-color-primary);
+}
+
+.prose :deep(li) {
+  margin-bottom: 0.4em;
 }
 
 .prose :deep(blockquote) {
-  border-left: 4px solid var(--td-component-border);
-  padding-left: 1em;
+  border-left: 4px solid var(--td-brand-color);
+  padding: 12px 16px;
+  margin: 1.5em 0;
+  background: var(--td-bg-color-secondarycontainer);
+  border-radius: 0 8px 8px 0;
   color: var(--td-text-color-secondary);
-  margin: 1em 0;
+  font-style: italic;
 }
 
 .prose :deep(code) {
   background: var(--td-bg-color-secondarycontainer);
-  padding: 2px 4px;
+  padding: 3px 6px;
   border-radius: 4px;
-  font-family: monospace;
-  font-size: 0.9em;
-  color: var(--td-text-color-primary);
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.88em;
+  color: var(--td-error-color);
+  border: 1px solid var(--td-component-border);
 }
 
 .prose :deep(pre) {
-  background: #1e293b; /* Keep dark background for code blocks */
-  color: #fff;
-  padding: 1em;
-  border-radius: 8px;
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 16px 20px;
+  border-radius: 10px;
   overflow-x: auto;
-  margin: 1em 0;
+  margin: 1.5em 0;
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.prose :deep(pre code) {
+  background: transparent;
+  padding: 0;
+  border: none;
+  color: inherit;
+  font-size: 0.9em;
 }
 
 .prose :deep(img) {
   max-width: 100%;
-  border-radius: 4px;
-  margin: 1em 0;
+  border-radius: 8px;
+  margin: 1.5em 0;
+  box-shadow: var(--shadow-md);
+  transition: var(--transition-smooth);
+}
+
+.prose :deep(img:hover) {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-lg);
 }
 
 .prose :deep(a) {
   color: var(--td-brand-color);
-  text-decoration: underline;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: var(--transition-base);
 }
 
-/* 侧边栏 */
+.prose :deep(a:hover) {
+  border-bottom-color: var(--td-brand-color);
+}
+
+.prose :deep(hr) {
+  border: none;
+  border-top: 2px solid var(--td-component-border);
+  margin: 2em 0;
+}
+
+.prose :deep(table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.prose :deep(th),
+.prose :deep(td) {
+  padding: 12px 16px;
+  border: 1px solid var(--td-component-border);
+  text-align: left;
+}
+
+.prose :deep(th) {
+  background: var(--td-bg-color-secondarycontainer);
+  font-weight: 600;
+  color: var(--td-text-color-primary);
+}
+
+.prose :deep(tr:hover) {
+  background: var(--td-bg-color-container-hover);
+}
+
+/* ========== 侧边栏 ========== */
 .sidebar-card {
-  background: var(--td-bg-color-container);
-  padding: 18px 20px;
-  border-bottom: 1px solid var(--td-component-border);
+  background: var(--dark-bg-secondary, var(--td-bg-color-container));
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--dark-border, var(--td-component-border));
+  transition: var(--transition-base);
 }
 
-/* 上传页面包装器 */
+.sidebar-card:hover {
+  background: var(--dark-bg-tertiary, var(--td-bg-color-container-hover));
+}
+
+.sidebar-card h3 {
+  transition: var(--transition-base);
+  color: var(--dark-text-primary, var(--td-text-color-primary)) !important;
+}
+
+.sidebar-card:hover h3 {
+  color: #4a90e2 !important;
+}
+
+/* ========== 标题输入区域 ========== */
+.title-input-wrapper {
+  position: relative;
+  padding: 24px 32px;
+  background: var(--dark-bg-primary, var(--td-bg-color-container));
+  border-bottom: 1px solid var(--dark-border, var(--td-component-border));
+  transition: var(--transition-base);
+}
+
+.title-input-wrapper:focus-within {
+  background: var(--dark-bg-secondary, var(--td-bg-color-container-hover));
+  box-shadow: inset 0 -2px 0 var(--td-brand-color);
+}
+
+.title-input {
+  width: 100%;
+  font-size: clamp(18px, 3vw, 24px);
+  font-weight: 500;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--dark-text-primary, var(--td-text-color-primary));
+  padding: 8px 0;
+  transition: var(--transition-base);
+  letter-spacing: 0.02em;
+}
+
+.title-input::placeholder {
+  color: var(--dark-text-disabled, var(--td-text-color-placeholder));
+  font-weight: 400;
+}
+
+.title-input:focus {
+  transform: translateY(-2px);
+}
+
+.title-underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #4a90e2, #5ba3f5);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.title-input:focus~.title-underline {
+  width: 100%;
+}
+
+/* ========== 上传区域 ========== */
 .upload-page-wrapper {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px;
+  padding: clamp(20px, 5vw, 40px);
   background: var(--td-bg-color-page);
   overflow-y: auto;
 }
 
-/* 上传容器 */
 .upload-container {
   width: 100%;
-  max-width: 650px;
+  max-width: 680px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
   padding: 8px;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* 上传区域 */
@@ -1137,47 +1399,96 @@ const goBack = () => {
 .video-settings-card {
   background: var(--td-bg-color-container);
   border: 1px solid var(--td-component-border);
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-smooth);
+  animation: fadeInUp 0.5s ease-out 0.1s both;
+}
+
+.video-settings-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--td-brand-color);
+  transform: translateY(-2px);
 }
 
 .settings-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 20px;
   padding-bottom: 16px;
-  border-bottom: 1px solid var(--td-component-border);
+  border-bottom: 2px solid var(--td-component-border);
+  position: relative;
+}
+
+.settings-header::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: var(--td-brand-color);
+  transition: width 0.3s ease;
+}
+
+.video-settings-card:hover .settings-header::after {
+  width: 120px;
 }
 
 .settings-icon {
-  font-size: 18px !important;
+  font-size: 20px !important;
   color: var(--td-brand-color) !important;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
 }
 
 .settings-title {
   font-size: 16px;
   font-weight: 600;
   color: var(--td-text-color-primary);
+  letter-spacing: 0.02em;
 }
 
 .settings-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
 }
 
 .setting-item {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--td-bg-color-secondarycontainer);
+  transition: var(--transition-base);
+}
+
+.setting-item:hover {
+  background: var(--td-bg-color-container-hover);
+  transform: translateX(4px);
 }
 
 .setting-label {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--td-text-color-primary);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--td-text-color-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 /* 自定义滚动条 */
@@ -1202,17 +1513,225 @@ const goBack = () => {
 .cover-upload-zone {
   background: var(--td-bg-color-secondarycontainer);
   border: 2px dashed var(--td-component-border);
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: 12px;
+  padding: 20px;
   text-align: center;
-  transition: all 0.2s;
+  transition: var(--transition-smooth);
+  position: relative;
+  overflow: hidden;
+}
+
+.cover-upload-zone::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0, 82, 217, 0.03), rgba(0, 82, 217, 0.08));
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .cover-upload-zone:hover {
   border-color: var(--td-brand-color);
+  border-style: solid;
+  transform: scale(1.02);
+  box-shadow: var(--shadow-sm);
 }
 
-/* Fix TDesign Upload Component Clipping */
+.cover-upload-zone:hover::before {
+  opacity: 1;
+}
+
+/* ========== 响应式设计 ========== */
+@media (max-width: 1024px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  aside {
+    width: 300px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-bar {
+    padding: 0 12px;
+    height: auto;
+    min-height: 56px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .header-left {
+    flex-wrap: wrap;
+  }
+
+  .type-btn {
+    font-size: 12px !important;
+    padding: 6px 10px !important;
+  }
+
+  .title-input-wrapper {
+    padding: 16px 20px;
+  }
+
+  .markdown-toolbar {
+    padding: 6px 12px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  aside {
+    position: fixed;
+    right: -100%;
+    top: 0;
+    height: 100vh;
+    width: 100% !important;
+    max-width: 400px;
+    z-index: 100;
+    transition: right 0.3s ease;
+  }
+
+  aside.mobile-open {
+    right: 0;
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* ========== 滚动条美化 ========== */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--td-component-border) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--td-component-border);
+  border-radius: 4px;
+  transition: var(--transition-base);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--td-text-color-placeholder);
+}
+
+/* ========== 加载动画 ========== */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.loading-shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(90deg,
+      var(--td-bg-color-container) 0%,
+      var(--td-bg-color-container-hover) 50%,
+      var(--td-bg-color-container) 100%);
+  background-size: 1000px 100%;
+}
+
+/* ========== 焦点可见性 ========== */
+*:focus-visible {
+  outline: 2px solid var(--td-brand-color);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+button:focus-visible,
+.type-btn:focus-visible,
+.markdown-btn:focus-visible {
+  outline: 2px solid var(--td-brand-color);
+  outline-offset: 2px;
+}
+
+/* ========== 选择文本样式 ========== */
+::selection {
+  background: var(--td-brand-color-light);
+  color: var(--td-brand-color);
+}
+
+::-moz-selection {
+  background: var(--td-brand-color-light);
+  color: var(--td-brand-color);
+}
+
+/* ========== 悬赏滑块美化 ========== */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg,
+      var(--td-warning-color-2) 0%,
+      var(--td-warning-color) 100%);
+  outline: none;
+  transition: var(--transition-base);
+}
+
+input[type="range"]:hover {
+  box-shadow: 0 2px 8px rgba(255, 153, 0, 0.3);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--td-warning-color);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: var(--transition-base);
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 4px 12px rgba(255, 153, 0, 0.4);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--td-warning-color);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: var(--transition-base);
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 4px 12px rgba(255, 153, 0, 0.4);
+}
+
+/* ========== 按钮增强 ========== */
+.t-button {
+  transition: var(--transition-base) !important;
+}
+
+.t-button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.t-button:active {
+  transform: translateY(0);
+}
+
+/* ========== Fix TDesign Upload Component ========== */
 :deep(.t-upload__dragger) {
   width: 100%;
   height: auto !important;
@@ -1225,5 +1744,205 @@ const goBack = () => {
 :deep(.t-upload) {
   width: 100%;
   overflow: visible !important;
+}
+
+:deep(.t-upload__card-item) {
+  transition: var(--transition-smooth) !important;
+}
+
+:deep(.t-upload__card-item:hover) {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* ========== 表单项美化 ========== */
+:deep(.t-form-item) {
+  margin-bottom: 20px;
+}
+
+:deep(.t-form__label) {
+  font-weight: 500;
+  color: var(--td-text-color-primary);
+  margin-bottom: 8px;
+}
+
+:deep(.t-input),
+:deep(.t-textarea),
+:deep(.t-select) {
+  transition: var(--transition-base) !important;
+}
+
+:deep(.t-input:hover),
+:deep(.t-textarea:hover),
+:deep(.t-select:hover) {
+  border-color: var(--td-brand-color) !important;
+}
+
+:deep(.t-input:focus),
+:deep(.t-textarea:focus) {
+  box-shadow: 0 0 0 2px rgba(0, 82, 217, 0.1) !important;
+}
+
+/* ========== 标签选择器美化 ========== */
+:deep(.t-tag) {
+  transition: var(--transition-base) !important;
+}
+
+:deep(.t-tag:hover) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ========== 深色主题全局覆盖 ========== */
+.t-layout {
+  background: var(--dark-bg-primary, var(--td-bg-color-page)) !important;
+}
+
+main {
+  background: var(--dark-bg-primary, var(--td-bg-color-page)) !important;
+}
+
+aside {
+  background: var(--dark-bg-secondary, var(--td-bg-color-container)) !important;
+  border-color: var(--dark-border, var(--td-component-border)) !important;
+}
+
+/* 编辑器背景 */
+.tinymce-wrapper :deep(.tox-edit-area) {
+  background: var(--dark-bg-primary, var(--td-bg-color-page)) !important;
+}
+
+.tinymce-wrapper :deep(.tox-edit-area__iframe) {
+  background: var(--dark-bg-primary, var(--td-bg-color-container)) !important;
+}
+
+.tinymce-wrapper :deep(.tox-editor-header) {
+  background: var(--dark-bg-secondary, var(--td-bg-color-container)) !important;
+  border-color: var(--dark-border, var(--td-component-border)) !important;
+}
+
+.tinymce-wrapper :deep(.tox-toolbar-overlord),
+.tinymce-wrapper :deep(.tox-toolbar__primary) {
+  background: var(--dark-bg-secondary, var(--td-bg-color-container)) !important;
+}
+
+/* Markdown 编辑区 */
+.md-editor-textarea {
+  background: var(--dark-bg-primary, var(--td-bg-color-secondarycontainer)) !important;
+  color: var(--dark-text-primary, var(--td-text-color-primary)) !important;
+}
+
+/* 上传区域深色 */
+.upload-zone {
+  background: var(--dark-bg-secondary, var(--td-bg-color-container));
+  border-color: var(--dark-border, var(--td-component-border));
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.uploaded-file-card {
+  background: var(--dark-bg-secondary, var(--td-bg-color-container));
+  border-color: var(--dark-border, var(--td-component-border));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.video-settings-card {
+  background: var(--dark-bg-secondary, var(--td-bg-color-container));
+  border-color: var(--dark-border, var(--td-component-border));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.upload-title,
+.file-name,
+.settings-title {
+  color: var(--dark-text-primary, var(--td-text-color-primary)) !important;
+}
+
+.upload-subtitle,
+.file-size,
+.setting-label {
+  color: var(--dark-text-secondary, var(--td-text-color-secondary)) !important;
+}
+
+/* 封面上传区 */
+.cover-upload-zone {
+  background: var(--dark-bg-tertiary, var(--td-bg-color-secondarycontainer));
+  border-color: var(--dark-border, var(--td-component-border));
+}
+
+/* 表单组件深色 */
+:deep(.t-input),
+:deep(.t-textarea),
+:deep(.t-select) {
+  background: var(--dark-bg-tertiary, var(--td-bg-color-container)) !important;
+  border-color: var(--dark-border, var(--td-component-border)) !important;
+  color: var(--dark-text-primary, var(--td-text-color-primary)) !important;
+}
+
+:deep(.t-input__inner),
+:deep(.t-textarea__inner) {
+  background: transparent !important;
+  color: var(--dark-text-primary, var(--td-text-color-primary)) !important;
+}
+
+:deep(.t-select__wrap) {
+  background: var(--dark-bg-tertiary, var(--td-bg-color-container)) !important;
+}
+
+/* 按钮深色 */
+:deep(.t-button--variant-outline) {
+  border-color: var(--dark-border, var(--td-component-border)) !important;
+  color: var(--dark-text-primary, var(--td-text-color-primary)) !important;
+}
+
+:deep(.t-button--variant-outline:hover) {
+  background: var(--dark-bg-tertiary, var(--td-bg-color-container-hover)) !important;
+}
+
+/* 编辑模式切换栏 */
+.px-8.py-2 {
+  background: var(--dark-bg-secondary, var(--td-bg-color-container)) !important;
+  border-color: var(--dark-border, var(--td-component-border)) !important;
+}
+
+/* Markdown 预览区 */
+.prose {
+  background: var(--dark-bg-secondary, var(--td-bg-color-container)) !important;
+  color: var(--dark-text-primary, var(--td-text-color-primary)) !important;
+}
+
+/* 设置项背景 */
+.setting-item {
+  background: var(--dark-bg-tertiary, var(--td-bg-color-secondarycontainer)) !important;
+}
+
+.setting-item:hover {
+  background: var(--dark-bg-primary, var(--td-bg-color-container-hover)) !important;
+}
+
+/* 文件图标包装器 */
+.file-icon-wrapper {
+  background: var(--dark-bg-tertiary, var(--td-bg-color-secondarycontainer)) !important;
+}
+
+/* 格式标签 */
+.format-tag {
+  background: var(--dark-bg-tertiary, var(--td-bg-color-secondarycontainer)) !important;
+  border-color: var(--dark-border, var(--td-component-border)) !important;
+  color: var(--dark-text-secondary, var(--td-text-color-secondary)) !important;
+}
+
+/* ========== 暗色模式优化 ========== */
+@media (prefers-color-scheme: dark) {
+  .upload-zone {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  }
+
+  .uploaded-file-card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  }
+
+  .video-settings-card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  }
 }
 </style>

@@ -127,8 +127,7 @@
               <t-icon name="browse" /> 详情
             </span>
             <!-- 内容类型时显示跳转按钮 -->
-            <span v-if="row.targetType === '0' || row.targetType === 0" class="op-btn default"
-              @click="goToContentDetail(row.targetId)">
+            <span v-if="row.auditStatus === 1" class="op-btn default" @click="goToContentDetail(row.targetId)">
               <t-icon name="jump" /> 内容
             </span>
             <template v-if="isPending(row)">
@@ -158,16 +157,8 @@
     </t-dialog>
 
     <!-- 详情对话框 -->
-    <t-dialog
-      v-model:visible="detailDrawerVisible"
-      header="审核详情"
-      width="800px"
-      :destroy-on-close="true"
-      attach="body"
-      placement="center"
-      :show-overlay="true"
-      :close-on-overlay-click="true"
-    >
+    <t-dialog v-model:visible="detailDrawerVisible" header="审核详情" width="800px" :destroy-on-close="true" attach="body"
+      placement="center" :show-overlay="true" :close-on-overlay-click="true">
       <div class="detail-content" v-if="currentDetail">
         <!-- 审核信息 -->
         <div class="detail-section">
@@ -289,7 +280,7 @@ const STATUS_MAP = {
 
 // 判断是否为待审核状态（0=待审核）
 const isPending = (row) => {
-  return row.auditStatus === 0
+  return row.auditStatus === 1
 }
 
 // 内容类型映射
@@ -500,10 +491,12 @@ const handleAuditConfirm = async () => {
     const auditData = {
       targetId: currentAuditRow.value.targetId,
       targetType: convertTargetType(currentAuditRow.value.targetType),
-      auditStatus: auditAction.value === 'approve' ? 1 : 2, // 1=已通过, 2=已删除
+      auditStatus: auditAction.value === 'approve' ? 2 : 3,
       auditReason: auditForm.auditReason || (auditAction.value === 'approve' ? '审核通过' : ''),
       version: currentAuditRow.value.version
     }
+    console.log(auditData);
+
 
     // console.log('审核请求参数:', auditData)
     const res = await contentApi.handleAudit(currentAuditRow.value.id, auditData)
@@ -648,10 +641,6 @@ onMounted(() => {
   visibility: visible !important;
   opacity: 1 !important;
   background: var(--td-bg-color-container) !important;
-  
-  :deep(.t-card__body) {
-    padding-bottom: 0;
-  }
 }
 
 .batch-actions {
@@ -860,7 +849,7 @@ onMounted(() => {
   .t-table__header th {
     white-space: nowrap;
   }
-  
+
   .t-table__pagination {
     padding: 16px 0 0 0;
     margin: 0;

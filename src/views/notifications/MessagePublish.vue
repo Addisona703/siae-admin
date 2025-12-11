@@ -19,7 +19,7 @@
       <!-- 左侧：配置表单 -->
       <div class="form-section">
         <t-form ref="formRef" :data="formData" :rules="rules" label-align="top" @submit="onSubmit">
-          
+
           <!-- 渠道选择 -->
           <div class="channel-selector">
             <label class="form-label">发送渠道</label>
@@ -27,12 +27,12 @@
               <t-radio-button value="system">
                 <span class="radio-content"><NotificationIcon /> 站内信</span>
               </t-radio-button>
-              <t-radio-button value="email">
+              <!-- <t-radio-button value="email">
                 <span class="radio-content"><MailIcon /> 邮件 (Email)</span>
               </t-radio-button>
               <t-radio-button value="sms">
                 <span class="radio-content"><ChatIcon /> 短信 (SMS)</span>
-              </t-radio-button>
+              </t-radio-button> -->
             </t-radio-group>
           </div>
 
@@ -46,7 +46,7 @@
                   <t-option :value="3" label="提醒 (Remind)" />
                 </t-select>
               </t-form-item>
-              
+
               <t-form-item label="发送对象" name="system.targetType">
                 <t-select v-model="formData.system.targetType">
                   <t-option value="all" label="全员广播" />
@@ -54,10 +54,10 @@
                 </t-select>
               </t-form-item>
             </div>
-            
-            <t-form-item 
-              v-if="formData.system.targetType === 'specific'" 
-              label="用户ID列表" 
+
+            <t-form-item
+              v-if="formData.system.targetType === 'specific'"
+              label="用户ID列表"
               name="system.userIds"
               help="多个ID用逗号分隔"
             >
@@ -69,10 +69,10 @@
             </t-form-item>
 
             <t-form-item label="通知内容" name="system.content">
-              <t-textarea 
-                v-model="formData.system.content" 
-                placeholder="请输入详细内容..." 
-                :autosize="{ minRows: 4, maxRows: 6 }" 
+              <t-textarea
+                v-model="formData.system.content"
+                placeholder="请输入详细内容..."
+                :autosize="{ minRows: 4, maxRows: 6 }"
               />
             </t-form-item>
 
@@ -86,10 +86,10 @@
           <!-- 邮件配置 -->
           <template v-if="channel === 'email'">
             <t-form-item label="收件人邮箱" name="email.recipients" help="多个邮箱用分号分隔">
-              <t-textarea 
-                v-model="formData.email.recipients" 
-                placeholder="user@example.com; admin@example.com" 
-                :autosize="{ minRows: 2 }" 
+              <t-textarea
+                v-model="formData.email.recipients"
+                placeholder="user@example.com; admin@example.com"
+                :autosize="{ minRows: 2 }"
               />
             </t-form-item>
 
@@ -98,10 +98,10 @@
             </t-form-item>
 
             <t-form-item label="邮件正文" name="email.content">
-              <t-textarea 
-                v-model="formData.email.content" 
-                placeholder="支持简单的 HTML 标签..." 
-                :autosize="{ minRows: 8 }" 
+              <t-textarea
+                v-model="formData.email.content"
+                placeholder="支持简单的 HTML 标签..."
+                :autosize="{ minRows: 8 }"
               />
               <template #tips>
                 <span class="text-gray-400">支持 HTML</span>
@@ -112,10 +112,10 @@
           <!-- 短信配置 -->
           <template v-if="channel === 'sms'">
             <t-form-item label="手机号码列表" name="sms.phones" help="多个号码用逗号分隔">
-              <t-textarea 
-                v-model="formData.sms.phones" 
-                placeholder="13800138000, 13900139000" 
-                :autosize="{ minRows: 3 }" 
+              <t-textarea
+                v-model="formData.sms.phones"
+                placeholder="13800138000, 13900139000"
+                :autosize="{ minRows: 3 }"
               />
             </t-form-item>
 
@@ -126,10 +126,10 @@
             </t-form-item>
 
             <t-form-item label="短信内容 / 模板参数" name="sms.content">
-              <t-textarea 
-                v-model="formData.sms.content" 
-                placeholder="如果使用模板，请在此输入JSON格式参数；否则输入直接内容。" 
-                :autosize="{ minRows: 4 }" 
+              <t-textarea
+                v-model="formData.sms.content"
+                placeholder="如果使用模板，请在此输入JSON格式参数；否则输入直接内容。"
+                :autosize="{ minRows: 4 }"
               />
             </t-form-item>
           </template>
@@ -144,7 +144,7 @@
               保存草稿
             </t-button>
           </div>
-          
+
         </t-form>
       </div>
 
@@ -158,11 +158,11 @@ import { ref, reactive } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { useRouter } from 'vue-router'
 import { notificationApi } from '@/api/notification'
-import { 
-  SendIcon, 
-  HistoryIcon, 
-  NotificationIcon, 
-  MailIcon, 
+import {
+  SendIcon,
+  HistoryIcon,
+  NotificationIcon,
+  MailIcon,
   ChatIcon,
   LinkIcon,
 } from 'tdesign-icons-vue-next'
@@ -209,7 +209,7 @@ const rules = {
 // 后端 NotificationType 枚举使用 @JsonValue 标注在 name 字段上
 const NOTIFICATION_TYPE_MAP = {
   1: '系统通知',
-  2: '公告', 
+  2: '公告',
   3: '提醒'
 }
 
@@ -221,7 +221,7 @@ const onSubmit = async ({ validateResult, firstError }) => {
   }
 
   sending.value = true
-  
+
   try {
     if (channel.value === 'system') {
       // 站内信发送
@@ -239,7 +239,7 @@ const onSubmit = async ({ validateResult, firstError }) => {
         }
 
         // 批量发送给指定用户
-        const sendPromises = userIds.map(userId => 
+        const sendPromises = userIds.map(userId =>
           notificationApi.sendNotification({
             userId,
             type: NOTIFICATION_TYPE_MAP[formData.system.type],
@@ -248,11 +248,11 @@ const onSubmit = async ({ validateResult, firstError }) => {
             linkUrl: formData.system.link || undefined
           })
         )
-        
+
         const results = await Promise.allSettled(sendPromises)
         const successCount = results.filter(r => r.status === 'fulfilled').length
         const failCount = results.filter(r => r.status === 'rejected').length
-        
+
         if (failCount > 0) {
           MessagePlugin.warning(`发送完成：成功 ${successCount} 个，失败 ${failCount} 个`)
         } else {
@@ -268,40 +268,40 @@ const onSubmit = async ({ validateResult, firstError }) => {
         })
         MessagePlugin.success('广播消息已发送')
       }
-      
+
       resetForm()
     } else if (channel.value === 'email') {
       const recipients = formData.email.recipients.split(';').map(r => r.trim()).filter(r => r)
-      
+
       if (recipients.length === 0) {
         MessagePlugin.warning('请输入有效的收件人邮箱')
         sending.value = false
         return
       }
-      
+
       await notificationApi.sendBatchEmails({
         recipients,
         subject: formData.email.subject,
         content: formData.email.content
       })
-      
+
       MessagePlugin.success('邮件发送任务已提交')
       resetForm()
     } else if (channel.value === 'sms') {
       const phones = formData.sms.phones.split(',').map(p => p.trim()).filter(p => p)
-      
+
       if (phones.length === 0) {
         MessagePlugin.warning('请输入有效的手机号码')
         sending.value = false
         return
       }
-      
+
       await notificationApi.sendBatchSms({
         phones,
         templateCode: formData.sms.templateCode,
         content: formData.sms.content
       })
-      
+
       MessagePlugin.success('短信发送任务已提交')
       resetForm()
     }

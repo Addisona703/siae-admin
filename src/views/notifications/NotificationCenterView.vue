@@ -17,7 +17,7 @@
                 {{ userInfo?.username?.charAt(0).toUpperCase() || 'U' }}
               </t-avatar>
             </t-button>
-            
+
             <template #dropdown>
               <t-dropdown-menu>
                 <t-dropdown-item @click="goToDashboard">
@@ -55,7 +55,7 @@
     <!-- 主内容区 -->
     <div class="content-card">
       <t-tabs v-model="currentTab" theme="normal">
-        
+
         <!-- Tab 1: 站内通知 -->
         <t-tab-panel value="system" label="站内通知">
           <div class="tab-content">
@@ -67,11 +67,11 @@
                   <t-radio-button value="unread">未读</t-radio-button>
                   <t-radio-button value="read">已读</t-radio-button>
                 </t-radio-group>
-                
-                <t-select 
-                  v-model="notifyTypeFilter" 
-                  placeholder="通知类型" 
-                  clearable 
+
+                <t-select
+                  v-model="notifyTypeFilter"
+                  placeholder="通知类型"
+                  clearable
                   style="width: 140px"
                 >
                   <t-option :value="1" label="系统通知"></t-option>
@@ -79,7 +79,7 @@
                   <t-option :value="3" label="提醒"></t-option>
                 </t-select>
               </div>
-              
+
               <t-button variant="text" theme="primary" @click="markAllRead">
                 <template #icon><t-icon name="check-double" /></template>
                 全部标为已读
@@ -93,66 +93,81 @@
                 <p>暂无相关通知</p>
               </div>
 
-              <div 
-                v-for="item in filteredNotifications" 
-                :key="item.id" 
-                class="notification-item"
-                :class="{ 'unread': !item.is_read }"
-                @click="readNotification(item)"
+              <t-swipe-cell
+                v-for="item in filteredNotifications"
+                :key="item.id"
+                class="notification-swipe-wrapper"
               >
-                <!-- 图标 -->
-                <div class="notification-icon">
-                  <t-avatar 
-                    :style="{ 
-                      backgroundColor: getTypeConfig(item.type).color, 
-                      color: '#fff' 
-                    }"
-                  >
-                    <template #icon>
-                      <t-icon :name="getTypeConfig(item.type).iconName" />
-                    </template>
-                  </t-avatar>
-                </div>
-                
-                <!-- 内容 -->
-                <div class="notification-content">
-                  <div class="notification-header">
-                    <h3 class="notification-title">
-                      {{ item.title }}
-                      <span v-if="!item.is_read" class="unread-dot"></span>
-                    </h3>
-                    <span class="notification-time">{{ item.created_at }}</span>
+                <div
+                  class="notification-item"
+                  :class="{ 'unread': !item.is_read }"
+                  @click="readNotification(item)"
+                >
+                  <!-- 图标 -->
+                  <div class="notification-icon">
+                    <t-avatar
+                      :style="{
+                        backgroundColor: getTypeConfig(item.type).color,
+                        color: '#fff'
+                      }"
+                    >
+                      <template #icon>
+                        <t-icon :name="getTypeConfig(item.type).iconName" />
+                      </template>
+                    </t-avatar>
                   </div>
-                  <p class="notification-text">{{ item.content }}</p>
-                  <div v-if="item.link_url" class="notification-link">
-                    <a :href="item.link_url" @click.stop>
-                      查看详情 <t-icon name="chevron-right" />
-                    </a>
+
+                  <!-- 内容 -->
+                  <div class="notification-content">
+                    <div class="notification-header">
+                      <h3 class="notification-title">
+                        {{ item.title }}
+                        <span v-if="!item.is_read" class="unread-dot"></span>
+                      </h3>
+                      <span class="notification-time">{{ item.created_at }}</span>
+                    </div>
+                    <p class="notification-text">{{ item.content }}</p>
+                    <div v-if="item.link_url" class="notification-link">
+                      <a :href="item.link_url" @click.stop>
+                        查看详情 <t-icon name="chevron-right" />
+                      </a>
+                    </div>
                   </div>
                 </div>
 
-                <!-- 操作按钮 -->
-                <div class="notification-actions">
-                  <t-tooltip content="删除通知">
-                    <t-button 
-                      shape="circle" 
-                      variant="text" 
-                      theme="danger" 
-                      @click.stop="deleteNotification(item)"
+                <!-- 右滑操作按钮 -->
+                <template #right>
+                  <div class="swipe-actions">
+                    <t-button
+                      v-if="!item.is_read"
+                      theme="primary"
+                      variant="text"
+                      class="swipe-action-btn mark-read"
+                      @click="readNotification(item)"
+                    >
+                      <t-icon name="check" />
+                      <span>已读</span>
+                    </t-button>
+                    <t-button
+                      theme="danger"
+                      variant="text"
+                      class="swipe-action-btn delete"
+                      @click="deleteNotification(item)"
                     >
                       <t-icon name="delete" />
+                      <span>删除</span>
                     </t-button>
-                  </t-tooltip>
-                </div>
-              </div>
+                  </div>
+                </template>
+              </t-swipe-cell>
             </div>
-            
+
             <!-- 分页 -->
             <div class="pagination-wrapper">
-              <t-pagination 
-                v-model="pagination.current" 
-                v-model:pageSize="pagination.pageSize" 
-                :total="pagination.total" 
+              <t-pagination
+                v-model="pagination.current"
+                v-model:pageSize="pagination.pageSize"
+                :total="pagination.total"
                 show-jumper
               />
             </div>
@@ -217,10 +232,10 @@ const currentTab = ref('system')
 // ================== 站内通知逻辑 ==================
 const notifyFilter = ref('all')
 const notifyTypeFilter = ref(null)
-const pagination = reactive({ 
-  current: 1, 
-  pageSize: 10, 
-  total: 0 
+const pagination = reactive({
+  current: 1,
+  pageSize: 10,
+  total: 0
 })
 
 // 通知数据
@@ -236,7 +251,9 @@ const loadNotifications = async () => {
       size: pagination.pageSize,
       isRead: notifyFilter.value === 'all' ? undefined : notifyFilter.value === 'read'
     })
-    
+    console.log(response);
+
+
     if (response.code === 200 && response.data) {
       // 转换数据格式
       notifications.value = response.data.records.map(item => ({
@@ -280,9 +297,9 @@ const filteredNotifications = computed(() => {
 })
 
 const getTypeConfig = (type) => {
-  return NOTIFY_TYPES[type] || { 
-    iconName: 'info-circle', 
-    color: '#999' 
+  return NOTIFY_TYPES[type] || {
+    iconName: 'info-circle',
+    color: '#999'
   }
 }
 
@@ -344,7 +361,7 @@ const loadEmailLogs = async () => {
       recipient: emailSearch.value || undefined,
       status: logStatusFilter.value ?? undefined
     })
-    
+
     if (response.code === 200 && response.data) {
       emailLogs.value = response.data.records.map(item => ({
         id: item.id,
@@ -374,7 +391,7 @@ const loadSmsLogs = async () => {
       phone: smsSearch.value || undefined,
       status: logStatusFilter.value ?? undefined
     })
-    
+
     if (response.code === 200 && response.data) {
       smsLogs.value = response.data.records.map(item => ({
         id: item.id,
@@ -452,8 +469,11 @@ onMounted(() => {
 
 <style scoped lang="less">
 .notification-center-page {
-  min-height: 100vh;
+  height: 100vh;
   background-color: var(--td-bg-color-page);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .top-navbar {
@@ -497,6 +517,11 @@ onMounted(() => {
   padding: 24px;
   max-width: 1400px;
   margin: 0 auto;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
 .header-section {
@@ -504,6 +529,7 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
+  flex-shrink: 0;
 }
 
 .page-title {
@@ -527,11 +553,36 @@ onMounted(() => {
   border-radius: 8px;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   padding: 16px;
-  min-height: 600px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+
+  :deep(.t-tabs) {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  :deep(.t-tabs__content) {
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  :deep(.t-tab-panel) {
+    height: 100%;
+  }
 }
 
 .tab-content {
   padding-top: 16px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .toolbar {
@@ -540,6 +591,7 @@ onMounted(() => {
   align-items: center;
   margin-bottom: 16px;
   padding: 0 8px;
+  flex-shrink: 0;
 }
 
 .toolbar-left {
@@ -551,17 +603,58 @@ onMounted(() => {
 .notification-list {
   display: flex;
   flex-direction: column;
+  gap: 0;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin: 0 -16px;
+  padding: 0 16px;
+
+  // 自定义滚动条样式
+  &::-webkit-scrollbar {
+    width: 6px;
+    display: block;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--td-scrollbar-color);
+    border-radius: 3px;
+
+    &:hover {
+      background: var(--td-scrollbar-hover-color);
+    }
+  }
+
+  // Firefox 滚动条
+  scrollbar-width: thin;
+  scrollbar-color: var(--td-scrollbar-color) transparent;
+}
+
+.notification-swipe-wrapper {
+  border-bottom: 1px solid var(--td-component-border);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  :deep(.t-swipe-cell__wrapper) {
+    background: transparent;
+  }
 }
 
 .empty-state {
   text-align: center;
   padding: 80px 0;
   color: var(--td-text-color-placeholder);
-  
+
   :deep(.t-icon) {
     margin-bottom: 8px;
   }
-  
+
   p {
     margin: 0;
   }
@@ -571,25 +664,73 @@ onMounted(() => {
   display: flex;
   gap: 16px;
   padding: 16px;
-  border-bottom: 1px solid var(--td-component-border);
   cursor: pointer;
   transition: all 0.2s;
   position: relative;
-  
+  background: var(--td-bg-color-container);
+
   &:hover {
     background-color: var(--td-bg-color-container-hover);
   }
-  
+
   &.unread {
     background-color: rgba(0, 82, 217, 0.05);
-    
+
     &:hover {
       background-color: rgba(0, 82, 217, 0.08);
     }
   }
-  
-  &:last-child {
-    border-bottom: none;
+}
+
+// 滑动操作按钮样式
+.swipe-actions {
+  display: flex;
+  height: 100%;
+  align-items: stretch;
+}
+
+.swipe-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 20px;
+  height: 100%;
+  border: none;
+  border-radius: 0;
+  font-size: 12px;
+  transition: all 0.2s;
+
+  &.mark-read {
+    background: var(--td-brand-color);
+    color: #fff;
+
+    &:hover {
+      background: var(--td-brand-color-hover);
+    }
+
+    :deep(.t-icon) {
+      font-size: 20px;
+    }
+  }
+
+  &.delete {
+    background: var(--td-error-color);
+    color: #fff;
+
+    &:hover {
+      background: var(--td-error-color-hover);
+    }
+
+    :deep(.t-icon) {
+      font-size: 20px;
+    }
+  }
+
+  span {
+    font-size: 12px;
+    white-space: nowrap;
   }
 }
 
@@ -642,7 +783,7 @@ onMounted(() => {
 
 .notification-link {
   margin-top: 8px;
-  
+
   a {
     color: var(--td-brand-color);
     font-size: 12px;
@@ -650,30 +791,22 @@ onMounted(() => {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    
+
     &:hover {
       text-decoration: underline;
     }
   }
 }
 
-.notification-actions {
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  opacity: 0;
-  transition: opacity 0.2s;
-  
-  .notification-item:hover & {
-    opacity: 1;
-  }
-}
+// 移除悬停操作按钮（已被滑动操作替代）
 
 .pagination-wrapper {
   margin-top: 16px;
   display: flex;
   justify-content: flex-end;
+  flex-shrink: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--td-component-border);
 }
 
 .log-toolbar {
@@ -686,7 +819,7 @@ onMounted(() => {
   .mr-1 {
     margin-right: 4px;
   }
-  
+
   .cursor-help {
     cursor: help;
   }

@@ -29,8 +29,8 @@
               <span class="stat-value">{{ overview?.enabledUsers || 0 }}</span>
             </div>
             <div class="stat-progress">
-              <div 
-                class="stat-progress-bar green" 
+              <div
+                class="stat-progress-bar green"
                 :style="{ width: `${overview?.totalUsers ? (overview.enabledUsers / overview.totalUsers * 100) : 0}%` }"
               ></div>
             </div>
@@ -61,14 +61,14 @@
         </div>
 
         <!-- 第四块：新增趋势 -->
-        <div class="dashboard-block highlight">
+        <div class="dashboard-block vertical">
           <div class="dashboard-center">
             <p class="dashboard-center-label">本年新增成员</p>
             <p class="dashboard-center-value">{{ overview?.newUsersThisYear || 0 }}</p>
             <div class="dashboard-avatars">
-              <div 
-                v-for="i in Math.min(3, overview?.newUsersThisYear || 0)" 
-                :key="i" 
+              <div
+                v-for="i in Math.min(3, overview?.newUsersThisYear || 0)"
+                :key="i"
                 class="avatar-item"
               >
                 <t-avatar size="24px" :image="`https://api.dicebear.com/7.x/avataaars/svg?seed=${i}`" />
@@ -323,7 +323,7 @@ onMounted(() => {
   setTimeout(() => {
     hasPlayedAnimation.value = true
   }, 1000) // 等待所有动画完成
-  
+
   loadOverview()
   loadDepartments()
   loadPositions()
@@ -337,26 +337,26 @@ onMounted(() => {
 <style scoped lang="less">
 .member-statistics {
   width: 100%;
-  
+
   // 只在首次加载时播放动画
   &.animated {
     animation: fadeIn 0.4s ease-out;
-    
+
     .dashboard-container {
       animation: slideUp 0.4s ease-out forwards;
       opacity: 0;
     }
-    
+
     .distribution-section {
       animation: slideUp 0.4s ease-out 0.15s forwards;
       opacity: 0;
     }
-    
+
     .demographics-section {
       animation: slideUp 0.4s ease-out 0.25s forwards;
       opacity: 0;
     }
-    
+
     .trend-section {
       animation: slideUp 0.4s ease-out 0.35s forwards;
       opacity: 0;
@@ -656,7 +656,7 @@ onMounted(() => {
 
 .distribution-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 5fr 4fr;
   gap: 20px;
 }
 

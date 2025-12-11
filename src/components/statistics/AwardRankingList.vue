@@ -110,18 +110,18 @@ const handleClick = (item) => {
     display: flex;
     align-items: center;
     padding: 20px;
-    background: #fff;
-    border: 1px solid rgba(228, 228, 228, 0.6);
+    background: var(--td-bg-color-container);
+    border: 1px solid var(--td-component-border);
     border-radius: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     cursor: pointer;
     position: relative;
     overflow: hidden;
 
     &:hover {
-      border-color: transparent;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      border-color: var(--td-brand-color);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
       transform: translateY(-2px) scale(1.005);
       z-index: 1;
     }
@@ -144,7 +144,7 @@ const handleClick = (item) => {
   &__number {
     font-size: 20px;
     font-weight: 700;
-    color: #999;
+    color: var(--td-text-color-placeholder);
     font-family: 'Outfit', sans-serif;
   }
 
@@ -167,7 +167,7 @@ const handleClick = (item) => {
   &__name {
     font-size: 16px;
     font-weight: 600;
-    color: #2c3e50;
+    color: var(--td-text-color-primary);
     margin-bottom: 4px;
     white-space: nowrap;
     overflow: hidden;
@@ -176,7 +176,7 @@ const handleClick = (item) => {
 
   &__username {
     font-size: 13px;
-    color: #999;
+    color: var(--td-text-color-placeholder);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -193,7 +193,7 @@ const handleClick = (item) => {
     height: 8px;
     border-radius: 4px;
     overflow: hidden;
-    background: #f0f2f5;
+    background: var(--td-bg-color-component);
     margin-bottom: 12px;
   }
 
@@ -257,11 +257,11 @@ const handleClick = (item) => {
     flex-shrink: 0;
     min-width: 90px;
     padding-left: 24px;
-    border-left: 1px solid #f0f0f0;
+    border-left: 1px solid var(--td-component-border);
 
     .total-label {
       font-size: 12px;
-      color: #999;
+      color: var(--td-text-color-placeholder);
       margin-bottom: 4px;
       font-weight: 500;
     }
@@ -269,9 +269,20 @@ const handleClick = (item) => {
     .total-value {
       font-size: 32px;
       font-weight: 700;
-      color: #667eea;
+      color: var(--td-brand-color);
       line-height: 1;
       letter-spacing: -1px;
+    }
+  }
+
+  // 暗黑模式优化
+  html[theme-mode='dark'] & {
+    &__item {
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+
+      &:hover {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      }
     }
   }
 }

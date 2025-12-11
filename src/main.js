@@ -2,7 +2,7 @@
 // import './assets/theme.css'
 // import './assets/responsive.css'
 // import './assets/styles/transition.css'
-// import './assets/main.css'
+import './assets/main.css'
 // 注释掉冲突的主题文件，统一使用 theme.css
 import './styles/light-theme.css'
 import './styles/dark-theme.less'

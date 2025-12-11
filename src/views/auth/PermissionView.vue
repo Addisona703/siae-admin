@@ -460,7 +460,7 @@ onMounted(async () => {
 <style scoped lang="less">
 .permission-view {
   width: 100%;
-  height: 100%;
+  // height: 100vh;
   padding: 8px 12px;
 }
 

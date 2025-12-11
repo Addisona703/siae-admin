@@ -174,7 +174,7 @@ const loadTypeChart = async () => {
           avoidLabelOverlap: false,
           itemStyle: {
             borderRadius: 10,
-            borderColor: '#fff',
+            // borderColor: '#fff',
             borderWidth: 2
           },
           label: {
@@ -183,6 +183,7 @@ const loadTypeChart = async () => {
           },
           emphasis: {
             label: {
+              color:'#FEFEFE',
               show: true,
               fontSize: 20,
               fontWeight: 'bold'

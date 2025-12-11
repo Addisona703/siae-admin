@@ -38,18 +38,18 @@ const chartOption = computed(() => {
     legend: {
       orient: 'vertical',
       right: '10%',
-      top: 'center'
+      right: 'right'
     },
     series: [
       {
         name: '职位分布',
         type: 'pie',
         radius: ['45%', '70%'],
-        center: ['35%', '50%'],
-        avoidLabelOverlap: false,
+        center: ['50%', '50%'],
+        // avoidLabelOverlap: false,
         itemStyle: {
-          borderRadius: 8,
-          borderColor: '#fff',
+          borderRadius: 5,
+          // borderColor: '#fff',
           borderWidth: 2
         },
         label: {
@@ -67,12 +67,12 @@ const chartOption = computed(() => {
     ],
     graphic: {
       type: 'text',
-      left: '35%',
-      top: '48%',
+      left: '47%',
+      top: '45%',
       style: {
         text: `总计\n${total}`,
         textAlign: 'center',
-        fill: '#333',
+        fill: '#fff',
         fontSize: 16,
         fontWeight: 'bold',
         lineHeight: 24

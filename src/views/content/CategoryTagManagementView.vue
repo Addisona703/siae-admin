@@ -1,7 +1,7 @@
 <template>
   <div class="category-tag-view">
     <!-- 头部 -->
-    <div class="mb-6 flex justify-between items-end">
+    <div class="mb-6 flex justify-between items-end" style="margin-bottom: 30px;">
       <div>
         <h1 class="page-title">
           <LayersIcon size="28" /> 资源归档管理
@@ -38,18 +38,19 @@
             </div>
 
             <!-- 树形表格 -->
-            <t-primary-table row-key="id" :data="categoryList" :columns="categoryColumns" :tree="treeConfig"
+            <t-primary-table row-key="id" :data="categoryData" :columns="categoryColumns" :tree="treeConfig"
               :expanded-row-keys="expandedKeys" @expand-change="onExpandChange" stripe bordered
-              :loading="categoryLoading">
+              :loading="categoryLoading" :empty="cateSearch ? '未找到匹配的分类' : '暂无分类数据'">
+              <template #description="{ row }">
+                <span v-if="row.description" class="text-secondary">{{ row.description }}</span>
+                <span v-else class="text-placeholder">暂无描述</span>
+              </template>
               <template #status="{ row }">
-                <t-switch v-model="row.enable" :custom-value="[1, 0]" @change="handleStatusChange(row)" />
+                <t-switch v-model="row.enable" :custom-value="[1, 0]" @change="handleStatusChange(row)" size="large" />
               </template>
               <template #op="{ row }">
                 <t-space size="small">
-                  <!-- <t-link theme="primary" hover="color" @click="openCategoryModal('sub', row)">
-                    <AddCircleIcon class="mr-1" />添加子类
-                  </t-link> -->
-                  <t-link theme="default" hover="color" @click="openCategoryModal('edit', row)">编辑</t-link>
+                  <t-link theme="primary" hover="color" @click="openCategoryModal('edit', row)">编辑</t-link>
                   <t-popconfirm content="确定删除该分类及其子分类吗？" theme="danger" @confirm="handleDeleteCategory(row)">
                     <t-link theme="danger" hover="color">删除</t-link>
                   </t-popconfirm>
@@ -79,13 +80,13 @@
 
             <!-- 标签表格 -->
             <t-table row-key="id" :data="filteredTags" :columns="tagColumns" :loading="tagLoading" hover stripe
-              bordered>
+              bordered :empty="tagSearch ? '未找到匹配的标签' : '暂无标签数据'">
               <template #description="{ row }">
-                <span class="text-gray-400" v-if="!row.description">暂无描述</span>
-                <span v-else>{{ row.description }}</span>
+                <span v-if="row.description" class="text-secondary">{{ row.description }}</span>
+                <span v-else class="text-placeholder">暂无描述</span>
               </template>
               <template #createdAt="{ row }">
-                {{ formatDate(row.createdAt) }}
+                <span class="text-secondary">{{ formatDate(row.createdAt) }}</span>
               </template>
               <template #op="{ row }">
                 <t-space size="small">
@@ -158,8 +159,7 @@ import { MessagePlugin } from 'tdesign-vue-next'
 import {
   LayersIcon,
   AddIcon,
-  SearchIcon,
-  AddCircleIcon
+  SearchIcon
 } from 'tdesign-icons-vue-next'
 import { contentApi } from '@/api/content'
 import { getAllCategories } from '../../api/content/content'
@@ -217,10 +217,11 @@ const categoryTreeSelectData = computed(() => {
 })
 
 const categoryColumns = [
-  { colKey: 'name', title: '分类名称', width: 200, ellipsis: true },
-  { colKey: 'code', title: '编码', width: 150 },
-  { colKey: 'status', title: '状态', width: 100 },
-  { colKey: 'op', title: '操作', width: 220, fixed: 'right' }
+  { colKey: 'name', title: '分类名称', width: 250, ellipsis: true },
+  { colKey: 'code', title: '编码', width: 180 },
+  { colKey: 'description', title: '描述', ellipsis: true, width: 300 },
+  { colKey: 'status', title: '状态', width: 100, align: 'center' },
+  { colKey: 'op', title: '操作', width: 150, fixed: 'right', align: 'center' }
 ]
 
 const cateDialog = reactive({
@@ -419,10 +420,10 @@ const filteredTags = computed(() => {
 })
 
 const tagColumns = [
-  { colKey: 'name', title: '标签名称', width: 200 },
+  { colKey: 'name', title: '标签名称', width: 250 },
   { colKey: 'description', title: '描述', ellipsis: true },
-  { colKey: 'createdAt', title: '创建时间', width: 180 },
-  { colKey: 'op', title: '操作', width: 150, fixed: 'right' }
+  { colKey: 'createdAt', title: '创建时间', width: 200 },
+  { colKey: 'op', title: '操作', width: 150, fixed: 'right', align: 'center' }
 ]
 
 const tagDialog = reactive({
@@ -534,7 +535,13 @@ const handleDeleteTag = async (row) => {
 // 格式化日期
 const formatDate = (dateStr) => {
   if (!dateStr) return '-'
-  return new Date(dateStr).toLocaleString('zh-CN')
+  const date = new Date(dateStr)
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  return `${year}-${month}-${day} ${hours}:${minutes}`
 }
 
 // ================== 初始化 ==================
@@ -552,9 +559,11 @@ onMounted(() => {
 }
 
 .card-box {
+  overflow: hidden;
   background: var(--td-bg-color-container);
-  border-radius: 8px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--td-component-border);
 }
 
 .page-title {
@@ -571,5 +580,106 @@ onMounted(() => {
   font-size: 14px;
   color: var(--td-text-color-secondary);
   margin-top: 4px;
+}
+
+.mb-4 {
+  margin-bottom: 16px;
+}
+
+.mb-6 {
+  margin-bottom: 24px;
+}
+
+.flex {
+  display: flex;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.items-end {
+  align-items: flex-end;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.gap-2 {
+  gap: 8px;
+}
+
+.pt-4 {
+  padding-top: 16px;
+}
+
+.p-4 {
+  padding: 24px;
+}
+
+.text-secondary {
+  color: var(--td-text-color-secondary);
+}
+
+.text-placeholder {
+  color: var(--td-text-color-placeholder);
+  font-style: italic;
+}
+
+/* 优化表格样式 */
+:deep(.t-table) {
+  font-size: 14px;
+}
+
+:deep(.t-table__header) {
+  background: var(--td-bg-color-container-hover);
+}
+
+:deep(.t-table__cell) {
+  padding: 12px 16px;
+}
+
+/* 优化 Tabs 样式 */
+:deep(.t-tabs__nav-item) {
+  font-size: 15px;
+  font-weight: 500;
+  padding: 12px 24px;
+}
+
+:deep(.t-tabs__nav-item.t-is-active) {
+  color: var(--td-brand-color);
+  font-weight: 600;
+}
+
+/* 优化开关样式 */
+:deep(.t-switch) {
+  vertical-align: middle;
+}
+
+/* 暗黑模式优化 */
+html[theme-mode='dark'] {
+  .card-box {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :deep(.t-table__header) {
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  :deep(.t-table) {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  :deep(.t-table__cell) {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  :deep(.t-tabs__nav-item) {
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+  }
 }
 </style>

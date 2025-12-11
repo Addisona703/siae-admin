@@ -16,7 +16,7 @@ export default defineConfig({
     port: 7090,
     proxy: {
       '/api': {
-        target: 'http://localhost:80',
+        target: 'http://192.168.217.96:80',
         changeOrigin: true,
         secure: false,
       },

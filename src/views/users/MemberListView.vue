@@ -116,17 +116,23 @@
 
         <!-- 状态列 -->
         <template #status="{ row }">
-          <t-tag v-if="isOfficial(row.lifecycleStatus)" theme="success" variant="light">
+          <t-tag v-if="isOfficial(row)" theme="success" variant="light">
             <template #icon>
               <span class="status-dot active" />
             </template>
-            正式成员
+            {{ row.statusName || '正式成员' }}
           </t-tag>
-          <t-tag v-else theme="warning" variant="light">
+          <t-tag v-else-if="isCandidate(row)" theme="warning" variant="light">
             <template #icon>
               <span class="status-dot pending" />
             </template>
-            候选成员
+            {{ row.statusName || '候选成员' }}
+          </t-tag>
+          <t-tag v-else theme="danger" variant="light">
+            <template #icon>
+              <span class="status-dot" />
+            </template>
+            {{ row.statusName || '未知状态' }}
           </t-tag>
         </template>
 
@@ -142,7 +148,7 @@
 
         <!-- 关键日期列 -->
         <template #date="{ row }">
-          <div v-if="isOfficial(row.lifecycleStatus) && row.joinDate">
+          <div v-if="isOfficial(row) && row.joinDate">
             {{ formatDate(row.joinDate) }}
           </div>
           <div v-else-if="row.createdAt">
@@ -154,7 +160,7 @@
         <!-- 操作列 -->
         <template #op="{ row }">
           <div class="op-btns">
-            <span v-if="isCandidate(row.lifecycleStatus)" class="op-btn success" @click="openPromoteDialog(row)">
+            <span v-if="isCandidate(row)" class="op-btn success" @click="openPromoteDialog(row)">
               <t-icon name="check" /> 转正
             </span>
             <span class="op-btn primary" @click="viewDetail(row)">
@@ -264,18 +270,26 @@ const formatDate = (dateStr) => {
   return dateStr.split('T')[0]
 }
 
-// 判断是否为候选成员 (后端返回中文字符串 "候选成员")
-const isCandidate = (status) => {
-  const result = status === '候选成员'
-  if (result) {
-    // console.log('🎯 发现候选成员 - status:', status)
+// 判断是否为候选成员
+// lifecycleStatus: 1=候选成员, 2=正式成员, 3=已拒绝
+// 或者使用 statusName 字段判断
+const isCandidate = (row) => {
+  // 优先使用 statusName 字段
+  if (row.statusName) {
+    return row.statusName === '候选成员'
   }
-  return result
+  // 备用：使用 lifecycleStatus 数字判断
+  return row.lifecycleStatus === 1
 }
 
-// 判断是否为正式成员 (后端返回中文字符串 "正式成员")
-const isOfficial = (status) => {
-  return status === '正式成员'
+// 判断是否为正式成员
+const isOfficial = (row) => {
+  // 优先使用 statusName 字段
+  if (row.statusName) {
+    return row.statusName === '正式成员'
+  }
+  // 备用：使用 lifecycleStatus 数字判断
+  return row.lifecycleStatus === 2
 }
 
 // 数据加载

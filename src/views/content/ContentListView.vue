@@ -211,11 +211,11 @@ const pagination = reactive({
 const columns = [
   // { colKey: 'row-select', type: 'multiple', width: 50 },
   // { colKey: 'id', title: 'ID', width: 60, align: 'center' },
-  { colKey: 'title', title: '内容信息', minWidth: 280 },
+  { colKey: 'title', title: '内容信息', minWidth: 200 },
   { colKey: 'type', title: '类型', width: 100 },
   { colKey: 'categoryName', title: '分类', width: 100 },
   { colKey: 'uploadedByName', title: '作者', width: 100 },
-  { colKey: 'stats', title: '数据统计', width: 160 },
+  { colKey: 'stats', title: '数据统计', width: 130 },
   { colKey: 'status', title: '状态', width: 90 },
   { colKey: 'createdAt', title: '创建时间', width: 160 },
   { colKey: 'op', title: '操作', fixed: 'right', width: 140 }
@@ -484,7 +484,7 @@ onMounted(async () => {
 
   .cover-wrapper {
     width: 64px;
-    height: 48px;
+    // height: 48px;
     background: var(--td-bg-color-container);
     border-radius: 4px;
     overflow: hidden;
@@ -572,7 +572,7 @@ onMounted(async () => {
 .op-btns {
   display: flex;
   gap: 8px;
-  
+
   .op-btn {
     cursor: pointer;
     display: flex;
@@ -580,23 +580,26 @@ onMounted(async () => {
     gap: 2px;
     font-size: 14px;
     transition: color 0.2s;
-    
+
     &.default {
       color: var(--td-text-color-secondary);
+
       &:hover {
         color: var(--td-brand-color);
       }
     }
-    
+
     &.primary {
       color: var(--td-brand-color);
+
       &:hover {
         color: var(--td-brand-color-hover);
       }
     }
-    
+
     &.danger {
       color: var(--td-error-color);
+
       &:hover {
         color: var(--td-error-color-hover);
       }
