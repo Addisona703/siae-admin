@@ -64,10 +64,12 @@
                 class="px-3 py-1 rounded text-xs font-medium transition-all editor-mode-btn"
                 :class="editorMode === 'markdown' ? 'editor-mode-active' : 'editor-mode-normal'">Markdown</button>
             </div>
+            </div>
           </div>
 
           <!-- 编辑器主体 -->
           <div class="flex-1 flex flex-col overflow-hidden relative">
+            <!-- Word 模式 (TinyMCE 富文本编辑器) -->
             <!-- Word 模式 (TinyMCE 富文本编辑器) -->
             <div v-show="editorMode === 'word'" class="h-full flex flex-col">
               <div class="flex-1 overflow-hidden tinymce-wrapper">
@@ -91,6 +93,7 @@
                   </button>
                 </t-tooltip>
                 <div class="!w-px !h-4 !mx-1" style="background: var(--td-component-border);"></div>
+                <div class="!w-px !h-4 !mx-1" style="background: var(--td-component-border);"></div>
                 <t-tooltip content="一级标题">
                   <button class="markdown-btn !font-bold !border-0" @click="insertMd('h1')">H1</button>
                 </t-tooltip>
@@ -100,6 +103,7 @@
                 <t-tooltip content="三级标题">
                   <button class="markdown-btn !font-bold !border-0" @click="insertMd('h3')">H3</button>
                 </t-tooltip>
+                <div class="!w-px !h-4 !mx-1" style="background: var(--td-component-border);"></div>
                 <div class="!w-px !h-4 !mx-1" style="background: var(--td-component-border);"></div>
                 <t-tooltip content="引用">
                   <button class="markdown-btn !border-0" @click="insertMd('quote')">
@@ -145,6 +149,7 @@
           <div class="upload-container">
             <!-- 上传区域 -->
             <t-upload v-model="uploadFiles" draggable theme="custom" :accept="form.type === 4 ? 'video/*' : '*'"
+              :auto-upload="false" @change="handleFileChange" class="w-full">
               :auto-upload="false" @change="handleFileChange" class="w-full">
               <template #dragContent>
                 <div class="upload-zone">
@@ -225,6 +230,7 @@
         style="background: var(--td-bg-color-container); border-color: var(--td-component-border);">
         <div class="sidebar-card">
           <h3 class="font-medium mb-3 text-sm flex items-center gap-2" style="color: var(--td-text-color-primary);">
+          <h3 class="font-medium mb-3 text-sm flex items-center gap-2" style="color: var(--td-text-color-primary);">
             <RootListIcon :size="16" /> 发布设置
           </h3>
           <t-form label-align="top" :data="form">
@@ -248,6 +254,7 @@
 
         <div class="sidebar-card" v-if="[0, 1, 4].includes(form.type)">
           <h3 class="font-medium mb-3 text-sm flex items-center gap-2" style="color: var(--td-text-color-primary);">
+          <h3 class="font-medium mb-3 text-sm flex items-center gap-2" style="color: var(--td-text-color-primary);">
             <ImageIcon :size="16" /> 封面设置
           </h3>
           <div class="cover-upload-zone">
@@ -264,11 +271,14 @@
 
         <div class="sidebar-card" v-if="form.type === 2">
           <h3 class="font-medium mb-3 text-sm flex items-center gap-2" style="color: var(--td-text-color-primary);">
+          <h3 class="font-medium mb-3 text-sm flex items-center gap-2" style="color: var(--td-text-color-primary);">
             <WalletIcon :size="16" /> 悬赏设置
           </h3>
           <div class="p-4 rounded border"
             style="background-color: var(--td-warning-color-1); border-color: var(--td-warning-color-2);">
             <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-bold" style="color: var(--td-warning-color-active);">悬赏积分</span>
+              <span class="text-2xl font-bold" style="color: var(--td-warning-color);">{{ questionReward }}</span>
               <span class="text-sm font-bold" style="color: var(--td-warning-color-active);">悬赏积分</span>
               <span class="text-2xl font-bold" style="color: var(--td-warning-color);">{{ questionReward }}</span>
             </div>
@@ -283,9 +293,11 @@
 
 <script setup>
 import { ref, reactive, computed, nextTick, onMounted } from 'vue'
+import { ref, reactive, computed, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { marked } from 'marked'
+import Editor from '@tinymce/tinymce-vue'
 import Editor from '@tinymce/tinymce-vue'
 import {
   ArrowLeftIcon,
@@ -314,8 +326,25 @@ import {
   getTinymceConfig,
   convertImagesToMediaProtocol
 } from '@/utils/tinymce-utils'
+import { contentApi } from '@/api/content'
+import { useAppStore } from '@/stores/app'
+import { useAuthStore } from '@/stores/auth'
+import { MediaUploader } from '@/utils/upload-utils'
+import {
+  createImageUploadHandler,
+  getTinymceConfig,
+  convertImagesToMediaProtocol
+} from '@/utils/tinymce-utils'
 
 const router = useRouter()
+const appStore = useAppStore()
+const authStore = useAuthStore()
+
+// 媒体上传器实例
+const mediaUploader = new MediaUploader({
+  baseUrl: '/api/v1/media',
+  tenantId: 'admin',
+})
 const appStore = useAppStore()
 const authStore = useAuthStore()
 
@@ -340,6 +369,7 @@ const form = reactive({
   type: 0,
   content: '',
   categoryId: null,
+  tagIds: [],
   tagIds: [],
   description: '',
   duration: 0,
@@ -380,6 +410,91 @@ const tinymceInit = computed(() =>
 )
 
 // 分类数据
+const categories = ref([])
+
+// 标签数据
+const tagOptions = ref([])
+const tagLoading = ref(false)
+const allTags = ref([]) // 缓存所有标签
+
+// 加载标签列表
+const fetchTags = async () => {
+  tagLoading.value = true
+  try {
+    const res = await contentApi.getTagPage({
+      pageNum: 1,
+      pageSize: 100,
+      params: {}
+    })
+    if (res.code === 200 && res.data) {
+      allTags.value = res.data.records || []
+      tagOptions.value = allTags.value.map(tag => ({
+        label: tag.name,
+        value: tag.id
+      }))
+    }
+  } catch (e) {
+    console.error('获取标签列表失败:', e)
+  } finally {
+    tagLoading.value = false
+  }
+}
+
+// 标签搜索过滤
+const filterTags = (search, option) => {
+  return option.label.toLowerCase().includes(search.toLowerCase())
+}
+
+// 标签搜索处理
+const handleTagSearch = (search) => {
+  if (!search) {
+    tagOptions.value = allTags.value.map(tag => ({
+      label: tag.name,
+      value: tag.id
+    }))
+    return
+  }
+  // 本地过滤
+  tagOptions.value = allTags.value
+    .filter(tag => tag.name.toLowerCase().includes(search.toLowerCase()))
+    .map(tag => ({
+      label: tag.name,
+      value: tag.id
+    }))
+}
+
+// 标签获取焦点时加载
+const handleTagFocus = () => {
+  if (allTags.value.length === 0) {
+    fetchTags()
+  }
+}
+
+const fetchCategories = async () => {
+  try {
+    // 使用 getCategoryPage 获取分类列表
+    const res = await contentApi.getCategoryPage({
+      page: 1,
+      size: 100 // 获取所有分类
+    })
+    // 处理分页响应结构: { code: 200, data: { records: [...] } }
+    if (res.code === 200 && res.data) {
+      categories.value = res.data.records || res.data || []
+    } else if (res.records) {
+      // 兼容直接返回分页数据的情况
+      categories.value = res.records
+    } else {
+      categories.value = []
+    }
+  } catch (e) {
+    console.error('获取分类列表失败:', e)
+    categories.value = []
+  }
+}
+
+onMounted(() => {
+  fetchCategories()
+})
 const categories = ref([])
 
 // 标签数据
@@ -1221,6 +1336,7 @@ const goBack = () => {
 /* 上传区域 */
 .upload-zone {
   border: 3px dashed var(--td-component-border);
+  border: 3px dashed var(--td-component-border);
   border-radius: 16px;
   padding: 48px 32px;
   display: flex;
@@ -1229,6 +1345,7 @@ const goBack = () => {
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
+  background: var(--td-bg-color-container);
   background: var(--td-bg-color-container);
   position: relative;
   min-height: 320px;
@@ -1245,8 +1362,10 @@ const goBack = () => {
 
 .upload-zone:hover {
   border-color: var(--td-brand-color);
+  border-color: var(--td-brand-color);
   border-style: solid;
   transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
 }
 
@@ -1258,12 +1377,14 @@ const goBack = () => {
   width: 72px;
   height: 72px;
   background: var(--td-brand-color);
+  background: var(--td-brand-color);
   border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 20px;
   transition: all 0.3s ease;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
@@ -1281,6 +1402,7 @@ const goBack = () => {
   font-size: 18px;
   font-weight: 600;
   color: var(--td-text-color-primary);
+  color: var(--td-text-color-primary);
   margin-bottom: 6px;
 }
 
@@ -1289,15 +1411,18 @@ const goBack = () => {
   align-items: center;
   gap: 8px;
   color: var(--td-text-color-secondary);
+  color: var(--td-text-color-secondary);
   font-size: 13px;
   margin-bottom: 16px;
 }
 
 .upload-hint {
   color: var(--td-text-color-secondary);
+  color: var(--td-text-color-secondary);
 }
 
 .upload-divider {
+  color: var(--td-component-border);
   color: var(--td-component-border);
 }
 
@@ -1312,9 +1437,12 @@ const goBack = () => {
   padding: 4px 12px;
   background: var(--td-bg-color-secondarycontainer);
   border: 1px solid var(--td-component-border);
+  background: var(--td-bg-color-secondarycontainer);
+  border: 1px solid var(--td-component-border);
   border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
+  color: var(--td-text-color-secondary);
   color: var(--td-text-color-secondary);
   transition: all 0.2s;
 }
@@ -1323,10 +1451,15 @@ const goBack = () => {
   background: var(--td-brand-color-light);
   border-color: var(--td-brand-color);
   color: var(--td-brand-color);
+  background: var(--td-brand-color-light);
+  border-color: var(--td-brand-color);
+  color: var(--td-brand-color);
 }
 
 /* 已上传文件卡片 */
 .uploaded-file-card {
+  background: var(--td-bg-color-container);
+  border: 1px solid var(--td-component-border);
   background: var(--td-bg-color-container);
   border: 1px solid var(--td-component-border);
   border-radius: 12px;
@@ -1341,6 +1474,7 @@ const goBack = () => {
 .uploaded-file-card:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   border-color: var(--td-brand-color);
+  border-color: var(--td-brand-color);
 }
 
 .file-info {
@@ -1354,6 +1488,7 @@ const goBack = () => {
   width: 48px;
   height: 48px;
   background: var(--td-bg-color-secondarycontainer);
+  background: var(--td-bg-color-secondarycontainer);
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -1362,6 +1497,7 @@ const goBack = () => {
 
 .file-icon {
   font-size: 24px !important;
+  color: var(--td-text-color-secondary) !important;
   color: var(--td-text-color-secondary) !important;
 }
 
@@ -1372,6 +1508,7 @@ const goBack = () => {
 .file-name {
   font-size: 14px;
   font-weight: 600;
+  color: var(--td-text-color-primary);
   color: var(--td-text-color-primary);
   margin-bottom: 4px;
   overflow: hidden;
@@ -1388,9 +1525,11 @@ const goBack = () => {
 
 .file-size {
   color: var(--td-text-color-secondary);
+  color: var(--td-text-color-secondary);
 }
 
 .file-status {
+  color: var(--td-success-color);
   color: var(--td-success-color);
   font-weight: 500;
 }

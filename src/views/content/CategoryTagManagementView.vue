@@ -548,6 +548,7 @@ const formatDate = (dateStr) => {
 onMounted(() => {
   loadCategories()
   loadTags()
+  loadTags()
 })
 </script>
 

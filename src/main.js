@@ -46,6 +46,23 @@ export const waitForInit = () => {
   })
 }
 
+// 标记初始化状态
+let isInitialized = false
+export const waitForInit = () => {
+  return new Promise((resolve) => {
+    if (isInitialized) {
+      resolve()
+    } else {
+      const check = setInterval(() => {
+        if (isInitialized) {
+          clearInterval(check)
+          resolve()
+        }
+      }, 10)
+    }
+  })
+}
+
 async function initializeApp() {
   const authStore = useAuthStore()
   const permissionStore = usePermissionStore()
@@ -60,6 +77,7 @@ async function initializeApp() {
     console.warn('Failed to initialize app:', error)
   }
 
+  isInitialized = true
   isInitialized = true
   app.mount('#app')
 }

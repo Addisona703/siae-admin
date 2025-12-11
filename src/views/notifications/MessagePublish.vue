@@ -149,6 +149,7 @@
       </div>
 
       <!-- 已移除实时预览部分 -->
+      <!-- 已移除实时预览部分 -->
     </div>
   </div>
 </template>
@@ -171,8 +172,10 @@ const router = useRouter()
 const formRef = ref()
 const sending = ref(false)
 const channel = ref('system')
+const channel = ref('system')
 
 // 表单数据
+const formData = reactive({
 const formData = reactive({
   system: {
     type: 1,
@@ -214,6 +217,7 @@ const NOTIFICATION_TYPE_MAP = {
 }
 
 // 提交表单
+const onSubmit = async ({ validateResult, firstError }) => {
 const onSubmit = async ({ validateResult, firstError }) => {
   if (validateResult !== true) {
     MessagePlugin.warning(firstError)
@@ -338,12 +342,14 @@ const resetForm = () => {
 // 查看历史记录
 const viewHistory = () => {
   router.push('/notifications')
+  router.push('/notifications')
 }
 </script>
 
 <style scoped lang="less">
 .message-publish-page {
   padding: 24px;
+  background-color: var(--td-bg-color-page);
   background-color: var(--td-bg-color-page);
   min-height: 100vh;
 }
@@ -359,6 +365,7 @@ const viewHistory = () => {
   font-size: 24px;
   font-weight: bold;
   color: var(--td-text-color-primary);
+  color: var(--td-text-color-primary);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -367,6 +374,7 @@ const viewHistory = () => {
 
 .page-subtitle {
   color: var(--td-text-color-secondary);
+  color: var(--td-text-color-secondary);
   font-size: 14px;
   margin: 4px 0 0 0;
 }
@@ -374,9 +382,16 @@ const viewHistory = () => {
 .content-wrapper {
   display: flex;
   justify-content: center;
+  justify-content: center;
 }
 
 .form-section {
+  width: 100%;
+  max-width: 800px; /* 限制最大宽度，保持美观 */
+  background: var(--td-bg-color-container);
+  border-radius: var(--td-radius-default);
+  box-shadow: var(--td-shadow-1);
+  padding: 32px;
   width: 100%;
   max-width: 800px; /* 限制最大宽度，保持美观 */
   background: var(--td-bg-color-container);
@@ -389,10 +404,17 @@ const viewHistory = () => {
   margin-bottom: 32px;
   padding-bottom: 24px;
   border-bottom: 1px solid var(--td-component-border);
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--td-component-border);
 }
 
 .form-label {
   display: block;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--td-text-color-primary);
+  margin-bottom: 16px;
   font-size: 16px;
   font-weight: 600;
   color: var(--td-text-color-primary);
@@ -404,19 +426,25 @@ const viewHistory = () => {
   align-items: center;
   gap: 8px;
   padding: 4px 8px;
+  gap: 8px;
+  padding: 4px 8px;
 }
 
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
+  gap: 24px;
 }
 
 .form-actions {
   margin-top: 40px;
+  margin-top: 40px;
   padding-top: 24px;
   border-top: 1px solid var(--td-component-border);
+  border-top: 1px solid var(--td-component-border);
   display: flex;
+  justify-content: flex-end; /* 按钮靠右 */
   justify-content: flex-end; /* 按钮靠右 */
   gap: 16px;
 }
