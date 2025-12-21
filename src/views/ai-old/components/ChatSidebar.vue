@@ -10,10 +10,8 @@
       <!-- Header -->
       <div class="sidebar-header">
         <div class="brand">
-          <div class="brand-icon">
-            <t-icon name="chat" />
-          </div>
-          <span class="brand-text">AI 助手</span>
+          <div class="brand-icon">S</div>
+          <span class="brand-text">SIAE AI</span>
           <t-button variant="text" shape="circle" class="close-btn" @click="$emit('close')">
             <t-icon name="close" />
           </t-button>

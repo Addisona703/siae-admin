@@ -3,11 +3,8 @@
 // import './assets/responsive.css'
 // import './assets/styles/transition.css'
 import './assets/main.css'
-// 注释掉冲突的主题文件，统一使用 theme.css
 import './styles/light-theme.css'
 import './styles/dark-theme.less'
-import './styles/dark-theme-override.css'
-import './styles/dark-theme-final.css'
 import './styles/common.less'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
