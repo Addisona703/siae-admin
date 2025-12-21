@@ -19,6 +19,15 @@ const routes = [
       hideInMenu: true,
     },
   },
+  {
+    path: '/oauth/bind',
+    name: 'OAuthBind',
+    component: () => import('@/views/auth/OAuthBindView.vue'),
+    meta: {
+      requiresAuth: false,
+      hideInMenu: true,
+    },
+  },
 
   // 全屏内容创建页（无布局）
   {

@@ -11,8 +11,11 @@ export async function authGuard(to, from, next) {
   
   const authStore = useAuthStore()
 
-  // 已登录用户访问登录页时，重定向到首页
-  if (to.name === 'Login' && authStore.isAuthenticated) {
+  // OAuth 回调时，不拦截登录页
+  const isOAuthCallback = to.query.oauth_callback === 'true'
+  
+  // 已登录用户访问登录页时，重定向到首页（OAuth 回调除外）
+  if (to.name === 'Login' && authStore.isAuthenticated && !isOAuthCallback) {
     next({ path: '/' })
     return
   }

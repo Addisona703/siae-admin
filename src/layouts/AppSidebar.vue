@@ -186,7 +186,11 @@ const activeMenu = computed(() => {
 const handleMenuChange = (value) => {
   // 特殊处理：物资管理跳转到外部链接
   if (value === 'resource') {
-    window.open('http://localhost:7080/home', '_blank')
+    const token = localStorage.getItem('access_token')
+    const url = token 
+      ? `http://localhost:5174/home?token=${encodeURIComponent(token)}`
+      : 'http://localhost:5174/home'
+    window.open(url, '_blank')
     return
   }
 
