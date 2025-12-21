@@ -199,6 +199,29 @@ export const useAuthStore = defineStore('auth', () => {
     saveUserInfo(newUserInfo)
   }
 
+  // OAuth 登录时设置 tokens
+  const setTokens = async (accessToken, refreshToken) => {
+    TokenManager.setAccessToken(accessToken)
+    if (refreshToken) {
+      TokenManager.setRefreshToken(refreshToken)
+    }
+    
+    // 获取用户信息
+    try {
+      const result = await authApi.getUserInfo()
+      userInfo.value = result.data
+      saveUserInfo(result.data)
+      
+      // 初始化权限
+      const { usePermissionStore } = await import('./permission')
+      const permissionStore = usePermissionStore()
+      permissionStore.initializePermissions()
+    } catch (error) {
+      console.error('OAuth setTokens - 获取用户信息失败:', error)
+      throw error
+    }
+  }
+
   return {
     // State
     userInfo,
@@ -213,5 +236,6 @@ export const useAuthStore = defineStore('auth', () => {
     refreshToken,
     initializeAuth,
     updateUserInfo,
+    setTokens,
   }
 })

@@ -71,6 +71,36 @@
         </t-form-item>
       </t-form>
 
+      <!-- 第三方登录 -->
+      <div class="oauth-section">
+        <t-divider>
+          <span class="divider-text">其他方式登录</span>
+        </t-divider>
+        <div class="oauth-buttons">
+          <t-tooltip content="QQ登录">
+            <div class="oauth-btn qq" @click="handleOAuthLogin('qq')">
+              <svg viewBox="0 0 24 24" width="22" height="22">
+                <path fill="currentColor" d="M12.003 2c-2.265 0-6.29 1.364-6.29 7.325v1.195S3.55 14.96 3.55 17.474c0 .665.17 1.025.281 1.025.114 0 .902-.484 1.748-2.072 0 0-.18 2.197 1.904 3.967 0 0-1.77.495-1.77 1.182 0 .686 4.078.43 6.29.43 2.239 0 6.29.256 6.29-.43 0-.687-1.77-1.182-1.77-1.182 2.085-1.77 1.905-3.967 1.905-3.967.845 1.588 1.634 2.072 1.746 2.072.111 0 .283-.36.283-1.025 0-2.514-2.166-6.954-2.166-6.954V9.325C18.29 3.364 14.268 2 12.003 2z"/>
+              </svg>
+            </div>
+          </t-tooltip>
+          <t-tooltip content="GitHub登录">
+            <div class="oauth-btn github" @click="handleOAuthLogin('github')">
+              <svg viewBox="0 0 24 24" width="22" height="22">
+                <path fill="currentColor" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+              </svg>
+            </div>
+          </t-tooltip>
+          <t-tooltip content="Gitee登录">
+            <div class="oauth-btn gitee" @click="handleOAuthLogin('gitee')">
+              <svg viewBox="0 0 24 24" width="22" height="22">
+                <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.5 14.5h-7c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5h5.5V7H9.5C7.57 7 6 8.57 6 10.5v5C6 17.43 7.57 19 9.5 19h7c.28 0 .5-.22.5-.5v-1.5c0-.28-.22-.5-.5-.5z"/>
+              </svg>
+            </div>
+          </t-tooltip>
+        </div>
+      </div>
+
       <div class="login-footer">
         <span>Powered by SIAE Platform</span>
       </div>
@@ -79,10 +109,11 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { MessagePlugin } from 'tdesign-vue-next'
+import { MessagePlugin, LoadingPlugin } from 'tdesign-vue-next'
 import { useAuthStore } from '@/stores'
+import { get } from '@/api/client'
 
 const router = useRouter()
 const route = useRoute()
@@ -126,6 +157,76 @@ const handleSubmit = async () => {
     isLoading.value = false
   }
 }
+
+// 第三方登录
+const handleOAuthLogin = async (provider) => {
+  const loading = LoadingPlugin({
+    text: '正在跳转到授权页面...',
+    attach: 'body',
+    fullscreen: true,
+  })
+
+  try {
+    const res = await get('/auth/oauth/login', { params: { provider }, skipAuth: true })
+    if (res?.data?.authUrl) {
+      window.location.href = res.data.authUrl
+    } else {
+      MessagePlugin.error(res?.message || '获取授权链接失败')
+    }
+  } catch (error) {
+    console.error('OAuth login error:', error)
+    MessagePlugin.error('第三方登录失败，请稍后重试')
+  } finally {
+    loading.hide()
+  }
+}
+
+// 处理 OAuth 回调
+const handleOAuthCallback = async () => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const isOAuthCallback = urlParams.get('oauth_callback')
+
+  if (isOAuthCallback === 'true') {
+    const needRegister = urlParams.get('need_register')
+    const provider = urlParams.get('provider')
+
+    if (needRegister === 'true') {
+      // 新用户，需要完善信息
+      const tempToken = urlParams.get('temp_token')
+      const nickname = urlParams.get('nickname')
+      const avatar = urlParams.get('avatar')
+
+      MessagePlugin.info('请完善账号信息以完成注册')
+      // 存储临时信息，可跳转到注册页面
+      sessionStorage.setItem('oauth_temp', JSON.stringify({
+        tempToken,
+        nickname: decodeURIComponent(nickname || ''),
+        avatar: decodeURIComponent(avatar || ''),
+        provider
+      }))
+      // 清除 URL 参数
+      window.history.replaceState({}, document.title, window.location.pathname)
+    } else {
+      // 已绑定用户，直接登录
+      const accessToken = urlParams.get('access_token')
+      const refreshToken = urlParams.get('refresh_token')
+
+      if (accessToken) {
+        // 存储 token
+        authStore.setTokens(accessToken, refreshToken)
+        MessagePlugin.success('登录成功')
+        // 清除 URL 参数
+        window.history.replaceState({}, document.title, window.location.pathname)
+        // 跳转到首页
+        await router.replace('/dashboard')
+      }
+    }
+  }
+}
+
+onMounted(() => {
+  handleOAuthCallback()
+})
 </script>
 
 <style scoped lang="less">
@@ -420,6 +521,96 @@ const handleSubmit = async () => {
   font-size: 12px;
   color: var(--td-text-color-placeholder);
   opacity: 0.8;
+}
+
+// 第三方登录样式
+.oauth-section {
+  margin-top: 24px;
+
+  .divider-text {
+    font-size: 12px;
+    color: var(--td-text-color-placeholder);
+  }
+}
+
+.oauth-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 16px;
+}
+
+.oauth-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+
+    &::before {
+      opacity: 1;
+    }
+  }
+
+  &:active {
+    transform: translateY(-2px) scale(1.02);
+  }
+
+  &.qq {
+    background: linear-gradient(135deg, #12B7F5, #0099FF);
+    box-shadow: 0 4px 12px rgba(18, 183, 245, 0.4);
+
+    &::before {
+      background: linear-gradient(135deg, #0099FF, #12B7F5);
+    }
+  }
+
+  &.github {
+    background: linear-gradient(135deg, #333, #24292e);
+    box-shadow: 0 4px 12px rgba(36, 41, 46, 0.4);
+
+    &::before {
+      background: linear-gradient(135deg, #24292e, #333);
+    }
+
+    html[theme-mode='dark'] & {
+      background: linear-gradient(135deg, #444, #555);
+      box-shadow: 0 4px 12px rgba(68, 68, 68, 0.4);
+    }
+  }
+
+  &.gitee {
+    background: linear-gradient(135deg, #C71D23, #E03E3E);
+    box-shadow: 0 4px 12px rgba(199, 29, 35, 0.4);
+
+    &::before {
+      background: linear-gradient(135deg, #E03E3E, #C71D23);
+    }
+  }
+
+  svg {
+    position: relative;
+    z-index: 1;
+  }
 }
 
 // 表单项间距优化

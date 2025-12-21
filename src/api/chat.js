@@ -1,39 +1,36 @@
 // AI Chat API service
-import { get, post, put, del } from './client'
+import { get, put, del } from './client'
 import { apiClient } from './client'
 
 export const chatApi = {
   /**
-   * Synchronous chat - send message and wait for complete AI response
-   * @param request Chat request object
-   * @param request.sessionId Session ID (optional, creates new session if not provided)
-   * @param request.message User message content
-   * @param request.fileIds Array of file IDs to attach (optional)
-   * @returns Promise with chat response containing AI reply and tool call info
-   */
-  chat: async (request) => {
-    return post('/ai/chat', request)
-  },
-
-  /**
-   * Stream chat using Server-Sent Events (SSE)
-   * Returns AI response in real-time streaming format
+   * Unified chat using Server-Sent Events (SSE)
+   * Supports content, thinking, tool calls and tool results
+   * Response types:
+   * - type=content: Normal content
+   * - type=thinking: Reasoning process (e.g., DeepSeek)
+   * - type=tool_call: Tool call request
+   * - type=tool_result: Tool execution result
+   * - type=done: Completion
+   * - type=error: Error
    * @param params Query parameters
    * @param params.message User message content (required)
    * @param params.sessionId Session ID (optional)
-   * @param params.model Model name (optional, uses default if not provided)
-   * @param params.fileIds Comma-separated file IDs (optional)
-   * @returns Object with reader and response for streaming
+   * @param params.provider Provider name (optional)
+   * @param params.model Model name (optional)
+   * @param params.enableTools Enable tool calls (default: true)
+   * @returns Response object for streaming
    */
-  chatStream: async (params) => {
+  chatUnified: async (params) => {
     const queryParams = new URLSearchParams()
     queryParams.append('message', params.message)
     if (params.sessionId) queryParams.append('sessionId', params.sessionId)
+    if (params.provider) queryParams.append('provider', params.provider)
     if (params.model) queryParams.append('model', params.model)
-    if (params.fileIds) queryParams.append('fileIds', params.fileIds)
+    queryParams.append('enableTools', params.enableTools !== false ? 'true' : 'false')
 
     const token = localStorage.getItem('accessToken')
-    const url = `${apiClient.defaults.baseURL}/ai/chat/stream?${queryParams.toString()}`
+    const url = `${apiClient.defaults.baseURL}/ai/chat/unified?${queryParams.toString()}`
     
     const response = await fetch(url, {
       method: 'GET',
@@ -51,27 +48,24 @@ export const chatApi = {
   },
 
   /**
-   * Stream chat with thinking process using Server-Sent Events (SSE)
-   * Returns AI response including thinking process in real-time
+   * Stream chat using Server-Sent Events (SSE) - Basic version
+   * Returns AI response in real-time streaming format
    * @param params Query parameters
    * @param params.message User message content (required)
    * @param params.sessionId Session ID (optional)
-   * @param params.model Model name (optional, uses default if not provided)
-   * @param params.fileIds Comma-separated file IDs (optional)
-   * @param params.enableThinking Enable thinking mode (optional, default false)
-   * @returns Object with reader and response for streaming
+   * @param params.provider Provider name (optional, uses default if not provided)
+   * @param params.model Model name (optional, uses provider default if not provided)
+   * @returns Response object for streaming
    */
-  chatStreamWithThinking: async (params) => {
+  chatStream: async (params) => {
     const queryParams = new URLSearchParams()
     queryParams.append('message', params.message)
     if (params.sessionId) queryParams.append('sessionId', params.sessionId)
+    if (params.provider) queryParams.append('provider', params.provider)
     if (params.model) queryParams.append('model', params.model)
-    if (params.fileIds) queryParams.append('fileIds', params.fileIds)
-    // 传递 enableThinking 参数
-    queryParams.append('enableThinking', params.enableThinking ? 'true' : 'false')
 
     const token = localStorage.getItem('accessToken')
-    const url = `${apiClient.defaults.baseURL}/ai/chat/stream/thinking?${queryParams.toString()}`
+    const url = `${apiClient.defaults.baseURL}/ai/chat/stream?${queryParams.toString()}`
     
     const response = await fetch(url, {
       method: 'GET',
@@ -98,15 +92,6 @@ export const chatApi = {
   },
 
   /**
-   * Clear session and delete all message records
-   * @param sessionId Session ID
-   * @returns Promise with void result
-   */
-  clearSession: async (sessionId) => {
-    return del(`/ai/sessions/${sessionId}`)
-  },
-
-  /**
    * Get current user's session list (lightweight, without message content)
    * @param limit Number of sessions to return (default: 20)
    * @returns Promise with array of session list items
@@ -116,11 +101,11 @@ export const chatApi = {
   },
 
   /**
-   * Get available AI models
-   * @returns Promise with array of available model names
+   * Get available providers and their models
+   * @returns Promise with provider info map
    */
-  getAvailableModels: async () => {
-    return get('/ai/models')
+  getProviders: async () => {
+    return get('/ai/providers')
   },
 
   /**
@@ -129,7 +114,7 @@ export const chatApi = {
    * @returns Promise with void result
    */
   deleteSession: async (sessionId) => {
-    return del(`/ai/sessions/${sessionId}/delete`)
+    return del(`/ai/sessions/${sessionId}`)
   },
 
   /**
@@ -140,5 +125,46 @@ export const chatApi = {
    */
   updateSessionTitle: async (sessionId, title) => {
     return put(`/ai/sessions/${sessionId}/title`, { title })
+  },
+
+  /**
+   * Generate image using CogView-4
+   * @param params Image generation parameters
+   * @param params.prompt Image description prompt (required)
+   * @param params.model Model name (default: cogview-4-250304)
+   * @param params.size Image size (default: 1024x1024)
+   * @param params.n Number of images (default: 1)
+   * @returns Promise with generated image URLs
+   */
+  generateImage: async (params) => {
+    const { post } = await import('./client')
+    return post('/ai/media/image', params)
+  },
+
+  /**
+   * Generate video using CogVideoX-3 (async)
+   * @param params Video generation parameters
+   * @param params.prompt Video description prompt (required)
+   * @param params.model Model name (default: cogvideox-3)
+   * @param params.imageUrl Reference image URL (optional)
+   * @param params.size Video size (default: 1920x1080)
+   * @param params.fps Frame rate 30 or 60 (default: 30)
+   * @param params.withAudio Include AI audio (default: false)
+   * @param params.quality Output mode: quality or speed (default: speed)
+   * @param params.duration Video duration 5 or 10 seconds (default: 5)
+   * @returns Promise with task ID
+   */
+  generateVideo: async (params) => {
+    const { post } = await import('./client')
+    return post('/ai/media/video', params)
+  },
+
+  /**
+   * Get video generation result
+   * @param taskId Task ID from generateVideo
+   * @returns Promise with video result (status and URLs)
+   */
+  getVideoResult: async (taskId) => {
+    return get(`/ai/media/video/${taskId}`)
   }
 }
