@@ -44,7 +44,7 @@
             <div class="status-section">
               <t-tag :theme="userDetail.status === 1 ? 'success' : 'danger'" variant="light" size="large">
                 <span class="status-dot"></span>
-                {{ userDetail.status === '启用' ? '状态正常' : '已禁用' }}
+                {{ userDetail.status === 1 ? '状态正常' : '已禁用' }}
               </t-tag>
             </div>
           </div>

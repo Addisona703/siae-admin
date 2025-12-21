@@ -10,12 +10,12 @@
 
         <div class="avatar-section">
           <div class="avatar-wrapper">
-            <t-avatar :image="formData.avatarFileId" size="80px" class="profile-avatar">
-              {{ formData.nickname?.[0]?.toUpperCase() || 'U' }}
+            <t-avatar :image="formData.avatarUrl" size="80px" class="profile-avatar">
+              {{ formData.nickname?.[0]?.toUpperCase() || formData.username?.[0]?.toUpperCase() || 'U' }}
             </t-avatar>
           </div>
 
-          <div class="user-id-wrapper">
+          <div v-if="formData.id" class="user-id-wrapper">
             <div class="user-id">
               ID: {{ formData.id }}
             </div>
@@ -329,11 +329,11 @@ const handleClose = () => {
           font-weight: 600;
           font-family: monospace;
           color: var(--td-text-color-primary);
-          background: rgba(255, 255, 255, 0.9);
+          background: var(--td-bg-color-container);
           backdrop-filter: blur(8px);
           padding: 4px 12px;
           border-radius: 100px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid var(--td-component-border);
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
       }

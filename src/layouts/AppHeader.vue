@@ -24,7 +24,7 @@
       <t-tooltip content="AI 助手">
         <t-button style="margin-right: 15px;" variant="text" shape="circle" @click="handleAIChat">
           <template #icon>
-            <t-icon name="logo-github" />
+            <t-icon name="chat" />
           </template>
         </t-button>
       </t-tooltip>

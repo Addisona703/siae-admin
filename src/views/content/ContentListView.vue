@@ -103,7 +103,6 @@
             </div>
             <div class="content-text">
               <div class="content-title" :title="row.title" @click="handleDetail(row)">{{ row.title }}</div>
-              <div class="content-title" :title="row.title" @click="handleDetail(row)">{{ row.title }}</div>
               <div class="content-desc">{{ row.description || '暂无摘要' }}</div>
             </div>
           </div>
@@ -136,9 +135,6 @@
         <!-- 自定义：操作列 -->
         <template #op="{ row }">
           <div class="op-btns">
-            <span class="op-btn default" @click="handleDetail(row)">
-              <t-icon name="file" /> 详情
-            </span>
             <span class="op-btn default" @click="handleDetail(row)">
               <t-icon name="file" /> 详情
             </span>

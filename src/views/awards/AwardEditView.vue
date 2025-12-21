@@ -164,6 +164,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { MessagePlugin, DialogPlugin } from 'tdesign-vue-next'
 import { userApi } from '@/api/user'
 import MemberSelector from '@/components/MemberSelector.vue'
+import { mediaUploader } from '@/utils/upload-utils'
 
 const route = useRoute()
 const router = useRouter()
@@ -348,9 +349,29 @@ const handleSave = async () => {
 
   saving.value = true
   try {
-    // TODO: 先上传证书文件，获取 certificateFileId
+    // 上传证书文件（如果有新文件）
+    let certificateFileId = formData.value.certificateFileId
+    if (fileList.value.length > 0 && fileList.value[0].raw) {
+      const file = fileList.value[0].raw
+      try {
+        const uploadTask = await mediaUploader.upload(file, {
+          tenantId: 'ai',
+          accessPolicy: 'PUBLIC',
+          bizTags: ['award-certificate'],
+          onProgress: (percent) => {
+            console.log(`上传进度: ${percent}%`)
+          }
+        })
+        certificateFileId = uploadTask.fileId
+      } catch (uploadError) {
+        console.error('证书上传失败:', uploadError)
+        MessagePlugin.error('证书文件上传失败')
+        saving.value = false
+        return
+      }
+    }
 
-    // 构造提交数据
+    // 构造提交数据 - teamMembers 直接传数组，不要 JSON.stringify
     const payload = {
       awardTitle: formData.value.awardTitle,
       awardLevelId: formData.value.awardLevelId,
@@ -358,8 +379,8 @@ const handleSave = async () => {
       awardedBy: formData.value.awardedBy,
       awardedAt: formData.value.awardedAt,
       description: formData.value.description,
-      certificateFileId: formData.value.certificateFileId,
-      teamMembers: JSON.stringify(formData.value.teamMemberList.map(m => m.id))
+      certificateFileId: certificateFileId,
+      teamMembers: formData.value.teamMemberList.map(m => m.id)
     }
 
     let result

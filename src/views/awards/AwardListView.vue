@@ -137,16 +137,6 @@
           </div>
         </template>
 
-        <!-- 证书 -->
-        <template #certificate="{ row }">
-          <t-button theme="default" variant="text" size="small" @click="previewCertificate(row)">
-            <template #icon>
-              <t-icon name="file" />
-            </template>
-            预览
-          </t-button>
-        </template>
-
         <!-- 操作 -->
         <template #action="{ row }">
           <div class="op-btns">
@@ -163,23 +153,6 @@
         </template>
       </t-table>
     </t-card>
-
-    <!-- 证书预览弹窗 -->
-    <t-dialog v-model:visible="showPreview" header="证书预览" width="800px" :footer="false">
-      <div class="certificate-preview">
-        <t-image :src="currentCertUrl" fit="contain" style="width: 100%; max-height: 600px" />
-        <div class="cert-info">
-          <h3>{{ currentCertTitle }}</h3>
-          <p>文件ID: {{ currentCertId }}</p>
-          <t-button theme="primary" @click="downloadCertificate">
-            <template #icon>
-              <t-icon name="download" />
-            </template>
-            下载原件
-          </t-button>
-        </div>
-      </div>
-    </t-dialog>
   </div>
 </template>
 
@@ -188,6 +161,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { MessagePlugin, DialogPlugin } from 'tdesign-vue-next'
 import { useRoute, useRouter } from 'vue-router'
 import { getAllAwardsList } from '@/api/awards/awards'
+import { userApi } from '@/api/user'
 import AwardDetailCard from '@/components/AwardDetailCard.vue'
 
 const route = useRoute()
@@ -195,10 +169,6 @@ const router = useRouter()
 
 // 状态
 const loading = ref(false)
-const showPreview = ref(false)
-const currentCertUrl = ref('')
-const currentCertTitle = ref('')
-const currentCertId = ref('')
 const showDetailCard = ref(false)
 const selectedAward = ref(null)
 
@@ -241,12 +211,6 @@ const columns = [
     colKey: 'awardInfo2',
     title: '颁发信息',
     width: 180
-  },
-  {
-    colKey: 'certificate',
-    title: '证书',
-    width: 100,
-    align: 'center'
   },
   {
     colKey: 'action',
@@ -311,13 +275,15 @@ const loadData = async () => {
     const result = await getAllAwardsList({
       pageNum: pagination.value.current,
       pageSize: pagination.value.pageSize,
-      awardTitle: queryForm.value.awardTitle || undefined,
-      username: queryForm.value.username || undefined,
-      awardLevelId: queryForm.value.awardLevelId || undefined,
-      awardTypeId: queryForm.value.awardTypeId || undefined,
-      awardedBy: queryForm.value.awardedBy || undefined,
-      awardDateStart,
-      awardDateEnd
+      params: {
+        awardTitle: queryForm.value.awardTitle || undefined,
+        username: queryForm.value.username || undefined,
+        awardLevelId: queryForm.value.awardLevelId || undefined,
+        awardTypeId: queryForm.value.awardTypeId || undefined,
+        awardedBy: queryForm.value.awardedBy || undefined,
+        awardDateStart,
+        awardDateEnd
+      }
     })
 
     if (result.code === 200 && result.data) {
@@ -356,19 +322,6 @@ const onPageChange = (pageInfo) => {
   pagination.value.current = pageInfo.current
   pagination.value.pageSize = pageInfo.pageSize
   loadData()
-}
-
-// 预览证书
-const previewCertificate = (record) => {
-  currentCertUrl.value = `https://placehold.co/800x600/EEE/31343C?text=${encodeURIComponent(record.awardTitle)}`
-  currentCertTitle.value = record.awardTitle
-  currentCertId.value = record.certificateFileId
-  showPreview.value = true
-}
-
-// 下载证书
-const downloadCertificate = () => {
-  window.open(currentCertUrl.value, '_blank')
 }
 
 // 显示详情
@@ -452,6 +405,7 @@ const initFromRoute = () => {
 // 初始化
 onMounted(async () => {
   initFromRoute()
+  await loadDictData()
   await loadData()
 })
 
@@ -548,25 +502,6 @@ watch(
     gap: 4px;
     font-size: 12px;
     color: var(--td-text-color-placeholder);
-  }
-}
-
-.certificate-preview {
-  .cert-info {
-    text-align: center;
-    padding: 16px 0;
-
-    h3 {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-
-    p {
-      font-size: 12px;
-      color: var(--td-text-color-placeholder);
-      margin-bottom: 16px;
-    }
   }
 }
 

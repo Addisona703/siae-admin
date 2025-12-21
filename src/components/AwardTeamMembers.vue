@@ -58,7 +58,7 @@ const getAvatarUrl = (member) => {
     gap: 8px;
     font-size: 14px;
     font-weight: 600;
-    color: #0f172a;
+    color: var(--td-text-color-primary);
 
     .t-icon {
       color: #3b82f6;
@@ -83,7 +83,7 @@ const getAvatarUrl = (member) => {
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
+    background: var(--td-component-border);
     border-radius: 4px;
   }
 }
@@ -93,14 +93,15 @@ const getAvatarUrl = (member) => {
   align-items: center;
   gap: 12px;
   padding: 8px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--td-component-border);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
+  background: var(--td-bg-color-container);
 
   &:hover {
-    background: #f8fafc;
-    border-color: #bfdbfe;
+    background: var(--td-bg-color-container-hover);
+    border-color: rgba(59, 130, 246, 0.5);
 
     .member-link-icon {
       opacity: 1;
@@ -114,7 +115,7 @@ const getAvatarUrl = (member) => {
     .member-name {
       font-size: 14px;
       font-weight: 500;
-      color: #1e293b;
+      color: var(--td-text-color-primary);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -123,7 +124,7 @@ const getAvatarUrl = (member) => {
 
     .member-id {
       font-size: 12px;
-      color: #94a3b8;
+      color: var(--td-text-color-placeholder);
       font-family: monospace;
       white-space: nowrap;
       overflow: hidden;

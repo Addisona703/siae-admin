@@ -166,9 +166,9 @@
             <span class="op-btn primary" @click="viewDetail(row)">
               <t-icon name="view" /> 详情
             </span>
-            <t-popconfirm content="确认将该成员移除出协会吗？" theme="danger" @confirm="handleRemove(row)">
+            <t-popconfirm v-if="!isExpelled(row)" content="确认强制退会吗？该成员将被标记为已开除，无法再次申请加入" theme="danger" @confirm="handleExpel(row)">
               <span class="op-btn danger">
-                <t-icon name="delete" /> 移除
+                <t-icon name="user-blocked" /> 强制退会
               </span>
             </t-popconfirm>
           </div>
@@ -192,7 +192,7 @@ import { MessagePlugin } from 'tdesign-vue-next'
 import { getAllMemberShips } from '@/api/user/user'
 import MemberPromoteDialog from './components/MemberPromoteDialog.vue'
 import MemberDetailDialog from './components/MemberDetailDialog.vue'
-import { deleteMember, getDepartments } from '../../api/user/user'
+import { deleteMember, getDepartments, getPositions, promoteToOfficial, expelMember } from '../../api/user/user'
 
 // 响应式数据
 const loading = ref(false)
@@ -292,6 +292,14 @@ const isOfficial = (row) => {
   return row.lifecycleStatus === 2
 }
 
+// 判断是否已开除
+const isExpelled = (row) => {
+  if (row.statusName) {
+    return row.statusName === '已开除'
+  }
+  return row.lifecycleStatus === 4
+}
+
 // 数据加载
 const fetchData = async () => {
   loading.value = true
@@ -388,7 +396,7 @@ const handlePromoteSubmit = async (formData) => {
 
   promoteDialog.loading = true
   try {
-    const response = await userApi.promoteToOfficial(promoteDialog.row.id, formData)
+    const response = await promoteToOfficial(promoteDialog.row.id, formData)
 
     if (response.code === 200) {
       MessagePlugin.success('转正成功')
@@ -412,12 +420,19 @@ const viewDetail = (row) => {
   detailDialog.visible = true
 }
 
-const handleRemove = async (row) => {
-  let res = await deleteMember(row.id)
-  if (res.code == 200) {
-    MessagePlugin.success('已移除成员')
+const handleExpel = async (row) => {
+  try {
+    let res = await expelMember(row.id)
+    if (res.code === 200) {
+      MessagePlugin.success('已强制退会')
+      fetchData()
+    } else {
+      MessagePlugin.error(res.message || '操作失败')
+    }
+  } catch (error) {
+    console.error('强制退会失败:', error)
+    MessagePlugin.error(error.message || '操作失败')
   }
-  fetchData()
 }
 
 const department = ref([])
@@ -428,16 +443,25 @@ const getDepartmentsed = async () => {
     id: item.id,
     name: item.name
   }))
-  // console.log(department.value);
+  // 同时设置给弹窗用的 departments
+  departments.value = department.value
+}
 
+const getPositionsData = async () => {
+  let res = await getPositions()
+  if (res.code === 200 && res.data) {
+    positions.value = res.data.map(item => ({
+      id: item.id,
+      name: item.name
+    }))
+  }
 }
 
 onMounted(() => {
   generateEntryYears()
   fetchData()
   getDepartmentsed()
-  // loadDepartments()
-  // loadPositions()
+  getPositionsData()
 })
 </script>
 

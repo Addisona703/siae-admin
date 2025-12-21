@@ -37,26 +37,17 @@
               </t-input>
             </div>
 
-            <!-- 树形表格 -->
-            <t-primary-table row-key="id" :data="categoryData" :columns="categoryColumns" :tree="treeConfig"
-              :expanded-row-keys="expandedKeys" @expand-change="onExpandChange" stripe bordered
-              :loading="categoryLoading" :empty="cateSearch ? '未找到匹配的分类' : '暂无分类数据'">
-              <template #description="{ row }">
-                <span v-if="row.description" class="text-secondary">{{ row.description }}</span>
-                <span v-else class="text-placeholder">暂无描述</span>
-              </template>
-              <template #status="{ row }">
-                <t-switch v-model="row.enable" :custom-value="[1, 0]" @change="handleStatusChange(row)" size="large" />
-              </template>
-              <template #op="{ row }">
-                <t-space size="small">
-                  <t-link theme="primary" hover="color" @click="openCategoryModal('edit', row)">编辑</t-link>
-                  <t-popconfirm content="确定删除该分类及其子分类吗？" theme="danger" @confirm="handleDeleteCategory(row)">
-                    <t-link theme="danger" hover="color">删除</t-link>
-                  </t-popconfirm>
-                </t-space>
-              </template>
-            </t-primary-table>
+            <!-- 自定义树形表格 -->
+            <t-loading :loading="categoryLoading">
+              <CategoryTree
+                ref="categoryTreeRef"
+                :data="filteredCategoryList"
+                @status-change="handleStatusChange"
+                @edit="(row) => openCategoryModal('edit', row)"
+                @delete="handleDeleteCategory"
+                @add-sub="(row) => openCategoryModal('sub', row)"
+              />
+            </t-loading>
           </div>
         </t-tab-panel>
 
@@ -163,29 +154,44 @@ import {
 } from 'tdesign-icons-vue-next'
 import { contentApi } from '@/api/content'
 import { getAllCategories } from '../../api/content/content'
+import CategoryTree from '@/components/CategoryTree.vue'
 
 // ================== 全局状态 ==================
 const currentTab = ref('category')
 
 // ================== 分类管理逻辑 ==================
 const cateSearch = ref('')
-const expandedKeys = ref([])
-const allExpanded = ref(false)
+const allExpanded = ref(true)
 const categoryLoading = ref(false)
-const treeConfig = { childrenKey: 'children', treeNodeColumnIndex: 0 }
+const categoryTreeRef = ref(null)
 
 // 分类数据
 const categoryList = ref([])
 
+// 过滤后的分类列表
+const filteredCategoryList = computed(() => {
+  if (!cateSearch.value) return categoryList.value
+  return categoryList.value.filter(item => 
+    item.name.toLowerCase().includes(cateSearch.value.toLowerCase())
+  )
+})
+
+// 展开/折叠全部
+const toggleExpandAll = () => {
+  if (allExpanded.value) {
+    categoryTreeRef.value?.collapseAll()
+    allExpanded.value = false
+  } else {
+    categoryTreeRef.value?.expandAll()
+    allExpanded.value = true
+  }
+}
+
+// 以下保留用于 TreeSelect
 // 构建树形数据的函数
 const buildTree = (items, parentId = null) => {
   return items
-    .filter(item => {
-      // 处理 null 和 undefined 的情况
-      const itemParentId = item.parentId ?? null
-      const targetParentId = parentId ?? null
-      return itemParentId === targetParentId
-    })
+    .filter(item => item.parentId === parentId)
     .map(item => {
       const children = buildTree(items, item.id)
       if (children.length) {
@@ -262,21 +268,20 @@ const loadCategories = async () => {
       const records = result.data.records || []
 
       // 转换 status 字段并确保所有字段都存在
-      categoryList.value = records.filter(item => item && item.id).map(item => ({
-        id: item.id,
-        name: item.name || '',
-        code: item.code || '',
-        parentId: item.parentId || null,
-        enable: item.status === '启用' ? 1 : 0,
-        description: item.description || '',
-        createTime: item.createTime,
-        updateTime: item.updateTime,
-        contentCount: 0
-      }))
-
-      // 默认展开所有节点
-      expandedKeys.value = categoryList.value.map(item => item.id)
-      allExpanded.value = true
+      // 后端返回的 id/parentId 是字符串，status 是数字 0/1
+      categoryList.value = records.filter(item => item && item.id).map(item => {
+        return {
+          id: Number(item.id), // 转为数字
+          name: item.name || '',
+          code: item.code || '',
+          parentId: item.parentId ? Number(item.parentId) : null, // 转为数字，无父级则为 null
+          enable: item.status === 1 || item.status === '1' ? 1 : 0, // status 就是 0/1
+          description: item.description || '',
+          createTime: item.createTime,
+          updateTime: item.updateTime,
+          contentCount: 0
+        }
+      })
 
       console.log('处理后的分类数据:', categoryList.value)
     } else {
@@ -368,42 +373,25 @@ const handleDeleteCategory = async (row) => {
   }
 }
 
-const handleStatusChange = async (row) => {
+const handleStatusChange = async (item) => {
+  // item 包含新的 enable 值
+  const newEnable = item.enable === 1
   try {
     await contentApi.toggleCategoryEnable({
-      id: row.id,
-      enable: row.enable
+      id: item.id,
+      enable: newEnable
     })
-    const statusText = row.enable === 1 ? '启用' : '禁用'
-    MessagePlugin.success(`${row.name} 已${statusText}`)
-  } catch (error) {
-    row.enable = row.enable === 1 ? 0 : 1
-    MessagePlugin.error(error.message || '状态切换失败')
-  }
-}
-
-const onExpandChange = (val) => {
-  expandedKeys.value = val
-  allExpanded.value = val.length > 0
-}
-
-const toggleExpandAll = () => {
-  if (allExpanded.value) {
-    expandedKeys.value = []
-    allExpanded.value = false
-  } else {
-    const getAllIds = (items) => {
-      let ids = []
-      items.forEach(item => {
-        ids.push(item.id)
-        if (item.children) {
-          ids = ids.concat(getAllIds(item.children))
-        }
-      })
-      return ids
+    // 更新本地数据
+    const target = categoryList.value.find(c => c.id === item.id)
+    if (target) {
+      target.enable = item.enable
     }
-    expandedKeys.value = getAllIds(categoryData.value)
-    allExpanded.value = true
+    const statusText = newEnable ? '启用' : '禁用'
+    MessagePlugin.success(`${item.name} 已${statusText}`)
+  } catch (error) {
+    MessagePlugin.error(error.message || '状态切换失败')
+    // 重新加载以恢复状态
+    await loadCategories()
   }
 }
 
@@ -547,7 +535,6 @@ const formatDate = (dateStr) => {
 // ================== 初始化 ==================
 onMounted(() => {
   loadCategories()
-  loadTags()
   loadTags()
 })
 </script>

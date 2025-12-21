@@ -19,6 +19,15 @@ const routes = [
       hideInMenu: true,
     },
   },
+  {
+    path: '/oauth/bind',
+    name: 'OAuthBind',
+    component: () => import('@/views/auth/OAuthBindView.vue'),
+    meta: {
+      requiresAuth: false,
+      hideInMenu: true,
+    },
+  },
 
   // 全屏内容创建页（无布局）
   {
@@ -167,11 +176,11 @@ const routes = [
             },
           },
           {
-            path: 'audit',
-            name: 'UserAudit',
+            path: 'member-audit',
+            name: 'MemberAudit',
             component: () => import('@/views/users/UserAudit.vue'),
             meta: {
-              icon: 'user-audit',
+              icon: 'check-circle',
               permission: 'user:view',
             },
           },
@@ -365,6 +374,63 @@ const routes = [
             meta: {
               icon: 'login',
               permission: 'log:login:view',
+            },
+          },
+        ],
+      },
+
+      // 考勤管理
+      {
+        path: 'attendance',
+        name: 'AttendanceManagement',
+        meta: {
+          icon: 'calendar',
+          permission: 'attendance:view',
+        },
+        children: [
+          {
+            path: 'rules',
+            name: 'AttendanceRules',
+            component: () => import('@/views/attendance/RuleManageView.vue'),
+            meta: {
+              icon: 'setting',
+              permission: 'attendance:rule:view',
+            },
+          },
+          {
+            path: 'records',
+            name: 'AttendanceRecords',
+            component: () => import('@/views/attendance/RecordQueryView.vue'),
+            meta: {
+              icon: 'view-list',
+              permission: 'attendance:record:view',
+            },
+          },
+          {
+            path: 'statistics',
+            name: 'AttendanceStatistics',
+            component: () => import('@/views/attendance/StatisticsView.vue'),
+            meta: {
+              icon: 'chart-bar',
+              permission: 'attendance:statistics:view',
+            },
+          },
+          {
+            path: 'anomalies',
+            name: 'AttendanceAnomalies',
+            component: () => import('@/views/attendance/AnomalyHandleView.vue'),
+            meta: {
+              icon: 'error-circle',
+              permission: 'attendance:anomaly:view',
+            },
+          },
+          {
+            path: 'leave-approval',
+            name: 'LeaveApproval',
+            component: () => import('@/views/attendance/LeaveApprovalView.vue'),
+            meta: {
+              icon: 'check-circle',
+              permission: 'attendance:leave:approve',
             },
           },
         ],

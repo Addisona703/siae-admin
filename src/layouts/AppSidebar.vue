@@ -31,11 +31,11 @@
         成员统计
       </t-menu-item>
 
-      <t-menu-item value="user-audit">
+      <t-menu-item value="member-audit">
         <template #icon>
-          <t-icon name="chart-bar" />
+          <t-icon name="check-circle" />
         </template>
-        用户审核
+        成员审核
       </t-menu-item>
 
       <t-menu-item value="user-blacklist">
@@ -48,11 +48,11 @@
 
     <t-submenu value="content" title="内容管理">
       <template #icon>
-        <t-icon name="file-text" />
+        <t-icon name="edit" />
       </template>
       <t-menu-item value="content-list">
         <template #icon>
-          <t-icon name="file-text" />
+          <t-icon name="view-list" />
         </template>
         内容列表
       </t-menu-item>
@@ -74,21 +74,15 @@
         </template>
         数据统计
       </t-menu-item>
-      <t-menu-item value="content-trash">
-        <template #icon>
-          <t-icon name="delete" />
-        </template>
-        回收站
-      </t-menu-item>
     </t-submenu>
 
     <t-submenu value="awards" title="奖项管理">
       <template #icon>
-        <t-icon name="medal" />
+        <t-icon name="star" />
       </template>
       <t-menu-item value="award-list">
         <template #icon>
-          <t-icon name="list" />
+          <t-icon name="view-list" />
         </template>
         奖项列表
       </t-menu-item>
@@ -126,7 +120,7 @@
 
     <t-submenu value="logs" title="日志管理">
       <template #icon>
-        <t-icon name="file-text-1" />
+        <t-icon name="file" />
       </template>
       <t-menu-item value="login-logs">
         <template #icon>
@@ -135,6 +129,43 @@
         登录日志
       </t-menu-item>
     </t-submenu>
+
+    <t-submenu value="attendance" title="考勤管理">
+      <template #icon>
+        <t-icon name="calendar" />
+      </template>
+      <t-menu-item value="attendance-rules">
+        <template #icon>
+          <t-icon name="setting" />
+        </template>
+        考勤规则
+      </t-menu-item>
+      <t-menu-item value="attendance-records">
+        <template #icon>
+          <t-icon name="view-list" />
+        </template>
+        考勤记录
+      </t-menu-item>
+      <t-menu-item value="attendance-statistics">
+        <template #icon>
+          <t-icon name="chart-bar" />
+        </template>
+        考勤统计
+      </t-menu-item>
+      <t-menu-item value="attendance-anomalies">
+        <template #icon>
+          <t-icon name="error-circle" />
+        </template>
+        异常处理
+      </t-menu-item>
+      <t-menu-item value="leave-approval">
+        <template #icon>
+          <t-icon name="check-circle" />
+        </template>
+        请假审批
+      </t-menu-item>
+    </t-submenu>
+
     <t-menu-item value="resource">
       <template #icon>
         <t-icon name="layers" />
@@ -169,15 +200,19 @@ const activeMenu = computed(() => {
     'ContentAudit': 'content-audit',
     'CategoryTagManagement': 'category-tag',
     'ContentStatistics': 'content-statistics',
-    'ContentTrash': 'content-trash',
     'AwardList': 'award-list',
     'AwardConfig': 'award-config',
     'AwardStatistics': 'award-statistics',
     'RolePermissionManagement': 'role-permission',
     'UserRoleManagement': 'user-roles',
     'LoginLogs': 'login-logs',
-    'UserAudit': 'user-audit',
-    'UserBlacklist': 'user-blacklist'
+    'MemberAudit': 'member-audit',
+    'UserBlacklist': 'user-blacklist',
+    'AttendanceRules': 'attendance-rules',
+    'AttendanceRecords': 'attendance-records',
+    'AttendanceStatistics': 'attendance-statistics',
+    'AttendanceAnomalies': 'attendance-anomalies',
+    'LeaveApproval': 'leave-approval'
   }
 
   return menuMap[name] || 'dashboard'
@@ -186,7 +221,11 @@ const activeMenu = computed(() => {
 const handleMenuChange = (value) => {
   // 特殊处理：物资管理跳转到外部链接
   if (value === 'resource') {
-    window.open('http://localhost:7080/home', '_blank')
+    const token = localStorage.getItem('access_token')
+    const url = token 
+      ? `http://localhost:5174/home?token=${encodeURIComponent(token)}`
+      : 'http://localhost:5174/home'
+    window.open(url, '_blank')
     return
   }
 
@@ -199,15 +238,19 @@ const handleMenuChange = (value) => {
     'content-audit': '/content/audit',
     'category-tag': '/content/category-tag',
     'content-statistics': '/content/statistics',
-    'content-trash': '/content/trash',
     'award-list': '/awards/list',
     'award-config': '/awards/config',
     'award-statistics': '/awards/statistics',
     'role-permission': '/auth/role-permission',
     'user-roles': '/auth/user-roles',
     'login-logs': '/logs/login',
-    'user-audit': '/users/audit',
-    'user-blacklist': '/users/blacklist'
+    'member-audit': '/users/member-audit',
+    'user-blacklist': '/users/blacklist',
+    'attendance-rules': '/attendance/rules',
+    'attendance-records': '/attendance/records',
+    'attendance-statistics': '/attendance/statistics',
+    'attendance-anomalies': '/attendance/anomalies',
+    'leave-approval': '/attendance/leave-approval'
   }
 
   const path = routeMap[value]

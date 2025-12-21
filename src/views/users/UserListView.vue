@@ -117,6 +117,11 @@
             <span class="op-btn primary" @click="handleEdit(row)">
               <t-icon name="edit" /> 编辑
             </span>
+            <t-popconfirm v-if="row.status === '启用'" content="确认拉黑该用户吗？拉黑后用户将无法登录" theme="warning" @confirm="handleDisable(row)">
+              <span class="op-btn warning">
+                <t-icon name="user-blocked" /> 拉黑
+              </span>
+            </t-popconfirm>
             <t-popconfirm content="确认删除该用户吗？" theme="warning" @confirm="handleDelete(row)">
               <span class="op-btn danger">
                 <t-icon name="delete" /> 删除
@@ -145,7 +150,7 @@ import { getAllUserList, searchUser } from '@/api/user/user'
 import UserDetailDialog from '@/components/user/UserDetailDialog.vue'
 import UserEditDialog from '@/components/user/UserEditDialog.vue'
 import UserCreateDialog from '@/components/user/UserCreateDialog.vue'
-import { deleteUser } from '../../api/user/user'
+import { deleteUser, disableUser } from '../../api/user/user'
 
 // 查询表单
 const queryForm = reactive({
@@ -381,6 +386,22 @@ const handleDelete = async (row) => {
   // }
 }
 
+// 拉黑用户
+const handleDisable = async (row) => {
+  try {
+    const response = await disableUser(row.id)
+    if (response.code === 200) {
+      MessagePlugin.success(`已拉黑用户: ${row.realName || row.username}`)
+      loadData()
+    } else {
+      MessagePlugin.error(response.message || '拉黑失败')
+    }
+  } catch (error) {
+    console.error('拉黑用户失败:', error)
+    MessagePlugin.error(error.message || '拉黑失败')
+  }
+}
+
 // 格式化日期
 const formatDate = (dateStr) => {
   if (!dateStr) return '-'
@@ -474,6 +495,52 @@ onMounted(() => {
 :deep(.t-form) {
   .t-form__item {
     margin-bottom: 0;
+  }
+}
+
+// 操作按钮样式
+.op-btns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  .op-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+
+    &.primary {
+      color: #0052d9;
+      background: rgba(0, 82, 217, 0.1);
+
+      &:hover {
+        background: rgba(0, 82, 217, 0.2);
+      }
+    }
+
+    &.warning {
+      color: #e37318;
+      background: rgba(227, 115, 24, 0.1);
+
+      &:hover {
+        background: rgba(227, 115, 24, 0.2);
+      }
+    }
+
+    &.danger {
+      color: #e34d59;
+      background: rgba(227, 77, 89, 0.1);
+
+      &:hover {
+        background: rgba(227, 77, 89, 0.2);
+      }
+    }
   }
 }
 </style>

@@ -3,7 +3,7 @@
     <!-- 面包屑导航 -->
     <t-breadcrumb class="mb-4">
       <t-breadcrumb-item>成员中心</t-breadcrumb-item>
-      <t-breadcrumb-item>用户审核</t-breadcrumb-item>
+      <t-breadcrumb-item>成员审核</t-breadcrumb-item>
     </t-breadcrumb>
 
     <!-- 统计卡片 -->

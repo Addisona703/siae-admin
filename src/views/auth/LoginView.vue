@@ -183,8 +183,10 @@ const handleOAuthLogin = async (provider) => {
 
 // 处理 OAuth 回调
 const handleOAuthCallback = async () => {
+  console.log('handleOAuthCallback 执行了', window.location.search)
   const urlParams = new URLSearchParams(window.location.search)
   const isOAuthCallback = urlParams.get('oauth_callback')
+  console.log('isOAuthCallback:', isOAuthCallback, 'needRegister:', urlParams.get('need_register'))
 
   if (isOAuthCallback === 'true') {
     const needRegister = urlParams.get('need_register')
@@ -196,16 +198,16 @@ const handleOAuthCallback = async () => {
       const nickname = urlParams.get('nickname')
       const avatar = urlParams.get('avatar')
 
-      MessagePlugin.info('请完善账号信息以完成注册')
-      // 存储临时信息，可跳转到注册页面
+      // 存储临时信息
       sessionStorage.setItem('oauth_temp', JSON.stringify({
         tempToken,
         nickname: decodeURIComponent(nickname || ''),
         avatar: decodeURIComponent(avatar || ''),
         provider
       }))
-      // 清除 URL 参数
+      // 清除 URL 参数并跳转到绑定页面
       window.history.replaceState({}, document.title, window.location.pathname)
+      await router.replace('/oauth/bind')
     } else {
       // 已绑定用户，直接登录
       const accessToken = urlParams.get('access_token')

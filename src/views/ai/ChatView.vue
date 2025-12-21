@@ -409,6 +409,12 @@ const selectSession = async (sessionId) => {
           id: `${sessionId}-${i}`,
           role: msg.role,
           content: msg.content || '',
+          toolCalls: (msg.toolCalls || []).map(tc => ({
+            id: tc.id,
+            name: tc.name,
+            status: 'done',
+            success: true
+          })),
           isTyping: false
         }))
       scrollToBottom()
@@ -509,6 +515,13 @@ const handleSend = async () => {
               break
             case 'done':
               msg.isTyping = false
+              // 确保所有工具调用状态都更新为完成
+              msg.toolCalls.forEach(tc => {
+                if (tc.status === 'running') {
+                  tc.status = 'done'
+                  tc.success = true
+                }
+              })
               break
             case 'error':
               msg.isTyping = false
@@ -1083,10 +1096,17 @@ onUnmounted(() => { if (videoPollingTimer) clearInterval(videoPollingTimer) })
   border-radius: 32px;
   transition: background 0.3s, box-shadow 0.3s;
   border: 1px solid transparent;
+  overflow: hidden;
   
   &.focused {
     background: @bg-hover;
     box-shadow: 0 0 0 1px rgba(255,255,255,0.1);
+  }
+  
+  :deep(.t-textarea) {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
   }
   
   :deep(.t-textarea__inner) {
@@ -1097,6 +1117,7 @@ onUnmounted(() => { if (videoPollingTimer) clearInterval(videoPollingTimer) })
     padding: 16px 50px 16px 24px !important;
     font-size: 16px !important;
     line-height: 1.5 !important;
+    border-radius: 0 !important;
     
     &:focus { box-shadow: none !important; }
   }
@@ -1155,6 +1176,14 @@ onUnmounted(() => { if (videoPollingTimer) clearInterval(videoPollingTimer) })
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
+    
+    :deep(.t-form__item) {
+      min-width: 0;
+    }
+    
+    :deep(.t-select) {
+      width: 100%;
+    }
   }
   
   :deep(.t-form__label) {

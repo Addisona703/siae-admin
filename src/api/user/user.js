@@ -51,3 +51,19 @@ export const approveReject = (id) => {
 export const deleteMember = (id) => {
   return request.delete(`/user/memberships/${id}`)
 }
+
+export const getPositions = () => {
+  return request.get('/user/positions')
+}
+
+export const promoteToOfficial = (id, data) => {
+  return request.put(`/user/memberships/${id}/promote`, data)
+}
+
+export const expelMember = (id) => {
+  return request.put(`/user/memberships/${id}/expel`)
+}
+
+export const disableUser = (id) => {
+  return request.put(`/user/${id}`, { status: 0 })
+}

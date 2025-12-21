@@ -7,7 +7,12 @@
         <div class="top-decoration"></div>
 
         <div class="certificate-container">
-          <div class="certificate-wrapper">
+          <!-- 有证书图片时显示真实证书 -->
+          <div v-if="awardData.certificateUrl" class="certificate-wrapper real-cert">
+            <img :src="awardData.certificateUrl" alt="证书" class="cert-image" />
+          </div>
+          <!-- 无证书时显示占位模板 -->
+          <div v-else class="certificate-wrapper">
             <div class="certificate-inner">
               <t-icon name="award" class="cert-icon" />
               <h3 class="cert-title">荣誉证书</h3>
@@ -25,7 +30,7 @@
               <template #icon><t-icon name="browse" /></template>
               预览大图
             </t-button>
-            <t-button theme="primary" size="small" @click="downloadCert">
+            <t-button v-if="awardData.certificateUrl" theme="primary" size="small" @click="downloadCert">
               <template #icon><t-icon name="download" /></template>
               下载
             </t-button>
@@ -38,7 +43,8 @@
             <t-icon name="file-check" />
             文件ID: {{ awardData.certificateFileId || 'N/A' }}
           </span>
-          <t-tag theme="success" size="small" variant="light">已归档</t-tag>
+          <t-tag v-if="awardData.certificateFileId" theme="success" size="small" variant="light">已归档</t-tag>
+          <t-tag v-else theme="warning" size="small" variant="light">未上传</t-tag>
         </div>
       </div>
 
@@ -158,23 +164,29 @@ const formatTime = (timeStr) => {
 
 // 预览大图
 const previewLarge = () => {
-  if (!props.awardData?.certificateFileId) {
+  if (!props.awardData?.certificateUrl) {
     MessagePlugin.warning('该奖项暂无证书文件')
     return
   }
-
-  // TODO: 调用文件预览API
-  MessagePlugin.info('预览大图功能开发中...')
+  // 在新窗口打开图片
+  window.open(props.awardData.certificateUrl, '_blank')
 }
 
 // 下载证书
 const downloadCert = () => {
-  if (!props.awardData?.certificateFileId) {
+  if (!props.awardData?.certificateUrl) {
     MessagePlugin.warning('该奖项暂无证书文件')
     return
   }
 
-  // TODO: 调用文件下载API
+  // 创建下载链接
+  const link = document.createElement('a')
+  link.href = props.awardData.certificateUrl
+  link.download = `证书_${props.awardData.awardTitle || 'certificate'}`
+  link.target = '_blank'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
   MessagePlugin.success('证书下载中...')
 }
 
@@ -202,7 +214,7 @@ const generatePoster = () => {
 .award-detail-card {
   display: flex;
   min-height: 500px;
-  background: white;
+  background: var(--td-bg-color-container);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -210,8 +222,8 @@ const generatePoster = () => {
 // 左侧证书区
 .certificate-section {
   width: 40%;
-  background: #f8fafc;
-  border-right: 1px solid #e2e8f0;
+  background: var(--td-bg-color-container-hover);
+  border-right: 1px solid var(--td-component-border);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -237,7 +249,7 @@ const generatePoster = () => {
   justify-content: center;
   padding: 24px;
   position: relative;
-  background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+  background-image: radial-gradient(var(--td-component-border) 1px, transparent 1px);
   background-size: 20px 20px;
 }
 
@@ -251,9 +263,22 @@ const generatePoster = () => {
   border-radius: 2px;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   transition: transform 0.5s;
+  overflow: hidden;
 
   &:hover {
     transform: scale(1.05);
+  }
+  
+  &.real-cert {
+    aspect-ratio: auto;
+    max-height: 400px;
+    
+    .cert-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
   }
 }
 
@@ -325,13 +350,13 @@ const generatePoster = () => {
 
 .file-info {
   padding: 16px;
-  background: white;
-  border-top: 1px solid #e2e8f0;
+  background: var(--td-bg-color-container);
+  border-top: 1px solid var(--td-component-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 12px;
-  color: #64748b;
+  color: var(--td-text-color-secondary);
 
   .file-id {
     display: flex;
@@ -346,11 +371,12 @@ const generatePoster = () => {
   display: flex;
   flex-direction: column;
   max-height: 600px;
+  background: var(--td-bg-color-container);
 }
 
 .info-header {
   padding: 24px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--td-component-border);
 
   .badges-row {
     display: flex;
@@ -361,7 +387,7 @@ const generatePoster = () => {
     .award-id {
       margin-left: auto;
       font-size: 12px;
-      color: #94a3b8;
+      color: var(--td-text-color-placeholder);
       font-family: monospace;
     }
   }
@@ -369,7 +395,7 @@ const generatePoster = () => {
   .award-title {
     font-size: 20px;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--td-text-color-primary);
     line-height: 1.4;
     margin-bottom: 12px;
   }
@@ -379,7 +405,7 @@ const generatePoster = () => {
     align-items: center;
     gap: 16px;
     font-size: 14px;
-    color: #64748b;
+    color: var(--td-text-color-secondary);
 
     .meta-item {
       display: flex;
@@ -398,7 +424,7 @@ const generatePoster = () => {
       width: 4px;
       height: 4px;
       border-radius: 50%;
-      background: #cbd5e1;
+      background: var(--td-component-border);
       flex-shrink: 0;
     }
   }
@@ -415,7 +441,7 @@ const generatePoster = () => {
     gap: 8px;
     font-size: 14px;
     font-weight: 600;
-    color: #0f172a;
+    color: var(--td-text-color-primary);
     margin-bottom: 12px;
 
     .t-icon {
@@ -425,12 +451,12 @@ const generatePoster = () => {
 
   .description {
     font-size: 14px;
-    color: #475569;
+    color: var(--td-text-color-secondary);
     line-height: 1.6;
-    background: #f8fafc;
+    background: var(--td-bg-color-container-hover);
     padding: 16px;
     border-radius: 8px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--td-component-border);
   }
 
   .team-section {
@@ -440,15 +466,15 @@ const generatePoster = () => {
 
 .info-footer {
   padding: 16px 24px;
-  background: #f8fafc;
-  border-top: 1px solid #e2e8f0;
+  background: var(--td-bg-color-container-hover);
+  border-top: 1px solid var(--td-component-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
 
   .timestamps {
     font-size: 12px;
-    color: #94a3b8;
+    color: var(--td-text-color-placeholder);
 
     p {
       margin: 0;
