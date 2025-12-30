@@ -134,30 +134,30 @@
       <template #icon>
         <t-icon name="calendar" />
       </template>
-      <t-menu-item value="attendance-rules">
+      <!-- <t-menu-item value="attendance-rules">
         <template #icon>
           <t-icon name="setting" />
         </template>
         考勤规则
-      </t-menu-item>
+      </t-menu-item> -->
       <t-menu-item value="attendance-records">
         <template #icon>
           <t-icon name="view-list" />
         </template>
         考勤记录
       </t-menu-item>
-      <t-menu-item value="attendance-statistics">
+      <!-- <t-menu-item value="attendance-statistics">
         <template #icon>
           <t-icon name="chart-bar" />
         </template>
         考勤统计
-      </t-menu-item>
-      <t-menu-item value="attendance-anomalies">
+      </t-menu-item> -->
+      <!-- <t-menu-item value="attendance-anomalies">
         <template #icon>
           <t-icon name="error-circle" />
         </template>
         异常处理
-      </t-menu-item>
+      </t-menu-item> -->
       <t-menu-item value="leave-approval">
         <template #icon>
           <t-icon name="check-circle" />
@@ -208,10 +208,10 @@ const activeMenu = computed(() => {
     'LoginLogs': 'login-logs',
     'MemberAudit': 'member-audit',
     'UserBlacklist': 'user-blacklist',
-    'AttendanceRules': 'attendance-rules',
+    // 'AttendanceRules': 'attendance-rules',
     'AttendanceRecords': 'attendance-records',
-    'AttendanceStatistics': 'attendance-statistics',
-    'AttendanceAnomalies': 'attendance-anomalies',
+    // 'AttendanceStatistics': 'attendance-statistics',
+    // 'AttendanceAnomalies': 'attendance-anomalies',
     'LeaveApproval': 'leave-approval'
   }
 
@@ -246,10 +246,10 @@ const handleMenuChange = (value) => {
     'login-logs': '/logs/login',
     'member-audit': '/users/member-audit',
     'user-blacklist': '/users/blacklist',
-    'attendance-rules': '/attendance/rules',
+    // 'attendance-rules': '/attendance/rules',
     'attendance-records': '/attendance/records',
-    'attendance-statistics': '/attendance/statistics',
-    'attendance-anomalies': '/attendance/anomalies',
+    // 'attendance-statistics': '/attendance/statistics',
+    // 'attendance-anomalies': '/attendance/anomalies',
     'leave-approval': '/attendance/leave-approval'
   }
 

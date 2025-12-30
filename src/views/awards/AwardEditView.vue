@@ -254,12 +254,22 @@ const fillFormData = (data) => {
     awardedAt: data.awardedAt,
     description: data.description || '',
     certificateFileId: data.certificateFileId || '',
-    teamMemberList: data.teamMemberList || []
+    // 处理团队成员列表 - 后端返回的是 UserVO 列表
+    teamMemberList: (data.teamMemberList || []).map(member => ({
+      id: member.id,
+      studentId: member.studentId,
+      nickname: member.nickname || member.realName,
+      avatarUrl: member.avatarUrl,
+      avatarFileId: member.avatarFileId
+    }))
   }
 
-  // TODO: 加载证书预览
-  if (data.certificateFileId) {
-    // previewUrl.value = `/api/files/preview/${data.certificateFileId}`
+  // 加载证书预览
+  if (data.certificateUrl) {
+    previewUrl.value = data.certificateUrl
+  } else if (data.certificateFileId) {
+    // 如果有文件ID但没有URL，可以尝试构建预览URL
+    previewUrl.value = ''
   }
 }
 
@@ -407,22 +417,9 @@ onMounted(async () => {
   await loadDictData()
 
   if (isEdit.value) {
-    // 优先使用路由传递的数据
-    if (hasRouteData.value && route.params.data) {
-      try {
-        const data = JSON.parse(route.params.data)
-        fillFormData(data)
-      } catch (error) {
-        console.error('解析路由数据失败:', error)
-        // 解析失败则调用接口
-        const id = Number(route.params.id)
-        await loadAwardDetail(id)
-      }
-    } else {
-      // 没有路由数据则调用接口
-      const id = Number(route.params.id)
-      await loadAwardDetail(id)
-    }
+    // 始终调用接口获取完整数据，确保包含 teamMemberList 和 certificateUrl
+    const id = Number(route.params.id)
+    await loadAwardDetail(id)
   }
 })
 </script>

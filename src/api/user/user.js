@@ -17,7 +17,7 @@ export const searchUser = (params) => {
 }
 
 export const searchUserDetail = (params) => {
-  return request.get('/user/', { params })
+  return request.get(`/user/${params.id}`)
 }
 
 export const deleteUser = (id) => {
@@ -34,6 +34,11 @@ export const getDepartments = () => {
 
 export const getAwards = (id) => {
   return request.get(`/user/awards/${id}`)
+}
+
+// 根据用户ID分页获取奖项列表
+export const getAwardsByUserId = (userId, pageParams = { pageNum: 1, pageSize: 10 }) => {
+  return request.post(`/user/awards/user/${userId}/page`, pageParams)
 }
 
 export const getMemberDetail = (id) => {

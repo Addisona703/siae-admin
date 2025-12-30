@@ -58,11 +58,9 @@
                 </t-input>
               </t-form-item>
 
-              <!-- <t-form-item label="确认密码" name="confirmPassword" help="请再次输入新密码">
-                <t-input v-model="confirmPassword" type="password" placeholder="确认新密码" clearable>
-                  <template #prefix-icon><t-icon name="lock-on" /></template>
-                </t-input>
-              </t-form-item> -->
+              <t-form-item label="个人简介" name="bio" class="full-width">
+                <t-textarea v-model="formData.bio" placeholder="请输入个人简介" :maxlength="200" :autosize="{ minRows: 2, maxRows: 4 }" />
+              </t-form-item>
             </div>
           </t-tab-panel>
 
@@ -78,6 +76,18 @@
               <t-form-item label="手机号码" name="phone">
                 <t-input v-model="formData.phone" placeholder="11位手机号码">
                   <template #prefix-icon><t-icon name="mobile" /></template>
+                </t-input>
+              </t-form-item>
+
+              <t-form-item label="QQ号" name="qq">
+                <t-input v-model="formData.qq" placeholder="请输入QQ号">
+                  <template #prefix-icon><t-icon name="logo-qq" /></template>
+                </t-input>
+              </t-form-item>
+
+              <t-form-item label="身份证号" name="idCard">
+                <t-input v-model="formData.idCard" placeholder="请输入18位身份证号">
+                  <template #prefix-icon><t-icon name="user-safety" /></template>
                 </t-input>
               </t-form-item>
             </div>
@@ -158,7 +168,9 @@ const rules = {
   phone: [{ pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', type: 'warning' }],
   password: [
     { min: 6, message: '密码长度至少6位', type: 'warning', trigger: 'blur' }
-  ]
+  ],
+  qq: [{ pattern: /^[1-9]\d{4,10}$/, message: '请输入正确的QQ号', type: 'warning' }],
+  idCard: [{ pattern: /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx]$/, message: '请输入正确的身份证号', type: 'warning' }]
 }
 
 // 监听 props.visible 和 userId
@@ -349,6 +361,10 @@ const handleClose = () => {
       grid-template-columns: repeat(2, 1fr);
       gap: 16px 24px;
       margin-top: 16px;
+
+      .full-width {
+        grid-column: 1 / -1;
+      }
 
       @media (max-width: 768px) {
         grid-template-columns: 1fr;

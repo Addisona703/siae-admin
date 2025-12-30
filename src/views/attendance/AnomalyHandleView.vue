@@ -232,9 +232,12 @@
       <t-form :data="processForm" :rules="processRules" ref="processFormRef" label-width="100px">
         <t-form-item label="处理结果" name="resolved" required>
           <t-radio-group v-model="processForm.resolved">
-            <t-radio :value="true">已解决</t-radio>
-            <t-radio :value="false">未解决</t-radio>
+            <t-radio :value="true">已解决（异常不计入统计）</t-radio>
+            <t-radio :value="false">未解决（异常计入统计）</t-radio>
           </t-radio-group>
+          <div style="margin-top: 8px; font-size: 12px; color: var(--td-text-color-placeholder);">
+            提示：选择"已解决"表示异常有正当理由（如有请假但系统未识别），不会影响考勤统计；选择"未解决"表示确认异常真实存在，将计入考勤统计。
+          </div>
         </t-form-item>
         <t-form-item label="处理备注" name="handlerNote">
           <t-textarea

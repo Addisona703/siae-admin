@@ -176,6 +176,7 @@ const selectedAward = ref(null)
 const queryForm = ref({
   awardTitle: '',
   username: '',
+  userId: undefined,
   awardLevelId: undefined,
   awardTypeId: undefined,
   awardedBy: ''
@@ -278,6 +279,7 @@ const loadData = async () => {
       params: {
         awardTitle: queryForm.value.awardTitle || undefined,
         username: queryForm.value.username || undefined,
+        userId: queryForm.value.userId || undefined,
         awardLevelId: queryForm.value.awardLevelId || undefined,
         awardTypeId: queryForm.value.awardTypeId || undefined,
         awardedBy: queryForm.value.awardedBy || undefined,
@@ -309,11 +311,14 @@ const resetQuery = () => {
   queryForm.value = {
     awardTitle: '',
     username: '',
+    userId: undefined,
     awardLevelId: undefined,
     awardTypeId: undefined,
     awardedBy: ''
   }
   dateRange.value = []
+  // 清除URL参数
+  router.push({ name: 'AwardList' })
   handleSearch()
 }
 
@@ -381,6 +386,9 @@ const filterHint = computed(() => {
   if (route.query.awardTypeName) {
     hints.push(`类型：${route.query.awardTypeName}`)
   }
+  if (route.query.userId) {
+    hints.push(`用户ID：${route.query.userId}`)
+  }
 
   return hints.length > 0 ? `当前筛选 - ${hints.join('，')}` : ''
 })
@@ -389,6 +397,7 @@ const filterHint = computed(() => {
 const clearFilter = () => {
   queryForm.value.awardLevelId = undefined
   queryForm.value.awardTypeId = undefined
+  queryForm.value.userId = undefined
   router.push({ name: 'AwardList' })
 }
 
@@ -399,6 +408,9 @@ const initFromRoute = () => {
   }
   if (route.query.awardTypeId) {
     queryForm.value.awardTypeId = Number(route.query.awardTypeId)
+  }
+  if (route.query.userId) {
+    queryForm.value.userId = Number(route.query.userId)
   }
 }
 

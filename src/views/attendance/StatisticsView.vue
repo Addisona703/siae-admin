@@ -134,24 +134,24 @@
     <!-- 图表区 -->
     <div class="charts-section">
       <t-row :gutter="24">
-        <t-col :span="8">
+        <t-col :span="5">
           <t-card :bordered="false" class="chart-card">
             <template #header>
               <div class="chart-header">
                 <span class="chart-title">出勤状态分布</span>
               </div>
             </template>
-            <Chart :option="pieChartOption" height="320px" />
+            <Chart :option="pieChartOption" height="350px" />
           </t-card>
         </t-col>
-        <t-col :span="16">
+        <t-col :span="7">
           <t-card :bordered="false" class="chart-card">
             <template #header>
               <div class="chart-header">
                 <span class="chart-title">每日出勤情况</span>
               </div>
             </template>
-            <Chart :option="barChartOption" height="320px" />
+            <Chart :option="barChartOption" height="350px" />
           </t-card>
         </t-col>
       </t-row>
@@ -400,7 +400,9 @@ const barChartOption = computed(() => {
     },
     yAxis: {
       type: 'value',
-      name: '人数'
+      name: '人数',
+      minInterval: 1,  // 确保Y轴只显示整数
+      min: 0
     },
     color: ['#10b981', '#f59e0b', '#ef4444'],
     series: [
@@ -565,11 +567,12 @@ const handleExportConfirm = async () => {
 
     // 处理文件下载
     if (res instanceof Blob) {
+      const filename = `考勤报表_${params.startDate}_${params.endDate}.${exportForm.format}`
+      // 创建下载链接
       const url = window.URL.createObjectURL(res)
       const link = document.createElement('a')
       link.href = url
-      const filename = `考勤报表_${params.startDate}_${params.endDate}.${exportForm.format}`
-      link.setAttribute('download', filename)
+      link.download = filename
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)

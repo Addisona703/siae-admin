@@ -267,15 +267,26 @@
 
         <div class="sidebar-card" v-if="form.type === 2">
           <h3 class="font-medium mb-3 text-sm flex items-center gap-2" style="color: var(--td-text-color-primary);">
-            <WalletIcon :size="16" /> 悬赏设置
+            <ImageIcon :size="16" /> 封面设置
           </h3>
-          <div class="p-4 rounded border"
-            style="background-color: var(--td-warning-color-1); border-color: var(--td-warning-color-2);">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-sm font-bold" style="color: var(--td-warning-color-active);">悬赏积分</span>
-              <span class="text-2xl font-bold" style="color: var(--td-warning-color);">{{ questionReward }}</span>
-            </div>
-            <input type="range" v-model="questionReward" min="0" max="100" step="10" class="w-full accent-orange-500">
+          <div class="cover-upload-area">
+            <t-upload
+              v-model="coverList"
+              theme="image"
+              accept="image/*"
+              :max="1"
+              :auto-upload="true"
+              :request-method="handleCoverUpload"
+              :on-remove="handleCoverRemove"
+              :disabled="coverUploading"
+              tips="建议尺寸：1200x630，支持jpg、png格式"
+            >
+              <template #file-list-display>
+                <div v-if="coverList.length > 0" class="cover-preview">
+                  <img :src="coverList[0].url" alt="封面预览" />
+                </div>
+              </template>
+            </t-upload>
           </div>
         </div>
       </aside>
@@ -354,7 +365,6 @@ const editorMode = ref('word')
 const lastSaved = ref(null)
 const uploadFiles = ref([])
 const coverList = ref([])
-const questionReward = ref(0)
 const mdTextarea = ref(null)
 const coverUploading = ref(false)
 const coverUploadProgress = ref(0)
@@ -1692,56 +1702,6 @@ button:focus-visible,
 ::-moz-selection {
   background: var(--td-brand-color-light);
   color: var(--td-brand-color);
-}
-
-/* ========== 悬赏滑块美化 ========== */
-input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  height: 6px;
-  border-radius: 3px;
-  background: linear-gradient(90deg,
-      var(--td-warning-color-2) 0%,
-      var(--td-warning-color) 100%);
-  outline: none;
-  transition: var(--transition-base);
-}
-
-input[type="range"]:hover {
-  box-shadow: 0 2px 8px rgba(255, 153, 0, 0.3);
-}
-
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--td-warning-color);
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  transition: var(--transition-base);
-}
-
-input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-  box-shadow: 0 4px 12px rgba(255, 153, 0, 0.4);
-}
-
-input[type="range"]::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--td-warning-color);
-  cursor: pointer;
-  border: none;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  transition: var(--transition-base);
-}
-
-input[type="range"]::-moz-range-thumb:hover {
-  transform: scale(1.2);
-  box-shadow: 0 4px 12px rgba(255, 153, 0, 0.4);
 }
 
 /* ========== 按钮增强 ========== */
