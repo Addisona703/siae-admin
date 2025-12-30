@@ -103,5 +103,13 @@ export default defineConfig({
   optimizeDeps: {
     include: ['vue', 'pinia', 'vue-router'],
     exclude: ['@vueuse/core'], // Exclude if causing issues
+    force: true, // Force re-optimization
+  },
+  // Ensure proper module resolution
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue'],
   },
 })

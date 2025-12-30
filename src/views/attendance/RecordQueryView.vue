@@ -254,9 +254,14 @@ import dayjs from 'dayjs'
 
 // 状态映射 - 对应后端 AttendanceStatus 枚举
 const STATUS_MAP = {
+  // 枚举名称形式
   IN_PROGRESS: { text: '进行中', theme: 'primary' },
   COMPLETED: { text: '已完成', theme: 'success' },
-  ABNORMAL: { text: '异常', theme: 'danger' }
+  ABNORMAL: { text: '异常', theme: 'danger' },
+  // 数字形式（枚举code）
+  0: { text: '进行中', theme: 'primary' },
+  1: { text: '已完成', theme: 'success' },
+  2: { text: '异常', theme: 'danger' }
 }
 
 // 日期预设
@@ -450,11 +455,12 @@ const handleExportConfirm = async () => {
 
     // 处理文件下载
     if (res instanceof Blob) {
+      const filename = `考勤记录_${params.startDate}_${params.endDate}.${exportForm.format}`
+      // 创建下载链接
       const url = window.URL.createObjectURL(res)
       const link = document.createElement('a')
       link.href = url
-      const filename = `考勤记录_${params.startDate}_${params.endDate}.${exportForm.format}`
-      link.setAttribute('download', filename)
+      link.download = filename
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)

@@ -116,7 +116,7 @@ export const exportToText = (content, filename) => {
  * @param {Blob} blob - Blob to download
  * @param {string} filename - Output filename
  */
-const downloadBlob = (blob, filename) => {
+export const downloadBlob = (blob, filename) => {
   const link = document.createElement('a')
   
   if (link.download !== undefined) {
@@ -134,6 +134,91 @@ const downloadBlob = (blob, filename) => {
     // Fallback for older browsers
     window.open(URL.createObjectURL(blob))
   }
+}
+
+/**
+ * 根据 URL 下载文件
+ * @param {string} url - 文件 URL
+ * @param {string} filename - 文件名（可选）
+ * @param {boolean} forceDownload - 是否强制下载（不在浏览器中预览）
+ */
+export const downloadFile = async (url, filename = '', forceDownload = false) => {
+  if (!url) {
+    console.error('下载失败：URL 为空')
+    return
+  }
+
+  try {
+    if (forceDownload) {
+      // 强制下载：通过 fetch 获取 Blob，然后触发下载
+      const response = await fetch(url)
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const blob = await response.blob()
+      
+      // 如果没有提供文件名，尝试从响应头获取
+      if (!filename) {
+        const contentDisposition = response.headers.get('content-disposition')
+        if (contentDisposition) {
+          filename = extractFilenameFromHeader(contentDisposition)
+        }
+        
+        // 如果还是没有文件名，从 URL 中提取
+        if (!filename) {
+          filename = url.split('/').pop() || 'download'
+        }
+      }
+      
+      downloadBlob(blob, filename)
+    } else {
+      // 普通下载：在新窗口打开（浏览器会根据 MIME 类型决定预览或下载）
+      window.open(url, '_blank')
+    }
+  } catch (error) {
+    console.error('下载文件失败:', error)
+    throw error
+  }
+}
+
+/**
+ * 根据文件扩展名判断是否应该强制下载
+ * @param {string} filename - 文件名或 URL
+ * @returns {boolean} 是否应该强制下载
+ */
+export const shouldForceDownload = (filename) => {
+  if (!filename) return false
+  
+  const ext = filename.toLowerCase().split('.').pop()
+  
+  // 这些类型的文件浏览器通常会预览，如果需要下载应该强制
+  const previewableExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'txt', 'json', 'xml']
+  
+  return previewableExtensions.includes(ext)
+}
+
+/**
+ * 从 Content-Disposition 响应头中提取文件名
+ * @param {string} contentDisposition - Content-Disposition 响应头
+ * @returns {string} 文件名
+ */
+export const extractFilenameFromHeader = (contentDisposition) => {
+  if (!contentDisposition) return ''
+  
+  // 尝试匹配 filename*=UTF-8''xxx 格式（RFC 5987）
+  let match = contentDisposition.match(/filename\*=UTF-8''(.+)/i)
+  if (match && match[1]) {
+    return decodeURIComponent(match[1])
+  }
+  
+  // 尝试匹配 filename="xxx" 或 filename=xxx 格式
+  match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/i)
+  if (match && match[1]) {
+    return match[1].replace(/['"]/g, '')
+  }
+  
+  return ''
 }
 
 /**

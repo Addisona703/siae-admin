@@ -5,8 +5,10 @@
       <!-- 顶部背景与头像区域 -->
       <div class="detail-banner">
         <img
-          :src="userDetail.backgroundUrl || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1000&q=80'"
-          class="banner-image" alt="Background" />
+          :src="backgroundImageUrl"
+          class="banner-image" 
+          alt="Background"
+          @error="handleBackgroundError" />
         <div class="banner-overlay"></div>
         <div class="banner-id">ID: {{ userDetail.id }}</div>
       </div>
@@ -195,9 +197,12 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { searchUserDetail } from '../../api/user/user'
+
+// 默认背景图
+const DEFAULT_BACKGROUND = 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1000&q=80'
 
 const props = defineProps({
   visible: {
@@ -214,6 +219,21 @@ const emit = defineEmits(['update:visible'])
 
 const visible = ref(props.visible)
 const userDetail = ref(null)
+const backgroundFailed = ref(false)
+
+// 计算背景图URL
+const backgroundImageUrl = computed(() => {
+  if (backgroundFailed.value) {
+    return DEFAULT_BACKGROUND
+  }
+  const url = userDetail.value?.backgroundUrl
+  return url && url.trim() ? url : DEFAULT_BACKGROUND
+})
+
+// 背景图加载失败处理
+const handleBackgroundError = () => {
+  backgroundFailed.value = true
+}
 
 // 监听 visible 变化
 watch(() => props.visible, (newVal) => {
@@ -234,13 +254,15 @@ const loadUserDetail = async () => {
   if (!props.userId) return
 
   userDetail.value = null
+  backgroundFailed.value = false  // 重置背景图加载状态
 
   try {
     const response = await searchUserDetail({ id: props.userId })
-    console.log(response);
+    console.log('用户详情响应:', response);
 
     if (response.code === 200 && response.data) {
       userDetail.value = response.data
+      console.log('背景图URL:', response.data.backgroundUrl)
     } else {
       MessagePlugin.error(response.message || '获取用户详情失败')
       visible.value = false
@@ -255,6 +277,7 @@ const loadUserDetail = async () => {
 // 关闭弹窗
 const handleClose = () => {
   userDetail.value = null
+  backgroundFailed.value = false
 }
 
 // 格式化完整日期时间

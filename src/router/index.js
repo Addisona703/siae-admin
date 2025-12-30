@@ -388,15 +388,15 @@ const routes = [
           permission: 'attendance:view',
         },
         children: [
-          {
-            path: 'rules',
-            name: 'AttendanceRules',
-            component: () => import('@/views/attendance/RuleManageView.vue'),
-            meta: {
-              icon: 'setting',
-              permission: 'attendance:rule:view',
-            },
-          },
+          // {
+          //   path: 'rules',
+          //   name: 'AttendanceRules',
+          //   component: () => import('@/views/attendance/RuleManageView.vue'),
+          //   meta: {
+          //     icon: 'setting',
+          //     permission: 'attendance:rule:view',
+          //   },
+          // },
           {
             path: 'records',
             name: 'AttendanceRecords',
@@ -406,24 +406,24 @@ const routes = [
               permission: 'attendance:record:view',
             },
           },
-          {
-            path: 'statistics',
-            name: 'AttendanceStatistics',
-            component: () => import('@/views/attendance/StatisticsView.vue'),
-            meta: {
-              icon: 'chart-bar',
-              permission: 'attendance:statistics:view',
-            },
-          },
-          {
-            path: 'anomalies',
-            name: 'AttendanceAnomalies',
-            component: () => import('@/views/attendance/AnomalyHandleView.vue'),
-            meta: {
-              icon: 'error-circle',
-              permission: 'attendance:anomaly:view',
-            },
-          },
+          // {
+          //   path: 'statistics',
+          //   name: 'AttendanceStatistics',
+          //   component: () => import('@/views/attendance/StatisticsView.vue'),
+          //   meta: {
+          //     icon: 'chart-bar',
+          //     permission: 'attendance:statistics:view',
+          //   },
+          // },
+          // {
+          //   path: 'anomalies',
+          //   name: 'AttendanceAnomalies',
+          //   component: () => import('@/views/attendance/AnomalyHandleView.vue'),
+          //   meta: {
+          //     icon: 'error-circle',
+          //     permission: 'attendance:anomaly:view',
+          //   },
+          // },
           {
             path: 'leave-approval',
             name: 'LeaveApproval',

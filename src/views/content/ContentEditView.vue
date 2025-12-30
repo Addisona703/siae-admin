@@ -283,14 +283,26 @@
 
         <div class="sidebar-card" v-if="form.type === 2">
           <h3 class="font-medium mb-3 text-sm flex items-center gap-2" style="color: var(--td-text-color-primary);">
-            <WalletIcon :size="16" /> 悬赏设置
+            <ImageIcon :size="16" /> 封面设置
           </h3>
-          <div class="p-4 rounded border" style="background-color: var(--td-warning-color-1); border-color: var(--td-warning-color-2);">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-sm font-bold" style="color: var(--td-warning-color-active);">悬赏积分</span>
-              <span class="text-2xl font-bold" style="color: var(--td-warning-color);">{{ form.questionReward || 0 }}</span>
-            </div>
-            <input type="range" v-model="form.questionReward" min="0" max="100" step="10" class="w-full accent-orange-500">
+          <div class="cover-upload-area">
+            <t-upload
+              v-model="coverList"
+              theme="image"
+              accept="image/*"
+              :max="1"
+              :auto-upload="true"
+              :request-method="handleCoverUpload"
+              :on-remove="handleCoverRemove"
+              :disabled="coverUploading"
+              tips="建议尺寸：1200x630，支持jpg、png格式"
+            >
+              <template #file-list-display>
+                <div v-if="coverList.length > 0" class="cover-preview">
+                  <img :src="coverList[0].url" alt="封面预览" />
+                </div>
+              </template>
+            </t-upload>
           </div>
         </div>
       </aside>
@@ -367,7 +379,6 @@ const form = reactive({
   description: '',
   duration: 0,
   resolution: '1080p',
-  questionReward: 0,
   fileUrl: '',
   fileName: '',
   fileSize: 0,
@@ -590,10 +601,7 @@ const loadContentData = async (id, type) => {
         if ([0, 1, 2].includes(contentType)) {
           form.content = detailData.content || ''
           
-          // 问题特有字段
-          if (contentType === 2 && detailData.reward !== undefined) {
-            form.questionReward = detailData.reward || 0
-          }
+          // 问题特有字段 - 已移除悬赏功能
           
           // 封面 (文章和笔记可能有封面)
           if (detailData.coverUrl) {

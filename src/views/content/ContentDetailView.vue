@@ -122,10 +122,16 @@
                   大小: {{ formatFileSize(content.detail?.fileSize) }}
                 </p>
               </div>
-              <t-button theme="primary" :href="content.detail?.filePath" target="_blank">
-                <template #icon><DownloadIcon /></template>
-                下载文件
-              </t-button>
+              <t-space>
+                <t-button theme="default" variant="outline" @click="handlePreviewFile" v-if="canPreview">
+                  <template #icon><BrowseIcon /></template>
+                  预览
+                </t-button>
+                <t-button theme="primary" @click="handleDownloadFile">
+                  <template #icon><DownloadIcon /></template>
+                  下载文件
+                </t-button>
+              </t-space>
            </div>
         </div>
 
@@ -214,15 +220,13 @@
           </div>
         </div>
 
-        <!-- 悬赏信息 (仅问题) -->
-        <div class="sidebar-card" v-if="content.type === 'question'">
+        <!-- 封面信息 (仅问题) -->
+        <div class="sidebar-card" v-if="content.type === 'question' && content.coverFileId">
           <h3 class="font-medium mb-3 text-sm flex items-center gap-2" style="color: var(--td-text-color-primary);">
-            <WalletIcon :size="16" /> 悬赏信息
+            <ImageIcon :size="16" /> 封面
           </h3>
-          <div class="p-4 rounded border flex items-center justify-between" 
-               style="background-color: var(--td-warning-color-1); border-color: var(--td-warning-color-2);">
-             <span class="text-sm font-bold" style="color: var(--td-warning-color-active);">悬赏积分</span>
-             <span class="text-2xl font-bold" style="color: var(--td-warning-color);">{{ content.detail?.reward || 0 }}</span>
+          <div class="cover-preview">
+            <img :src="getCoverUrl(content.coverFileId)" alt="问题封面" />
           </div>
         </div>
 
@@ -268,11 +272,13 @@ import {
   VideoIcon,
   FileIcon,
   DownloadIcon,
+  BrowseIcon,
   ThumbUpIcon,
   StarIcon
 } from 'tdesign-icons-vue-next'
 import { contentApi } from '@/api/content'
 import CommentSection from '@/components/content/CommentSection.vue'
+import { APP_CONFIG } from '@/config/app.config'
 
 const route = useRoute()
 const router = useRouter()
@@ -534,6 +540,46 @@ const formatFileSize = (bytes) => {
   const sizes = ['B', 'KB', 'MB', 'GB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+}
+
+const getCoverUrl = (fileId) => {
+  if (!fileId) return ''
+  return `${APP_CONFIG.apiBaseUrl}/media/files/${fileId}/preview`
+}
+
+// 获取文件下载/预览 URL
+const getFileUrl = (fileId) => {
+  if (!fileId) return ''
+  return `${APP_CONFIG.apiBaseUrl}/media/files/${fileId}/preview`
+}
+
+// 判断文件是否可以预览（图片、PDF等）
+const canPreview = computed(() => {
+  if (!content.value.detail?.fileName) return false
+  const ext = content.value.detail.fileName.toLowerCase().split('.').pop()
+  const previewableExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'svg', 'webp']
+  return previewableExtensions.includes(ext)
+})
+
+// 预览文件（在新窗口打开）
+const handlePreviewFile = () => {
+  const fileId = content.value.detail?.fileId
+  if (!fileId) {
+    MessagePlugin.warning('文件不存在')
+    return
+  }
+  window.open(getFileUrl(fileId), '_blank')
+}
+
+// 下载文件
+const handleDownloadFile = () => {
+  const fileId = content.value.detail?.fileId
+  if (!fileId) {
+    MessagePlugin.warning('文件不存在')
+    return
+  }
+  // 直接打开下载链接，后端会设置 Content-Disposition 为 attachment
+  window.open(getFileUrl(fileId), '_blank')
 }
 
 const renderedContent = computed(() => {

@@ -49,7 +49,7 @@
 
           <!-- 操作按钮 -->
           <div class="action-buttons">
-            <t-button theme="primary" variant="outline" size="small">
+            <t-button theme="primary" variant="outline" size="small" @click="handleEditMember">
               <template #icon>
                 <t-icon name="edit" />
               </template>
@@ -165,13 +165,24 @@
         </t-button>
       </div>
     </div>
+
+    <!-- 编辑用户弹窗 -->
+    <UserEditDialog 
+      v-model:visible="editDialogVisible" 
+      :user-id="member?.userId" 
+      @success="handleEditSuccess" 
+    />
   </t-dialog>
 </template>
 
 <script setup>
 import { ref, watch, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { MessagePlugin } from 'tdesign-vue-next'
-import { getAwards, getMemberDetail } from '../../../api/user/user'
+import { getAwardsByUserId, getMemberDetail } from '../../../api/user/user'
+import UserEditDialog from '@/components/user/UserEditDialog.vue'
+
+const router = useRouter()
 
 const props = defineProps({
   visible: {
@@ -228,7 +239,7 @@ const loadMemberDetail = async () => {
 const loadAwards = async (userId) => {
   try {
     // console.log('加载获奖记录，userId:', userId)
-    const response = await getAwards(userId)
+    const response = await getAwardsByUserId(userId, { pageNum: 1, pageSize: 5 })
     // console.log('获奖记录响应:', response)
     if (response.code === 200 && response.data) {
       recentAwards.value = response.data.records || []
@@ -312,7 +323,31 @@ const calculateDuration = (startDateStr) => {
 
 // 查看全部奖项
 const viewAllAwards = () => {
-  MessagePlugin.info('跳转到获奖记录页面')
+  if (member.value?.userId) {
+    // 关闭弹窗并跳转到奖项列表，带上用户ID筛选
+    dialogVisible.value = false
+    router.push({
+      path: '/awards/list',
+      query: { userId: member.value.userId }
+    })
+  }
+}
+
+// 编辑成员信息
+const editDialogVisible = ref(false)
+
+const handleEditMember = () => {
+  if (member.value?.userId) {
+    editDialogVisible.value = true
+  } else {
+    MessagePlugin.warning('无法获取用户ID')
+  }
+}
+
+const handleEditSuccess = () => {
+  // 编辑成功后重新加载成员详情
+  loadMemberDetail()
+  MessagePlugin.success('资料更新成功')
 }
 </script>
 
